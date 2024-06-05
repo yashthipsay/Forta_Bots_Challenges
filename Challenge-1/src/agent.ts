@@ -12,7 +12,7 @@ import {
   FindingType,
 } from "forta-agent";
 
-
+import { ethers } from "ethers";
 
 import {
   CREATE_BOT_FUNCTION,
@@ -30,23 +30,26 @@ import {
 // export const TETHER_DECIMALS = 6;
 // let findingsCount = 0;
 
-const botCreation: string = CREATE_BOT_FUNCTION;
-const botUpdate: string = UPDATE_BOT_FUNCTION;
-const botCreationHook: string = BOT_CREATION_HOOK;
-const botDeployedAddress: string = BOT_DEPLOYED_ADDRESS;
-const nethermindDeployerAddress: string = NETHERMIND_DEPLOYER_ADDRESS;
 
-const handleTransaction: HandleTransaction = async (tx: TransactionEvent) => {
-  const findings: Finding[] = [];
+export function provideTransaction(
+  botCreation: string,
+  botUpdate: string,
+  botCreationHook: string,
+  botDeployedAddress: string,
+  nethermindDeployerAddress: string
+): HandleTransaction{
+
+return async function handleTransaction(tx: TransactionEvent) {
+  const finding: Finding[] = [];
 
   // const botCreationEvents = tx.filterLog(botCreationHook, botDeployedAddress);
   // console.log(botCreationEvents.length);
 
   const botCreationAlert = tx.filterFunction(botCreation, botDeployedAddress);
-  console.log(`Bot created Alert`);
+  
 
   const botUpdateAlert = tx.filterFunction(botUpdate, botDeployedAddress);
-  console.log(`Bot updated`);
+  
 
   // for (let i = 0; i < botCreationEvents.length; i++) {
   //   const address = tx.from;
@@ -71,16 +74,17 @@ const handleTransaction: HandleTransaction = async (tx: TransactionEvent) => {
   // }
 
   for (let creationAlert of botCreationAlert) {
-    const address = tx.from;
+    const address = ethers.getAddress(tx.from);
+  const botDeployedChecksumAddress = ethers.getAddress(nethermindDeployerAddress);
     const type = tx.type;
     const network = tx.network;
 
-    if (address === nethermindDeployerAddress) {
-      findings.push(
+    if (address === botDeployedChecksumAddress) {
+      finding.push(
         Finding.fromObject({
           name: "Bot Creation",
           description: `Bot created`,
-          alertId: "BOT-2",
+          alertId: "BOT-1",
           severity: FindingSeverity.Low,
           type: FindingType.Info,
           metadata: {
@@ -93,16 +97,18 @@ const handleTransaction: HandleTransaction = async (tx: TransactionEvent) => {
   }
 
   for (let updateAlert of botUpdateAlert) {
-    const address = tx.from;
-    const type = tx.type;
+    const address = ethers.getAddress(tx.from);
+  const botDeployedChecksumAddress = ethers.getAddress(nethermindDeployerAddress);
+   
+  const type = tx.type;
     const network = tx.network;
 
-    if (address === nethermindDeployerAddress) {
-      findings.push(
+    if (address === botDeployedChecksumAddress) {
+      finding.push(
         Finding.fromObject({
           name: "Bot Updating",
           description: `Bot updated`,
-          alertId: "BOT-3",
+          alertId: "BOT-2",
           severity: FindingSeverity.Low,
           type: FindingType.Info,
           metadata: {
@@ -114,9 +120,10 @@ const handleTransaction: HandleTransaction = async (tx: TransactionEvent) => {
     }
   }
 
-  return findings;
-};
+  return finding;
+}
 
+}
 // const initialize: Initialize = async () => {
 //   // do some initialization on startup e.g. fetch data
 // }
@@ -140,9 +147,10 @@ const handleTransaction: HandleTransaction = async (tx: TransactionEvent) => {
 // return errors;
 // }
 
+
 export default {
   // initialize,
-  handleTransaction,
+  handleTransaction: provideTransaction(CREATE_BOT_FUNCTION, UPDATE_BOT_FUNCTION, BOT_CREATION_HOOK, BOT_DEPLOYED_ADDRESS, NETHERMIND_DEPLOYER_ADDRESS),
   // healthCheck,
   // handleBlock,
   // handleAlert
