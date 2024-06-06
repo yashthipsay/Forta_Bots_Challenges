@@ -74,12 +74,12 @@ return async function handleTransaction(tx: TransactionEvent) {
   // }
 
   for (let creationAlert of botCreationAlert) {
-    const address = ethers.getAddress(tx.from);
+    const address = tx.from;
   const botDeployedChecksumAddress = ethers.getAddress(nethermindDeployerAddress);
     const type = tx.type;
     const network = tx.network;
 
-    if (address === botDeployedChecksumAddress) {
+    if (address.toLowerCase() === nethermindDeployerAddress.toLowerCase()) {
       finding.push(
         Finding.fromObject({
           name: "Bot Creation",
@@ -97,13 +97,12 @@ return async function handleTransaction(tx: TransactionEvent) {
   }
 
   for (let updateAlert of botUpdateAlert) {
-    const address = ethers.getAddress(tx.from);
+    const address = tx.from;
   const botDeployedChecksumAddress = ethers.getAddress(nethermindDeployerAddress);
-   
-  const type = tx.type;
+    const type = tx.type;
     const network = tx.network;
 
-    if (address === botDeployedChecksumAddress) {
+    if (address.toLowerCase() === nethermindDeployerAddress.toLowerCase()) {
       finding.push(
         Finding.fromObject({
           name: "Bot Updating",
