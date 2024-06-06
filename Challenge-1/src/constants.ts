@@ -1,5 +1,5 @@
 export const CREATE_BOT_FUNCTION =
-  "function registerAgent(uint256 agentId, string metadata, uint256[] chainIds) public";
+  "function createAgent(uint256 agentId, address, string metadata, uint256[] chainIds) external";
 
 export const UPDATE_BOT_FUNCTION =
   "function updateAgent(uint256 agentId, string metadata, uint256[] chainIds) public";
