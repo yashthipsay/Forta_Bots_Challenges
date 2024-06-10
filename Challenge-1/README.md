@@ -31,4 +31,4 @@ The agent behaviour can be verified with the following transactions:
 
 - 
 
-0x6a72649c16d5246a207abdef78c8ce2148ed67c6c8a672bdac85e4c6ea2bdac8(Nethermind Deployer Address)
+0x6a72649c16d5246a207abdef78c8ce2148ed67c6c8a672bdac85e4c6ea2bdac8(tx Hash for `Create Agent` function)
