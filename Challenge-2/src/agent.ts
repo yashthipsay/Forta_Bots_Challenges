@@ -16,8 +16,9 @@ import Web3Provider from "@ethersproject/providers";
 import { ethers, JsonRpcProvider } from "ethers";
 import { UNISWAP_FACTORY_ADDRESS, UNISWAP_FACTORY_ABI, COMPUTED_INIT_CODE_HASH } from "./utils";
 import Retrieval from "./retrieval";
+// import {} from "forta-agent-tools";
 
-export function swapHandler(uniswapFactoryAddress: string, retrieval: Retrieval, initcode: string): HandleTransaction {
+export function provideSwapHandler(uniswapFactoryAddress: string, retrieval: Retrieval, initcode: string): HandleTransaction {
  
 return async function handleTransaction  (
   txEvent: TransactionEvent
@@ -90,7 +91,7 @@ return async function handleTransaction  (
 
 export default {
   // initialize,
-  handleTransaction: swapHandler(UNISWAP_FACTORY_ADDRESS, new Retrieval(new JsonRpcProvider()), COMPUTED_INIT_CODE_HASH)
+  handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, new Retrieval(new JsonRpcProvider()), COMPUTED_INIT_CODE_HASH)
   // healthCheck,
   // handleBlock,
   // handleAlert

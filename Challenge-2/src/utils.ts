@@ -1,4 +1,3 @@
-import {bytecode} from "./UniswapBytecode.json";
 import { keccak256 } from "@ethersproject/solidity";
 
 export const UNISWAP_FACTORY_ADDRESS = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
@@ -12,5 +11,5 @@ export  const UNISWAP_PAIR_ABI = [
     "function token1() external view returns (address)",
   ];
 
-export const COMPUTED_INIT_CODE_HASH = keccak256(['bytes'], [`0x${bytecode}`])
+export const COMPUTED_INIT_CODE_HASH = "0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54"
   
