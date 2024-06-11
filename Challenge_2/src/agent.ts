@@ -10,55 +10,61 @@ import {
   TransactionEvent,
   FindingSeverity,
   FindingType,
+  getEthersProvider,
 } from "forta-agent";
+import Web3Provider from "@ethersproject/providers";
+import { ethers, JsonRpcProvider } from "ethers";
+import { UNISWAP_FACTORY_ADDRESS, UNISWAP_FACTORY_ABI, COMPUTED_INIT_CODE_HASH } from "./utils";
+import Retrieval from "./retrieval";
+// import {} from "forta-agent-tools";
 
-export const ERC20_TRANSFER_EVENT =
-  "event Transfer(address indexed from, address indexed to, uint256 value)";
-export const TETHER_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-export const TETHER_DECIMALS = 6;
-let findingsCount = 0;
-
-const handleTransaction: HandleTransaction = async (
+export function provideSwapHandler(uniswapFactoryAddress: string, retrieval: Retrieval, initcode: string): HandleTransaction {
+ 
+return async function handleTransaction  (
   txEvent: TransactionEvent
-) => {
+)  {
   const findings: Finding[] = [];
 
-  // limiting this agent to emit only 5 findings so that the alert feed is not spammed
-  if (findingsCount >= 5) return findings;
+ 
+ 
+  const [getPoolAbi, swapEvent] = UNISWAP_FACTORY_ABI;
 
-  // filter the transaction logs for Tether transfer events
-  const tetherTransferEvents = txEvent.filterLog(
-    ERC20_TRANSFER_EVENT,
-    TETHER_ADDRESS
-  );
+  const swapEvents = txEvent.filterLog(swapEvent);
 
-  tetherTransferEvents.forEach((transferEvent) => {
-    // extract transfer event arguments
-    const { to, from, value } = transferEvent.args;
-    // shift decimals of transfer value
-    const normalizedValue = value.div(10 ** TETHER_DECIMALS);
-
-    // if more than 10,000 Tether were transferred, report it
-    if (normalizedValue.gt(10000)) {
-      findings.push(
-        Finding.fromObject({
-          name: "High Tether Transfer",
-          description: `High amount of USDT transferred: ${normalizedValue}`,
-          alertId: "FORTA-1",
-          severity: FindingSeverity.Low,
-          type: FindingType.Info,
-          metadata: {
-            to,
-            from,
-          },
-        })
+  await Promise.all(
+    swapEvents.map(async (event) => {
+      const pairAddress = event.address;
+      const [isValid, token0Address, token1Address] = await retrieval.isValidUniswapPair(
+        pairAddress,
+        txEvent.blockNumber,
+        uniswapFactoryAddress,
+        initcode
       );
-      findingsCount++;
-    }
-  });
+      if(isValid){
+        findings.push(
+          Finding.fromObject({
+            name: "Swap Event",
+            description: "Swap event detected",
+            alertId: "UNISWAP_SWAP_EVENT",
+            severity: FindingSeverity.Medium,
+            type: FindingType.Suspicious,
+            metadata: {
+              
+            },
+          })
+        )
+      }
+    })
+  )
+ 
+    
+      
+  
 
   return findings;
 };
+
+}
 
 // const initialize: Initialize = async () => {
 //   // do some initialization on startup e.g. fetch data
@@ -85,7 +91,7 @@ const handleTransaction: HandleTransaction = async (
 
 export default {
   // initialize,
-  handleTransaction,
+  handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, new Retrieval(new JsonRpcProvider()), COMPUTED_INIT_CODE_HASH)
   // healthCheck,
   // handleBlock,
   // handleAlert
