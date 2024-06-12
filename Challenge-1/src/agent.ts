@@ -1,3 +1,4 @@
+// Importing necessary modules and constants
 import {
   BlockEvent,
   Finding,
@@ -22,14 +23,7 @@ import {
   NETHERMIND_DEPLOYER_ADDRESS,
 } from "./constants";
 
-// Identify bot creation emissions
-
-// export const ERC20_TRANSFER_EVENT =
-//   "event Transfer(address indexed from, address indexed to, uint256 value)";
-// export const TETHER_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-// export const TETHER_DECIMALS = 6;
-// let findingsCount = 0;
-
+// Function to handle transactions related to bot creation and update
 export function provideTransaction(
   botCreation: string,
   botUpdate: string,
@@ -40,11 +34,14 @@ export function provideTransaction(
   return async function handleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
 
+    // Filter transactions related to bot creation and update
     const botCreationAlert = tx.filterFunction(botCreation, botDeployedAddress);
 
     const botUpdateAlert = tx.filterFunction(botUpdate, botDeployedAddress);
 
+    // Loop through each bot creation alert
     for (let creationAlert of botCreationAlert) {
+      // Extract necessary details from the transaction
       const address = tx.from;
       const botDeployedChecksumAddress = ethers.utils.getAddress(
         nethermindDeployerAddress,
@@ -52,6 +49,7 @@ export function provideTransaction(
       const type = tx.type;
       const network = tx.network;
 
+      // If the transaction is from the deployer address, add a finding
       if (address.toLowerCase() === nethermindDeployerAddress.toLowerCase()) {
         finding.push(
           Finding.fromObject({
@@ -77,6 +75,7 @@ export function provideTransaction(
       const type = tx.type;
       const network = tx.network;
 
+      // If the transaction is from the deployer address, add a finding
       if (address.toLowerCase() === nethermindDeployerAddress.toLowerCase()) {
         finding.push(
           Finding.fromObject({
@@ -87,7 +86,7 @@ export function provideTransaction(
             type: FindingType.Info,
             metadata: {
               // address,
-              botDeployedAddress
+              botDeployedAddress,
             },
           }),
         );
@@ -107,7 +106,4 @@ export default {
     BOT_UPDATE_EVENT,
     NETHERMIND_DEPLOYER_ADDRESS,
   ),
-  // healthCheck,
-  // handleBlock,
-  // handleAlert
 };

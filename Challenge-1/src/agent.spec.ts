@@ -19,15 +19,11 @@ import {
   NETHERMIND_DEPLOYER_ADDRESS,
 } from "./constants";
 
+// Test suite for the bot creation agent
 describe("bot creation agent", () => {
   let handleTransaction: HandleTransaction;
 
-  const args = [
-    1,
-    createAddress("0x02"),
-    "Mock tx 2",
-    [137],
-  ];
+  const args = [1, createAddress("0x02"), "Mock tx 2", [137]];
   const mockUpdateAgentEventData2 = [1, "Mock tx 2", [137]];
 
   const mockBotDeployedAddress: string = BOT_DEPLOYED_ADDRESS;
@@ -37,6 +33,7 @@ describe("bot creation agent", () => {
   const OTHER_FUNCTION_ABI =
     "function otherFunction(uint256 agentId, address, string metadata, uint256[] chainIds)";
 
+  // Setup for the tests
   beforeAll(() => {
     handleTransaction = provideTransaction(
       CREATE_BOT_FUNCTION,
@@ -47,6 +44,7 @@ describe("bot creation agent", () => {
     );
   });
 
+  // Test suite for the handleTransaction function
   describe("handleTransaction", () => {
     const provideInterface = new Interface([
       CREATE_BOT_FUNCTION,
@@ -54,6 +52,7 @@ describe("bot creation agent", () => {
       OTHER_FUNCTION_ABI,
     ]);
 
+    // Test for bot creation
     it("should find created bot", async () => {
       const tx: TransactionEvent = new TestTransactionEvent()
         .setTo(BOT_DEPLOYED_ADDRESS)
@@ -65,6 +64,7 @@ describe("bot creation agent", () => {
           arguments: args,
         });
 
+      // Call the handleTransaction function with the mock transaction event
       const expectedFinding = await handleTransaction(tx);
 
       expect(expectedFinding).toEqual([
@@ -89,6 +89,7 @@ describe("bot creation agent", () => {
       ]);
     });
 
+    // Test for bot update
     it("should find updated bot", async () => {
       const tx: TransactionEvent = new TestTransactionEvent()
         .setTo(BOT_DEPLOYED_ADDRESS)
@@ -121,7 +122,8 @@ describe("bot creation agent", () => {
       ]);
     });
 
-    it("should not hav eany findings for bot creation", async () => {
+    // Test for no findings for bot creation
+    it("should not have any findings for bot creation", async () => {
       const tx: TransactionEvent = new TestTransactionEvent()
         .setTo(BOT_DEPLOYED_ADDRESS)
         .setFrom(NETHERMIND_DEPLOYER_ADDRESS)
@@ -129,7 +131,7 @@ describe("bot creation agent", () => {
           function: provideInterface.getFunction("otherFunction"),
           to: mockBotDeployedAddress,
           from: mockNethermindAddress,
-          arguments: args, // replace with actual arguments for otherFunction
+          arguments: args,
         });
 
       const findings = await handleTransaction(tx);
