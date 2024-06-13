@@ -29,7 +29,7 @@ export function provideTransaction(
   botUpdate: string,
   botDeployedAddress: string,
   botUpdateEvent: string,
-  nethermindDeployerAddress: string,
+  nethermindDeployerAddress: string
 ): HandleTransaction {
   return async function handleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
@@ -43,9 +43,7 @@ export function provideTransaction(
     for (let creationAlert of botCreationAlert) {
       // Extract necessary details from the transaction
       const address = tx.from;
-      const botDeployedChecksumAddress = ethers.utils.getAddress(
-        nethermindDeployerAddress,
-      );
+      const botDeployedChecksumAddress = ethers.utils.getAddress(nethermindDeployerAddress);
       const type = tx.type;
       const network = tx.network;
 
@@ -62,16 +60,14 @@ export function provideTransaction(
               // address,
               botDeployedAddress,
             },
-          }),
+          })
         );
       }
     }
 
     for (let updateAlert of botUpdateAlert) {
       const address = tx.from;
-      const botDeployedChecksumAddress = ethers.utils.getAddress(
-        nethermindDeployerAddress,
-      );
+      const botDeployedChecksumAddress = ethers.utils.getAddress(nethermindDeployerAddress);
       const type = tx.type;
       const network = tx.network;
 
@@ -88,7 +84,7 @@ export function provideTransaction(
               // address,
               botDeployedAddress,
             },
-          }),
+          })
         );
       }
     }
@@ -104,6 +100,6 @@ export default {
     UPDATE_BOT_FUNCTION,
     BOT_DEPLOYED_ADDRESS,
     BOT_UPDATE_EVENT,
-    NETHERMIND_DEPLOYER_ADDRESS,
+    NETHERMIND_DEPLOYER_ADDRESS
   ),
 };

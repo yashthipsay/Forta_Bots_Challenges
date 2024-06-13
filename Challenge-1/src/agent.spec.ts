@@ -30,8 +30,7 @@ describe("bot creation agent", () => {
   const mockNethermindAddress: string = NETHERMIND_DEPLOYER_ADDRESS;
   const mockCreateBotFunction: string = CREATE_BOT_FUNCTION;
   const mockUpdateBotFunction: string = UPDATE_BOT_FUNCTION;
-  const OTHER_FUNCTION_ABI =
-    "function otherFunction(uint256 agentId, address, string metadata, uint256[] chainIds)";
+  const OTHER_FUNCTION_ABI = "function otherFunction(uint256 agentId, address, string metadata, uint256[] chainIds)";
 
   // Setup for the tests
   beforeAll(() => {
@@ -40,17 +39,13 @@ describe("bot creation agent", () => {
       UPDATE_BOT_FUNCTION,
       BOT_DEPLOYED_ADDRESS,
       BOT_UPDATE_EVENT,
-      NETHERMIND_DEPLOYER_ADDRESS,
+      NETHERMIND_DEPLOYER_ADDRESS
     );
   });
 
   // Test suite for the handleTransaction function
   describe("handleTransaction", () => {
-    const provideInterface = new Interface([
-      CREATE_BOT_FUNCTION,
-      UPDATE_BOT_FUNCTION,
-      OTHER_FUNCTION_ABI,
-    ]);
+    const provideInterface = new Interface([CREATE_BOT_FUNCTION, UPDATE_BOT_FUNCTION, OTHER_FUNCTION_ABI]);
 
     // Test for bot creation
     it("should find created bot", async () => {
