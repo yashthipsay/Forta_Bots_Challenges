@@ -47,7 +47,7 @@ export function provideMakerInvariant(
     if (chainId != 1) {
       // const balance = chainId === 42161 ? l1Alerts.alerts[0].metadata.l1Escrow : l1Alerts.alerts[0].metadata.optEscBal;
       const balance =
-        (await chainId) === 42161
+        (chainId == 42161)
           ? await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS)
           : await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS);
       const totalL2Supply = await HelperInstance.getL2Supply();
@@ -63,9 +63,10 @@ export function provideMakerInvariant(
       const abtBalance = await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS);
       findings.push(createL1OptFinding(optBalance));
       findings.push(createL1AbtFinding(abtBalance));
-    } else if (l1Alerts.alerts.length == 0) {
-      return findings;
-    }
+    } 
+    // else if (l1Alerts.alerts.length == 0) {
+    //   return findings;
+    // }
 
     return findings;
   };

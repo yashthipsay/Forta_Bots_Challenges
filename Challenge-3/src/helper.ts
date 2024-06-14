@@ -18,7 +18,7 @@ export default class Helper {
   }
 
   public async getL1Balance(address: string): Promise<string> {
-    const L1Contract = new Contract(DAI_ADDRESS, address, this.provider);
+    const L1Contract = new Contract(DAI_ADDRESS, ESCROW_ABI, this.provider);
     const balance = await L1Contract.balanceOf(DAI_ADDRESS);
     return balance;
   }
