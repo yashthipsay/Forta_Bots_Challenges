@@ -1,13 +1,5 @@
 // Importing necessary modules and constants
-import {
-  Finding,
-  HandleTransaction,
-  TransactionEvent,
-  FindingSeverity,
-  FindingType,
-} from "forta-agent";
-
-import { ethers } from "forta-agent";
+import { Finding, HandleTransaction, TransactionEvent, FindingSeverity, FindingType } from "forta-agent";
 
 import {
   CREATE_BOT_FUNCTION,
@@ -29,12 +21,12 @@ export function provideTransaction(
     const finding: Finding[] = [];
 
     // Filter transactions related to bot creation and update
-    const botCreationAlert = tx.filterFunction(botCreation, botDeployedAddress);
+    const botCreationFunctionCalls = tx.filterFunction(botCreation, botDeployedAddress);
 
-    const botUpdateAlert = tx.filterFunction(botUpdate, botDeployedAddress);
+    const botUpdateFunctionCalls = tx.filterFunction(botUpdate, botDeployedAddress);
 
     // Loop through each bot creation alert
-    for (let creationAlert of botCreationAlert) {
+    for (let creationAlert of botCreationFunctionCalls) {
       // Extract necessary details from the transaction
       const agentId = creationAlert.args.agentId.toString();
       const chainId = creationAlert.args.chainIds[0].toString();
@@ -61,7 +53,7 @@ export function provideTransaction(
       }
     }
 
-    for (let updateAlert of botUpdateAlert) {
+    for (let updateAlert of botUpdateFunctionCalls) {
       const address = tx.from;
       const agentId = updateAlert.args.agentId.toString();
       const chainId = updateAlert.args.chainIds[0].toString();

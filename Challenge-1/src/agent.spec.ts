@@ -17,7 +17,7 @@ describe("bot creation agent", () => {
 
   const args = [1, createAddress("0x02"), "Mock tx 2", [137]];
   const mockUpdateAgentEventData2 = [1, "Mock tx 2", [137]];
-  
+
   const mockBotDeployedAddress: string = FORTA_BOT_REGISTRY;
   const mockNethermindAddress: string = NETHERMIND_DEPLOYER_ADDRESS;
   const OTHER_FUNCTION_ABI = "function otherFunction(uint256 agentId, address, string metadata, uint256[] chainIds)";
@@ -51,12 +51,12 @@ describe("bot creation agent", () => {
 
       // Call the handleTransaction function with the mock transaction event
       const expectedFinding = await handleTransaction(tx);
-        
+
       expect(expectedFinding).toEqual([
         Finding.fromObject({
           name: "Bot Creation",
           protocol: "ethereum",
-          description: `Detects Bot created by a Nethermind address`,
+          description: "Detects Bot created by a Nethermind address",
           alertId: "BOT-1",
           severity: FindingSeverity.Low,
           // timestamp: new Date(),
@@ -104,7 +104,6 @@ describe("bot creation agent", () => {
             agentId: "1",
             chainId: "137",
             metadata: "Mock tx 2",
-
           },
           addresses: [],
           labels: [],
