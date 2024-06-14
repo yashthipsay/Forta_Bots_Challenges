@@ -39,7 +39,7 @@ export const createL1AbtFinding = (abtEscBal: ethers.BigNumberish): Finding => {
         type: FindingType.Info,
         protocol: "Ethereum",
         metadata: {
-            optEscBal: `${abtEscBal}`,
+            abtEscBal: `${abtEscBal}`,
         },
     });
 };

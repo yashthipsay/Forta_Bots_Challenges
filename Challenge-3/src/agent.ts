@@ -1,7 +1,6 @@
 import {
   BlockEvent,
   Finding,
-  Initialize,
   HandleBlock,
   HealthCheck,
   HandleTransaction,
@@ -10,52 +9,52 @@ import {
   TransactionEvent,
   FindingSeverity,
   FindingType,
+  AlertsResponse,
+  getEthersProvider
 } from "forta-agent";
+import { JsonRpcProvider } from "ethers";
+import { createFinding, createL1AbtFinding, createL1OptFinding } from "./findings";
+import { Provider } from "ethers";
+import { getL1Alerts } from "./botAlerts";
+import Helper from "./helper";
+import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
 
-// export const ERC20_TRANSFER_EVENT =
-//   "event Transfer(address indexed from, address indexed to, uint256 value)";
-// export const TETHER_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-// export const TETHER_DECIMALS = 6;
-// let findingsCount = 0;
+export function provideMakerInvariant(
+  provider: JsonRpcProvider,
+  botId: string
+): HandleTransaction{
+  
+  return async function handleTransaction (tx: TransactionEvent){
+    let balance: string;
+    const findings: Finding[] = [];
+    const HelperInstance = new Helper(provider);
+    const BOT_ID_1 = "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612"
+    const {chainId} = await provider.getNetwork();
+    const l1Alerts: AlertsResponse = await getL1Alerts(BOT_ID_1);
+    
+    if( chainId != BigInt(1)){
+      const balance = chainId === BigInt(42161) ? l1Alerts.alerts[0].metadata.l1Escrow : l1Alerts.alerts[0].metadata.optEscBal;
+      const totalL2Supply = await HelperInstance.getL2Supply();
+      console.log(balance);
 
-// const handleTransaction: HandleTransaction = async (
-//   txEvent: TransactionEvent
-// ) => {
-//   const findings: Finding[] = [];
+      if(balance < totalL2Supply){
+        findings.push(createFinding(balance, totalL2Supply, chainId.toString()));
+      }
+    } else if(chainId === BigInt(1)){
+      const optBalance = await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS);
+      const abtBalance = await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS);
+      findings.push(createL1OptFinding(optBalance));
+      findings.push(createL1AbtFinding(abtBalance));
+    } else if(l1Alerts.alerts.length == 0){
+      return findings;
+    }
 
-//   // limiting this agent to emit only 5 findings so that the alert feed is not spammed
-//   if (findingsCount >= 5) return findings;
+    return findings;
+  }
+}
 
-//   // filter the transaction logs for Tether transfer events
-//   const tetherTransferEvents = txEvent.filterLog(
-//     ERC20_TRANSFER_EVENT,
-//     TETHER_ADDRESS
-//   );
 
-//   tetherTransferEvents.forEach((transferEvent) => {
-//     // extract transfer event arguments
-//     const { to, from, value } = transferEvent.args;
-//     // shift decimals of transfer value
-//     const normalizedValue = value.div(10 ** TETHER_DECIMALS);
 
-//     // if more than 10,000 Tether were transferred, report it
-//     if (normalizedValue.gt(10000)) {
-//       findings.push(
-//         Finding.fromObject({
-//           name: "High Tether Transfer",
-//           description: `High amount of USDT transferred: ${normalizedValue}`,
-//           alertId: "FORTA-1",
-//           severity: FindingSeverity.Low,
-//           type: FindingType.Info,
-//           metadata: {
-//             to,
-//             from,
-//           },
-//         })
-//       );
-//       findingsCount++;
-//     }
-//   });
 
 //   return findings;
 // };
@@ -83,10 +82,10 @@ import {
 //   // return errors;
 // // }
 
-// export default {
-//   // initialize,
-//   handleTransaction,
-//   // healthCheck,
-//   // handleBlock,
-//   // handleAlert
-// };
+export default {
+  // initialize,
+  // handleTransaction,
+  // healthCheck,
+  // handleBlock,
+  handleTransaction: provideMakerInvariant(new JsonRpcProvider(), "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612")
+};

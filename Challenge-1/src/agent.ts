@@ -12,6 +12,7 @@ import {
   FindingSeverity,
   FindingType,
 } from "forta-agent";
+import { JsonRpcProvider } from "ethers";
 
 import { ethers } from "forta-agent";
 
