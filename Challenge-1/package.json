@@ -5,7 +5,6 @@
   "description": "Forta bot that detects creation and updation of other Forta bots on a network",
   "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/%40intern-challenges/one",
   "chainIds": [
-    1,
     137
   ],
   "scripts": {

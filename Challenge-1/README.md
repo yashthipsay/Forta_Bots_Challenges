@@ -1,4 +1,4 @@
-# Large Tether Transfer Agent
+# Detecting Bot Creation and Updation
 
 ## Description
 
@@ -6,7 +6,6 @@ This bot detects bot creation and bot updation on different chains
 
 ## Supported Chains
 
-- Ethereum
 - Polygon
 
 ## Alerts
