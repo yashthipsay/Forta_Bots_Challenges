@@ -33,6 +33,7 @@
     "keyfile": "forta-agent keyfile",
     "stake": "forta-agent stake",
     "test": "jest"
+    
   },
   "dependencies": {
     "ethers": "^6.13.0",
