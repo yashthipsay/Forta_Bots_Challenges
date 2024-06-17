@@ -1,4 +1,5 @@
-import { Provider, Contract, ContractRunner } from "ethers";
+import { Contract } from "@ethersproject/contracts";
+import { Provider } from "@ethersproject/providers";
 
 import {
   ABT_ESCROW_ADDRESS,
@@ -8,12 +9,11 @@ import {
   ESCROW_ABI,
   DAI_L2_ADDRESS,
 } from "./constants";
-import { ethers } from "forta-agent";
 
 export default class Helper {
-  private provider: ContractRunner;
+  private provider: Provider;
 
-  constructor(provider: ContractRunner) {
+  constructor(provider: Provider) {
     this.provider = provider;
   }
 

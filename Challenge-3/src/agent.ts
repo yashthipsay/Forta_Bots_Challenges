@@ -19,21 +19,21 @@ import {
   createL1AbtFinding,
   createL1OptFinding,
 } from "./findings";
-import { JsonRpcProvider, Provider } from "ethers";
+import { Provider } from "@ethersproject/providers";
+
 // import { getL1Alerts } from "./botAlerts";
 import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
 
 export function provideMakerInvariant(
-  provider: ethers.providers.Provider,
-  botId: string,
+  provider: Provider,
 ): HandleTransaction {
   return async function handleTransaction(tx: TransactionEvent) {
     let balance: string;
     const findings: Finding[] = [];
-    const HelperInstance = new Helper(new JsonRpcProvider());
-    const BOT_ID_1 =
-      "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612";
+    const HelperInstance = new Helper(provider);
+    // const BOT_ID_1 =
+    //   "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612";
     const { chainId } = await provider.getNetwork();
     // const l1Alerts: AlertsResponse = await getL1Alerts(BOT_ID_1);
     const l1Alerts: AlertsResponse = {
@@ -105,6 +105,5 @@ export default {
   // handleBlock,
   handleTransaction: provideMakerInvariant(
     getEthersProvider(),
-    "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612",
   ),
 };
