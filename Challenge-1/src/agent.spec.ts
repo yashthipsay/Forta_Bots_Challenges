@@ -7,7 +7,6 @@ import {
   CREATE_BOT_FUNCTION,
   UPDATE_BOT_FUNCTION,
   FORTA_BOT_REGISTRY,
-  BOT_UPDATE_EVENT,
   NETHERMIND_DEPLOYER_ADDRESS,
 } from "./constants";
 
@@ -28,7 +27,6 @@ describe("bot creation agent", () => {
       CREATE_BOT_FUNCTION,
       UPDATE_BOT_FUNCTION,
       FORTA_BOT_REGISTRY,
-      BOT_UPDATE_EVENT,
       NETHERMIND_DEPLOYER_ADDRESS
     );
   });

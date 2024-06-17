@@ -5,7 +5,6 @@ import {
   CREATE_BOT_FUNCTION,
   UPDATE_BOT_FUNCTION,
   FORTA_BOT_REGISTRY,
-  BOT_UPDATE_EVENT,
   NETHERMIND_DEPLOYER_ADDRESS,
 } from "./constants";
 
@@ -14,7 +13,6 @@ export function provideTransaction(
   botCreation: string,
   botUpdate: string,
   botDeployedAddress: string,
-  botUpdateEvent: string,
   nethermindDeployerAddress: string
 ): HandleTransaction {
   return async function handleTransaction(tx: TransactionEvent) {
@@ -90,7 +88,6 @@ export default {
     CREATE_BOT_FUNCTION,
     UPDATE_BOT_FUNCTION,
     FORTA_BOT_REGISTRY,
-    BOT_UPDATE_EVENT,
     NETHERMIND_DEPLOYER_ADDRESS
   ),
 };
