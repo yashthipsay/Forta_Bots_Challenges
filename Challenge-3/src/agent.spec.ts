@@ -1,74 +1,100 @@
-// import {
-//   FindingType,
-//   FindingSeverity,
-//   Finding,
-//   HandleTransaction,
-//   createTransactionEvent,
-//   ethers,
-// } from "forta-agent";
-// import agent, {
-//   ERC20_TRANSFER_EVENT,
-//   TETHER_ADDRESS,
-//   TETHER_DECIMALS,
-// } from "./agent";
+import {MockEthersProvider} from "forta-agent-tools/lib/test";
+import {ethers, HandleBlock, createBlockEvent} from "forta-agent";
+import { provideHandleBlock } from "./agent";
+import { BigNumber } from "@ethersproject/bignumber";
+import {Interface} from "ethers/lib/utils";
+import { ESCROW_ABI, OPT_ESCROW_ADDRESS, ABT_ESCROW_ADDRESS, L2_ABI, DAI_ADDRESS, DAI_L2_ADDRESS } from "./constants";
+import { createFinding, createL1AbtFinding, createL1OptFinding } from "./findings";
+import { MockProvider } from "./MockProvider";
 
-// describe("high tether transfer agent", () => {
-//   let handleTransaction: HandleTransaction;
-//   const mockTxEvent = createTransactionEvent({} as any);
 
-//   beforeAll(() => {
-//     handleTransaction = agent.handleTransaction;
-//   });
+const TEST_VAL1 = {
+    OPT_ESCROW_ADDRESS: OPT_ESCROW_ADDRESS,
+    OPT_ESCROW_VALUE: BigNumber.from("100"),
+    ABT_ESCROW_ADDRESS: ABT_ESCROW_ADDRESS,
+    ABT_ESCROW_VALUE: BigNumber.from("400"),
+    OPT_L2_BAL: BigNumber.from("500"),
+    ABT_L2_BAL: BigNumber.from("600"),
+}
 
-//   describe("handleTransaction", () => {
-//     it("returns empty findings if there are no Tether transfers", async () => {
-//       mockTxEvent.filterLog = jest.fn().mockReturnValue([]);
+const TEST_VAL2 = {
+    OPT_ESCROW_ADDRESS: OPT_ESCROW_ADDRESS,
+    OPT_ESCROW_VALUE: BigNumber.from("500"),
+    ABT_ESCROW_ADDRESS: ABT_ESCROW_ADDRESS,
+    ABT_ESCROW_VALUE: BigNumber.from("400"),
+    OPT_L2_BAL: BigNumber.from("100"),
+    ABT_L2_BAL: BigNumber.from("100"),
+}
 
-//       const findings = await handleTransaction(mockTxEvent);
+const L1_IFACE = new ethers.utils.Interface([ESCROW_ABI]);
+const L2_IFACE = new ethers.utils.Interface([L2_ABI]);
 
-//       expect(findings).toStrictEqual([]);
-//       expect(mockTxEvent.filterLog).toHaveBeenCalledTimes(1);
-//       expect(mockTxEvent.filterLog).toHaveBeenCalledWith(
-//         ERC20_TRANSFER_EVENT,
-//         TETHER_ADDRESS
-//       );
-//     });
+const MakeMockCall = (
+    mockProvider: MockEthersProvider,
+    id: string,
+    inp: any[],
+    outp: any[],
+    addr: string,
+    intface: Interface,
+    block: number = 10
+) => {
+    mockProvider.addCallTo(addr, block, intface, id, {
+        inputs: inp,
+        outputs: outp
+    });
+};
 
-//     it("returns a finding if there is a Tether transfer over 10,000", async () => {
-//       const mockTetherTransferEvent = {
-//         args: {
-//           from: "0xabc",
-//           to: "0xdef",
-//           value: ethers.BigNumber.from("20000000000"), //20k with 6 decimals
-//         },
-//       };
-//       mockTxEvent.filterLog = jest
-//         .fn()
-//         .mockReturnValue([mockTetherTransferEvent]);
+describe("Dai bridge 11-12 solvency check", () => {
+    let handleBlock: HandleBlock;
+    let mockProvider: MockEthersProvider;
+    let provider: ethers.providers.Provider;
 
-//       const findings = await handleTransaction(mockTxEvent);
+    beforeEach(() => {
+        mockProvider = new MockEthersProvider();
+        provider = mockProvider as unknown as ethers.providers.Provider;
+        handleBlock = provideHandleBlock(provider);
+    })
 
-//       const normalizedValue = mockTetherTransferEvent.args.value.div(
-//         10 ** TETHER_DECIMALS
-//       );
-//       expect(findings).toStrictEqual([
-//         Finding.fromObject({
-//           name: "High Tether Transfer",
-//           description: `High amount of USDT transferred: ${normalizedValue}`,
-//           alertId: "FORTA-1",
-//           severity: FindingSeverity.Low,
-//           type: FindingType.Info,
-//           metadata: {
-//             to: mockTetherTransferEvent.args.to,
-//             from: mockTetherTransferEvent.args.from,
-//           },
-//         }),
-//       ]);
-//       expect(mockTxEvent.filterLog).toHaveBeenCalledTimes(1);
-//       expect(mockTxEvent.filterLog).toHaveBeenCalledWith(
-//         ERC20_TRANSFER_EVENT,
-//         TETHER_ADDRESS
-//       );
-//     });
-//   });
-// });
+    it("returns a findings for layer one escrows when on the eth network", async () => {
+        const blockEvent = createBlockEvent({
+            block: { hash: "0xa", number: 10 } as any 
+        });
+
+        mockProvider
+            .addCallTo(DAI_ADDRESS, 10, L1_IFACE, "balanceOf", {
+                inputs: [TEST_VAL1.OPT_ESCROW_ADDRESS],
+                outputs: [TEST_VAL1.OPT_ESCROW_VALUE],
+            })
+            .addCallTo(DAI_ADDRESS, 10, L1_IFACE, "balanceOf", {
+                inputs: [TEST_VAL1.ABT_ESCROW_ADDRESS],
+                outputs: [TEST_VAL1.ABT_ESCROW_VALUE],
+            });
+
+            mockProvider.setNetwork(1);
+
+            const findings = await handleBlock(blockEvent);
+            expect(findings).toEqual([createL1OptFinding(TEST_VAL1.OPT_ESCROW_VALUE.toString()), createL1AbtFinding(TEST_VAL1.ABT_ESCROW_VALUE.toString())]);
+            });
+
+        it("returns no finding if the optimism layer 2 dai supply is less than the layer 1 escrow dai balance", async() => {
+            const blockEvent = createBlockEvent({
+                block: {
+                    number: 10
+                } as any,
+            });
+            mockProvider.setNetwork(10);
+
+           mockProvider.addCallTo(DAI_L2_ADDRESS, 10, L2_IFACE, "totalSupply", {
+                inputs: [],
+                outputs: [TEST_VAL1.OPT_L2_BAL],
+            });
+
+
+            const findings = await handleBlock(blockEvent);
+            
+
+            expect(findings.length).toEqual(0);
+            expect(findings).toStrictEqual([]);
+        });
+
+    });
