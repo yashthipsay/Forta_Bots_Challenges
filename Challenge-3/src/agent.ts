@@ -20,11 +20,10 @@ import {
 // import { JsonRpcProvider } from "ethers";
 import {
   createFinding,
-  createL1AbtFinding,
   createL1OptFinding,
 } from "./findings";
 import { Provider } from "@ethersproject/providers";
-import { getMockAlerts } from "./mockAlerts";
+import { getL1Alerts } from "./mockAlerts";
 
 // import { getL1Alerts } from "./botAlerts";
 import Helper from "./helper";
@@ -41,10 +40,10 @@ const critAlerts: AlertQueryOptions = {
 
 }
 export function provideHandleBlock(
-  provider: Provider,
-  getL1Alerts: (blockNumber: number) => Promise<AlertsResponse>
+  provider: ethers.providers.Provider,
+  getL1Alerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse>
 ): HandleBlock {
-  return async function handleTransaction(blockEvent: BlockEvent): Promise<Finding[]> {
+  return async function handleBlock(blockEvent: BlockEvent): Promise<Finding[]> {
     let balance: string;
     const findings: Finding[] = [];
     const HelperInstance = new Helper(provider);
@@ -57,17 +56,19 @@ export function provideHandleBlock(
     if (chainId == 1) {
       const optBalance = await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber);
       const abtBalance = await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber);
-      findings.push(createL1OptFinding(optBalance));
-      findings.push(createL1AbtFinding(abtBalance));
+      findings.push(createL1OptFinding(optBalance, abtBalance));
     }
-
+    console.log("test-4")
     if (chainId != 1) {
+      console.log("test-5");
       try{
-        const l2Cond = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId, findings);
+        const l2Cond = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId, findings, getAlerts);
       } catch {
         return findings;
       }
-      const {alerts} = await getMockAlerts(blockEvent.blockNumber);
+      const {alerts} = await getL1Alerts({
+        
+      });
     }
     // else if (l1Alerts.alerts.length == 0) {
     //   return findings;
@@ -104,12 +105,12 @@ export function provideHandleBlock(
 // // }
 
 export default {
-  // initialize,
+  // initialize, //Wrap with provideInitialize
   // handleTransaction,
   // healthCheck,
   // handleBlock,
-  handleTransaction: provideHandleBlock(
-    getEthersProvider(), getMockAlerts
+  handleBlock: provideHandleBlock(
+    getEthersProvider(), getAlerts
   ),
 
 };
