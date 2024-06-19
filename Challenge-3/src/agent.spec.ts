@@ -41,13 +41,13 @@ const mockAlertResponse = {
     pageInfo: {
         hasNextPage: false,
         endCursor: {
-            aertId: "L1 Escrow Supply",
+            alertId: "L1 Escrow Supply",
             blockNumber: 10,
         },
     }
 };
 
-jest.mock("./mockAlerts", () => ({
+const mockGetAlerts = jest.mock("./mockAlerts", () => ({
     getL1Alerts: () => mockAlertResponse,
 }));
 
@@ -69,14 +69,14 @@ const MakeMockCall = (
     });
 };
 
-async function getMockAlerts(botId: string, optEscrowBal: number): Promise<AlertsResponse> {
-    const alerts = await getAlerts({
-        botIds: [botId],
-        addresses: [OPT_ESCROW_ADDRESS, ABT_ESCROW_ADDRESS],
-    });
+// async function getMockAlerts(botId: string, optEscrowBal: number): Promise<AlertsResponse> {
+//     const alerts = await getAlerts({
+//         botIds: [botId],
+//         addresses: [OPT_ESCROW_ADDRESS, ABT_ESCROW_ADDRESS],
+//     });
 
-    return alerts;
-}
+//     return alerts;
+// }
 
 
 describe("Dai bridge 11-12 solvency check", () => {
@@ -87,7 +87,7 @@ describe("Dai bridge 11-12 solvency check", () => {
     beforeEach(() => {
         mockProvider = new MockEthersProvider();
         provider = mockProvider as unknown as ethers.providers.Provider;
-        handleBlock = provideHandleBlock(provider);
+        handleBlock = provideHandleBlock(provider, mockGetAlerts);
     });
 
 
