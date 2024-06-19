@@ -12,6 +12,8 @@ import {
   AlertsResponse,
   getEthersProvider,
   ethers,
+  GetAlerts,
+  getAlerts,
 } from "forta-agent";
 // import { JsonRpcProvider } from "ethers";
 import {
@@ -20,11 +22,17 @@ import {
   createL1OptFinding,
 } from "./findings";
 import { Provider } from "@ethersproject/providers";
+import { getMockAlerts } from "./mockAlerts";
 
 // import { getL1Alerts } from "./botAlerts";
 import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
-
+const emptyAlertResponse: AlertsResponse = {
+  alerts: [],
+  pageInfo: {
+    hasNextPage: false,
+  },
+};
 export function provideHandleBlock(
   provider: Provider,
 ): HandleBlock {
@@ -36,35 +44,22 @@ export function provideHandleBlock(
     //   "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612";
     const { chainId } = await provider.getNetwork();
  
+    
     // const l1Alerts: AlertsResponse = await getL1Alerts(BOT_ID_1);
-    const l1Alerts: AlertsResponse = {
-      alerts: [],
-      pageInfo: {
-        hasNextPage: false,
-        endCursor: undefined,
-      },
-    };
-
-    if (chainId != 1) {
-      // const balance = chainId === 42161 ? l1Alerts.alerts[0].metadata.l1Escrow : l1Alerts.alerts[0].metadata.optEscBal;
-      const balance =
-        (chainId == 10)
-          ? await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber)
-          : await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber);
-      const totalL2Supply = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId);
-      console.log(balance);
-
-      if (balance < totalL2Supply) {
-        findings.push(
-          createFinding(balance, totalL2Supply, chainId.toString()),
-        );
-      }
-    } else if (chainId == 1) {
+    if (chainId == 1) {
       const optBalance = await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber);
       const abtBalance = await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber);
       findings.push(createL1OptFinding(optBalance));
       findings.push(createL1AbtFinding(abtBalance));
-    } 
+    }
+
+    if (chainId != 1) {
+      try{
+        const l2Cond = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId, findings);
+      } catch {
+        return findings;
+      }
+    }
     // else if (l1Alerts.alerts.length == 0) {
     //   return findings;
     // }
@@ -105,6 +100,26 @@ export default {
   // healthCheck,
   // handleBlock,
   handleTransaction: provideHandleBlock(
-    getEthersProvider(),
+    getEthersProvider(), 
   ),
 };
+
+
+
+// const l1Alerts: AlertsResponse = await getMockAlerts(blockEvent.blockNumber);
+
+// if (chainId != 1) {
+//   const balance = chainId === 42161 ? l1Alerts.alerts[0].metadata.l1Escrow : l1Alerts.alerts[0].metadata.optEscBal;
+//   // const balance =
+//   //   (chainId == 10)
+//   //     ? await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber)
+//   //     : await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber);
+//   const totalL2Supply = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId);
+//   console.log(balance);
+
+//   if (balance < totalL2Supply) {
+//     findings.push(
+//       createFinding(balance, totalL2Supply, chainId.toString()),
+//     );
+//   }
+// } else
