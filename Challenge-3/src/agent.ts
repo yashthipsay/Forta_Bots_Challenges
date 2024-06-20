@@ -23,7 +23,7 @@ import {
   createL1OptFinding,
 } from "./findings";
 import { Provider } from "@ethersproject/providers";
-import { getL1Alerts } from "./mockAlerts";
+import { L1Alerts } from "./mockAlerts";
 
 // import { getL1Alerts } from "./botAlerts";
 import Helper from "./helper";
@@ -66,9 +66,7 @@ export function provideHandleBlock(
       } catch {
         return findings;
       }
-      const {alerts} = await getL1Alerts({
-        
-      });
+      const {alerts} = await L1Alerts(blockEvent.blockNumber);
     }
     // else if (l1Alerts.alerts.length == 0) {
     //   return findings;

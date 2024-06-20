@@ -26,7 +26,7 @@ export const createL1OptFinding = (optEscBal: string, abtEscBal: string): Findin
   return Finding.fromObject({
     name: `Total supply of Optimism escrow in L1 DAI`,
     description: `Optimism L1 escrow balance: ${optEscBal}`,
-    alertId: "l1-escrow-supply",
+    alertId: "L2_Alert",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "Ethereum",
