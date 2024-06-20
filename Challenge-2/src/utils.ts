@@ -12,4 +12,7 @@ export  const UNISWAP_PAIR_ABI = [
   ];
 
 export const COMPUTED_INIT_CODE_HASH = "0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54"
+export const SWAP_EVENT = [
+  "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+];
   

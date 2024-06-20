@@ -14,7 +14,7 @@ import {
 } from "forta-agent";
 import Web3Provider from "@ethersproject/providers";
 import { ethers, JsonRpcProvider } from "ethers";
-import { UNISWAP_FACTORY_ADDRESS, UNISWAP_FACTORY_ABI, COMPUTED_INIT_CODE_HASH } from "./utils";
+import { UNISWAP_FACTORY_ADDRESS, UNISWAP_FACTORY_ABI, COMPUTED_INIT_CODE_HASH, SWAP_EVENT } from "./utils";
 import Retrieval from "./retrieval";
 // import {} from "forta-agent-tools";
 
@@ -26,21 +26,25 @@ return async function handleTransaction  (
   const findings: Finding[] = [];
 
  
- 
-  const [getPoolAbi, swapEvent] = UNISWAP_FACTORY_ABI;
+  const [getPoolAbi] = UNISWAP_FACTORY_ABI;
+  const [swapEvent] = SWAP_EVENT;
 
-  const swapEvents = txEvent.filterLog(swapEvent);
-
+  const swapEvents = txEvent.filterLog([swapEvent]);
+try{
   await Promise.all(
     swapEvents.map(async (event) => {
       const pairAddress = event.address;
+      
+
       const [isValid, token0Address, token1Address] = await retrieval.isValidUniswapPair(
         pairAddress,
         txEvent.blockNumber,
         uniswapFactoryAddress,
         initcode
       );
+      console.log("isValid", isValid, token0Address, token1Address);
       if(isValid){
+        
         findings.push(
           Finding.fromObject({
             name: "Swap Event",
@@ -56,12 +60,16 @@ return async function handleTransaction  (
       }
     })
   )
+
+
  
-    
-      
+} catch (error) {
+  console.error(error);
+ 
+}
   
 
-  return findings;
+return findings;
 };
 
 }
@@ -91,7 +99,7 @@ return async function handleTransaction  (
 
 export default {
   // initialize,
-  handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, new Retrieval(new JsonRpcProvider()), COMPUTED_INIT_CODE_HASH)
+  handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, new Retrieval(getEthersProvider()), COMPUTED_INIT_CODE_HASH)
   // healthCheck,
   // handleBlock,
   // handleAlert
