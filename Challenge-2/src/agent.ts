@@ -30,7 +30,7 @@ return async function handleTransaction  (
   const [swapEvent] = SWAP_EVENT;
 
   const swapEvents = txEvent.filterLog([swapEvent]);
-try{
+
   await Promise.all(
     swapEvents.map(async (event) => {
       const pairAddress = event.address;
@@ -63,10 +63,7 @@ try{
 
 
  
-} catch (error) {
-  console.error(error);
- 
-}
+
   
 
 return findings;
