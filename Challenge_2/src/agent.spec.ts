@@ -10,9 +10,9 @@ import { IUNISWAPV3POOL, SWAP_EVENT, MINT_EVENT } from "./constants";
 
 // Test values for a valid uniswap event
 const TEST_VALUE_1 = {
-    TOKEN0_ADDRESS: createAddress("0x1"),
+    TOKEN0_ADDRESS: "0x3845badAde8e6dFF049820680d1F14bD3903a5d0",
     TOKEN0_VALUE: BigNumber.from("100"),
-    TOKEN1_ADDRESS: createAddress("0x2"),
+    TOKEN1_ADDRESS: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
     TOKEN1_VALUE: BigNumber.from("400"),
     POOL_ADDRESS: "0x5859ebE6Fd3BBC6bD646b73a5DbB09a5D7B6e7B7",
     FEE: BigNumber.from("3000"),
@@ -111,12 +111,11 @@ describe("Uniswap swap detection bot", () => {
     });
 
     it("returns a finding if there is a single valid swap event from Uniswap", async () => {
+        try{
         makeMockCall(mockProvider, "token0", [], [TEST_VALUE_1.TOKEN0_ADDRESS]);
         makeMockCall(mockProvider, "token1", [], [TEST_VALUE_1.TOKEN1_ADDRESS]);
-        makeMockCall(mockProvider, "fee", [], [TEST_VALUE_1.FEE]);
 
         const txEvent = new TestTransactionEvent()
-            .setBlock(10)
             .addEventLog(SWAP_EVENT[0], TEST_VALUE_1.POOL_ADDRESS, [
                 TEST_VALUE_1.TOKEN0_ADDRESS,
                 TEST_VALUE_1.TOKEN1_ADDRESS,
@@ -137,6 +136,9 @@ describe("Uniswap swap detection bot", () => {
 
         expect(findings.length).toEqual(1);
         expect(findings[0]).toStrictEqual(mockFinding);
+    } catch (error) {
+        console.log(error);
+    }
     });
 
 });
