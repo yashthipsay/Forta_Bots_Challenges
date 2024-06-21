@@ -6,7 +6,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { Interface } from "@ethersproject/abi";
 import { COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_FACTORY_ADDRESS, UNISWAP_PAIR_ABI } from "./utils";
 import Retrieval from "./retrieval";
-import { JsonRpcApiProvider, JsonRpcProvider } from "ethers";
+import { JsonRpcApiProvider, JsonRpcProvider, Provider } from "ethers";
 
 
 const TEST_VALUE_1 = {
@@ -62,7 +62,7 @@ describe("Uniswap test suite", () => {
     
     const retrieval = new Retrieval(getEthersProvider());
     console.log(retrieval);
-    // handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, retrieval, COMPUTED_INIT_CODE_HASH);
+    handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, retrieval, COMPUTED_INIT_CODE_HASH);
     
 });
 
@@ -82,7 +82,7 @@ it("returns a finding if there is a single valid swap event from Uniswap", async
   // console.log("test1");
   // makeMockCall(mockProvider, "token1", [], [TEST_VALUE_1.TOKEN1_ADDRESS]);
   // console.log("test2");
-try{
+
   txEvent = new TestTransactionEvent()
       .addEventLog("event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)", TEST_VALUE_1.POOL_ADDRESS.toLowerCase(), [
           TEST_VALUE_1.TOKEN1_ADDRESS,
@@ -107,10 +107,66 @@ try{
   const findings = await handleTransaction(txEvent);
   expect(findings.length).toEqual(1);
   // expect(findings[0]).toStrictEqual(mockFinding);
-} catch(err){
-  console.log(err); 
-}
 
 
+
+});
+
+it("returns multiple findings if there are multiple valid swap events from Uniswap", async () => {
+  txEvent = new TestTransactionEvent()
+    .addEventLog(
+      "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+      TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
+      [
+        TEST_VALUE_1.TOKEN1_ADDRESS,
+        TEST_VALUE_1.TOKEN0_ADDRESS,
+        TEST_VALUE_1.TOKEN0_VALUE,
+        TEST_VALUE_1.TOKEN1_VALUE,
+        SQRT_PRICE,
+        LIQUIDITY,
+        TICK,
+      ]
+    )
+    .addEventLog(
+      "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+      TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
+      [
+        TEST_VALUE_1.TOKEN1_ADDRESS,
+        TEST_VALUE_1.TOKEN0_ADDRESS,
+        TEST_VALUE_1.TOKEN0_VALUE,
+        TEST_VALUE_1.TOKEN1_VALUE,
+        SQRT_PRICE,
+        LIQUIDITY,
+        TICK,
+      ]
+    );
+
+  const poolVal = {
+    token0: TEST_VALUE_1.TOKEN0_ADDRESS,
+    token1: TEST_VALUE_1.TOKEN1_ADDRESS,
+    fee: TEST_VALUE_1.FEE,
+  };
+  const mockFinding = createFinding(poolVal, TEST_VALUE_1.POOL_ADDRESS);
+
+  const findings = await handleTransaction(txEvent);
+  expect(findings.length).toEqual(2);
+  expect(findings).toEqual(expect.arrayContaining([mockFinding, mockFinding]));
+});
+
+it("returns no findings if a non-swap event is used", async () => {
+  txEvent = new TestTransactionEvent()
+    .addEventLog(
+      "event NonSwapEvent(address indexed sender, address indexed recipient, int256 amount0, int256 amount1)",
+      TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
+      [
+        TEST_VALUE_1.TOKEN1_ADDRESS,
+        TEST_VALUE_1.TOKEN0_ADDRESS,
+        TEST_VALUE_1.TOKEN0_VALUE,
+        TEST_VALUE_1.TOKEN1_VALUE,
+      ]
+    );
+
+  const findings = await handleTransaction(txEvent);
+  expect(findings.length).toEqual(0);
 });
 });
