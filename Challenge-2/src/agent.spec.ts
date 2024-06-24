@@ -127,7 +127,7 @@ describe("Uniswap test suite", () => {
 
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toEqual(2);
-    expect(findings).toEqual(expect.arrayContaining([mockFinding, mockFinding]));
+    expect(findings).toEqual([mockFinding, mockFinding]);
   });
 
   it("returns no findings if a non-swap event is used", async () => {
