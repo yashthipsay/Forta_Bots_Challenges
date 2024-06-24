@@ -25,7 +25,7 @@ export default class Retrieval {
       ethers.utils.keccak256(
         ethers.utils.defaultAbiCoder.encode(["address", "address", "uint24"], [token0, token1, fee])
       ),
-      initCodeHash
+      COMPUTED_INIT_CODE_HASH
     );
   }
 
