@@ -13,12 +13,11 @@ import Retrieval from "./retrieval";
 
 export function provideSwapHandler(
   uniswapFactoryAddress: string,
-  retrieval: Retrieval,
   initcode: string
 ): HandleTransaction {
   return async function handleTransaction(txEvent: TransactionEvent) {
     const findings: Finding[] = [];
-
+    const retrieval = new Retrieval(getEthersProvider());
     // Destructure necessary ABI and event signatures
 
     const [swapEvent] = SWAP_EVENT;
@@ -66,7 +65,6 @@ export function provideSwapHandler(
 export default {
   handleTransaction: provideSwapHandler(
     UNISWAP_FACTORY_ADDRESS,
-    new Retrieval(getEthersProvider()),
     COMPUTED_INIT_CODE_HASH
   ),
 };

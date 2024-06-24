@@ -18,7 +18,6 @@ export default class Retrieval {
     token0: string,
     token1: string,
     fee: number,
-    initCodeHash: string
   ): string {
     return ethers.utils.getCreate2Address(
       factoryAddress,
@@ -56,7 +55,6 @@ export default class Retrieval {
       token0Address,
       token1Address,
       Number(fee),
-      COMPUTED_INIT_CODE_HASH
     );
     // Compare computed address with the provided pair address
 
