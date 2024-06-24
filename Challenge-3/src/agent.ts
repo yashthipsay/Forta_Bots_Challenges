@@ -23,13 +23,24 @@ import {
   createL1OptFinding,
 } from "./findings";
 import { Provider } from "@ethersproject/providers";
-import { L1Alerts } from "./mockAlerts";
+import { L1Alert } from "./mockAlerts";
 
 // import { getL1Alerts } from "./botAlerts";
 import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
+const alert: Alert = {
+  alertId: "L1_ESCROW",
+    chainId: 1,
+    hasAddress: () => true,
+    metadata: {
+        optEscBal: Number,
+        abtEscBal: Number
+    }
+  }
 const emptyAlertResponse: AlertsResponse = {
-  alerts: [],
+  alerts: [
+    alert
+  ],
   pageInfo: {
     hasNextPage: false,
   },
@@ -41,7 +52,7 @@ const critAlerts: AlertQueryOptions = {
 }
 export function provideHandleBlock(
   provider: ethers.providers.Provider,
-  getL1Alerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse>
+  getAlerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse> 
 ): HandleBlock {
   return async function handleBlock(blockEvent: BlockEvent): Promise<Finding[]> {
     let balance: string;
@@ -51,22 +62,29 @@ export function provideHandleBlock(
     //   "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612";
     const { chainId } = await provider.getNetwork();
  
+    const {alert} = await L1Alert(blockEvent.blockNumber); 
     
     // const l1Alerts: AlertsResponse = await getL1Alerts(BOT_ID_1);
     if (chainId == 1) {
       const optBalance = await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber);
       const abtBalance = await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber);
+      // try{
+      //   Object.assign(alert.metadata, { optEscBal: optBalance, abtEscBal: abtBalance });
+      //   console.log("Alert metadata: " + alert.metadata.optEscBal + " " + alert.metadata.abtEscBal);
+      // } catch(e) {
+      //   console.log(e);
+      // }
       findings.push(createL1OptFinding(optBalance, abtBalance));
+      
     }
     console.log("test-4")
     if (chainId != 1) {
       console.log("test-5");
-      try{
+      
         const l2Cond = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId, findings, getAlerts);
-      } catch {
+     
         return findings;
-      }
-      const {alerts} = await L1Alerts(blockEvent.blockNumber);
+      
     }
     // else if (l1Alerts.alerts.length == 0) {
     //   return findings;
@@ -108,7 +126,8 @@ export default {
   // healthCheck,
   // handleBlock,
   handleBlock: provideHandleBlock(
-    getEthersProvider(), getAlerts
+    getEthersProvider(),
+    emptyAlertResponse as any
   ),
 
 };
