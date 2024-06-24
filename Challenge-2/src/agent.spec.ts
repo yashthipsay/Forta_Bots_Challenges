@@ -27,8 +27,8 @@ const createFinding = (token0Address: string, token1Address: string): Finding =>
     name: "Swap Event",
     description: "Swap event detected",
     alertId: "UNISWAP_SWAP_EVENT",
-    severity: FindingSeverity.Medium,
-    type: FindingType.Suspicious,
+    severity: FindingSeverity.Low,
+    type: FindingType.Info,
     metadata: {
       isValid: "true",
     },

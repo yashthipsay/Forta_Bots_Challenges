@@ -35,7 +35,7 @@ export function provideSwapHandler(
 
         // Validate the Uniswap pair address
 
-        const [isValid, token0Address, token1Address] = await retrieval.isValidUniswapPair(
+        const [isValid] = await retrieval.isValidUniswapPair(
           pairAddress,
           txEvent.blockNumber,
           uniswapFactoryAddress,
@@ -48,8 +48,8 @@ export function provideSwapHandler(
               name: "Swap Event",
               description: "Swap event detected",
               alertId: "UNISWAP_SWAP_EVENT",
-              severity: FindingSeverity.Medium,
-              type: FindingType.Suspicious,
+              severity: FindingSeverity.Low,
+              type: FindingType.Info,
               metadata: {
                 isValid: isValid.toString(),
               },

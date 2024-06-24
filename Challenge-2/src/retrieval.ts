@@ -2,7 +2,6 @@ import { Contract, ContractRunner, Provider } from "ethers";
 import { ethers } from "forta-agent";
 
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_FACTORY_ADDRESS, UNISWAP_PAIR_ABI } from "./utils";
-import { getCreate2Address } from "@ethersproject/address";
 
 export default class Retrieval {
   private provider: ethers.providers.Provider;

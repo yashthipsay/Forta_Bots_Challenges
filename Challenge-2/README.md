@@ -1,28 +1,31 @@
-# Large Tether Transfer Agent
+# UNISWAP SWAP EVENT DETECTION BOT
 
 ## Description
 
-This agent detects transactions with large Tether transfers
+This bot detects swaps in a Uniswap Factory contract on Polygon network
 
 ## Supported Chains
 
-- Ethereum
-- List any other chains this agent can support e.g. BSC
+- Polygon (RPC-URL: "https://rpc.ankr.com/polygon")
+
 
 ## Alerts
 
 Describe each of the type of alerts fired by this agent
 
-- FORTA-1
-  - Fired when a transaction contains a Tether transfer over 10,000 USDT
-  - Severity is always set to "low" (mention any conditions where it could be something else)
-  - Type is always set to "info" (mention any conditions where it could be something else)
-  - Mention any other type of metadata fields included with this alert
+- UNISWAP_SWAP_EVENT
+  - Fired when a swap takes place emitting a Swap event
+  - Severity is set to "low" as it is only meant to give us information
+  - Type is always set to "info" 
+  - In the metadata field, the validity of the token pair is mentioned
 
 ## Test Data
 
-The agent behaviour can be verified with the following transactions:
+The bot behaviour can be verified with the following addresses:
 
-- 0x3a0f757030beec55c22cbc545dd8a844cbbb2e6019461769e1bc3f3a95d10826 (15,000 USDT)
+Token 1 value = `0x74993dD14475b25986B6ed8d12d3a0dFf92248f4`
+Token 2 value = `0x08d16B72dad2c52FD94835FF49f51514aFcBfBfC`
+Pool address = `0x61D3f523cd7e93d8deF89bb5d5c4eC178f7CfE76`
+RPC-URL = `https://rpc.ankr.com/polygon`
 
-"jsonRpcUrl": "https://rpc.ankr.com/polygon"
+
