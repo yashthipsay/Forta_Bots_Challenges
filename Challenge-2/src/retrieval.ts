@@ -62,7 +62,6 @@ export default class Retrieval {
     // Compare computed address with the provided pair address
 
     const isValid = tokenPair.toLowerCase() === pairAddress.toLowerCase() ? true : false;
-    console.log("tokenPair", tokenPair, pairAddress);
 
     return [isValid, token0Address.toLowerCase(), token1Address.toLowerCase()];
   }

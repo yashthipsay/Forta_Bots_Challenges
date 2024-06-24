@@ -41,7 +41,6 @@ export function provideSwapHandler(
           uniswapFactoryAddress,
           initcode
         );
-        console.log("isValid", isValid, token0Address, token1Address);
         if (isValid) {
           // If the pair address is valid, create a finding
           findings.push(
@@ -51,7 +50,9 @@ export function provideSwapHandler(
               alertId: "UNISWAP_SWAP_EVENT",
               severity: FindingSeverity.Medium,
               type: FindingType.Suspicious,
-              metadata: {},
+              metadata: {
+                isValid: isValid.toString(),
+              },
             })
           );
         }

@@ -22,14 +22,16 @@ const TICK = BigNumber.from("1");
 
 // Function to create a mock finding for testing
 
-const createFinding = (poolVal: Object, newAddress: string): Finding => {
+const createFinding = (token0Address: string, token1Address: string): Finding => {
   return Finding.fromObject({
     name: "Swap Event",
     description: "Swap event detected",
     alertId: "UNISWAP_SWAP_EVENT",
     severity: FindingSeverity.Medium,
     type: FindingType.Suspicious,
-    metadata: {},
+    metadata: {
+      isValid: "true",
+    },
   });
 };
 
@@ -41,26 +43,23 @@ describe("Uniswap test suite", () => {
 
   beforeEach(() => {
     const retrieval = new Retrieval(getEthersProvider());
-    console.log(retrieval);
     handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, retrieval, COMPUTED_INIT_CODE_HASH);
   });
 
-    // Test case for no swap events
+  // Test case for no swap events
 
   it("returns an empty finding if there are no swap events", async () => {
     const txEvent = new TestTransactionEvent();
 
     const findings = await handleTransaction(txEvent);
-    console.log(findings);
 
     expect(findings.length).toEqual(0);
     expect(findings).toStrictEqual([]);
   });
 
-    // Test case for a single valid swap event
+  // Test case for a single valid swap event
 
   it("returns a finding if there is a single valid swap event from Uniswap", async () => {
-
     txEvent = new TestTransactionEvent().addEventLog(
       "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
       TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
@@ -75,15 +74,12 @@ describe("Uniswap test suite", () => {
       ]
     );
 
-    console.log(txEvent);
-
     const poolVal = {
       token0: TEST_VALUE_1.TOKEN0_ADDRESS,
       token1: TEST_VALUE_1.TOKEN1_ADDRESS,
       fee: TEST_VALUE_1.FEE,
     };
-    const mockFinding = createFinding(poolVal, TEST_VALUE_1.POOL_ADDRESS);
-    console.log(mockFinding);
+    const mockFinding = createFinding(TEST_VALUE_1.TOKEN0_ADDRESS, TEST_VALUE_1.TOKEN1_ADDRESS);
 
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toEqual(1);
@@ -123,7 +119,7 @@ describe("Uniswap test suite", () => {
       token1: TEST_VALUE_1.TOKEN1_ADDRESS,
       fee: TEST_VALUE_1.FEE,
     };
-    const mockFinding = createFinding(poolVal, TEST_VALUE_1.POOL_ADDRESS);
+    const mockFinding = createFinding(TEST_VALUE_1.TOKEN0_ADDRESS, TEST_VALUE_1.TOKEN1_ADDRESS);
 
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toEqual(2);
