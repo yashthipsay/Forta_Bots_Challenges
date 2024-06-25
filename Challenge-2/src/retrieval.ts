@@ -43,9 +43,9 @@ export default class Retrieval {
     // Fetch token addresses and fee from the contract
 
     [token0Address, token1Address, fee] = await Promise.all([
-      pairContract.token0(),
-      pairContract.token1(),
-      pairContract.fee(),
+      pairContract.token0({blockTag: block}),
+      pairContract.token1({blockTag: block}),
+      pairContract.fee({blockTag: block}),
     ]);
 
     // Compute the expected pair address using CREATE2

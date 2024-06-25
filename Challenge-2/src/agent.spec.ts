@@ -9,223 +9,106 @@ import { Interface } from "@ethersproject/abi";
 import { ethers } from "forta-agent";
 import { Provider } from "@ethersproject/abstract-provider";
 
-// Test values setup for mock events
 
-const mockSwapEventArgs = [
-  createAddress('0x234'),
-  createAddress('0x345'),
-  ethers.BigNumber.from('-5378335736229591174395'),
-  ethers.BigNumber.from('266508884993980604'),
-  ethers.BigNumber.from('555620238891309147094159455'),
-  ethers.BigNumber.from('14900188386820019615173'),
-  -99206,
-];
-
-const TEST_VALUE_1 = {
-  TOKEN0_ADDRESS: "0x74993dD14475b25986B6ed8d12d3a0dFf92248f4",
-  TOKEN0_VALUE: BigNumber.from("500"),
-  TOKEN1_ADDRESS: "0x08d16B72dad2c52FD94835FF49f51514aFcBfBfC",
-  TOKEN1_VALUE: BigNumber.from("400"),
-  POOL_ADDRESS: "0x61D3f523cd7e93d8deF89bb5d5c4eC178f7CfE76",
-  FEE: BigNumber.from("3000"),
-};
-
-const SQRT_PRICE = BigNumber.from("10");
-const LIQUIDITY = BigNumber.from("1000");
-const TICK = BigNumber.from("1");
 let handleTransaction: HandleTransaction;
+let Iface: ethers.utils.Interface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
 
-// Function to create a mock finding for testing
-let Iface : ethers.utils.Interface;
 
-const createFinding = (token0Address: string, token1Address: string): Finding => {
-  return Finding.fromObject({
-    name: "Swap Event",
-    description: "Swap event detected",
-    alertId: "UNISWAP_SWAP_EVENT",
-    severity: FindingSeverity.Low,
-    type: FindingType.Info,
-    metadata: {
-      isValid: "true",
-    },
-  });
-};
-const mockFactoryAddress= createAddress('0x4');
-
-// Describe block groups test cases together
-beforeAll(() => {
-  const mockProvider = new MockEthersProvider();
-  const provider = mockProvider as unknown as ethers.providers.Provider;
-  const retrieval = new Retrieval(new MockEthersProvider() as any);
-  handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, provider);
-
-  Iface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
-});
 describe("Uniswap test suite", () => {
-  const retrieval = new Retrieval(new MockEthersProvider() as any);
+  const mockProvider = new MockEthersProvider();
+
   let txEvent: TestTransactionEvent;
-  const mockFactoryAddress = createAddress('0x4');
 
-  const mockToken1 = createAddress('0x987');
+  const mockToken1 = createAddress("0x987");
   const mockFee = 10000;
-  const mockPoolValues = [createAddress('0x765'), mockToken1, mockFee];
-  const mockPoolAddress = retrieval.getUniswapPairCreate2Address(mockFactoryAddress, createAddress('0x765'), mockToken1, mockFee);
-  console.log(mockPoolAddress);
-  let mockProvider: MockEthersProvider;
-  const mockRandomAddress = createAddress('0x123');
-
+//   const mockPoolAddress = createAddress("0x42069");
+    let mockPoolAddress: string
+    try{
+        const retrieval = new Retrieval(mockProvider as any);
+        mockPoolAddress = retrieval.getUniswapPairCreate2Address(createAddress('0x23124'), createAddress('0x765'), mockToken1, 99206)
+    } catch (error) {
+        console.error(error);
+    }
 
   const mockSwapEventArgs = [
-    createAddress('0x234'),
-    createAddress('0x345'),
-    ethers.BigNumber.from('5378335736229591174395'),
-    ethers.BigNumber.from('266508884993980604'),
-    ethers.BigNumber.from('555620238891309147094159455'),
-    ethers.BigNumber.from('14900188386820019615173'),
+    createAddress("0x234"),
+    createAddress("0x345"),
+    ethers.BigNumber.from("5378335736229591174395"),
+    ethers.BigNumber.from("266508884993980604"),
+    ethers.BigNumber.from("555620238891309147094159455"),
+    ethers.BigNumber.from("14900188386820019615173"),
     99206,
   ];
-  beforeEach(() => {
 
+  // Describe block groups test cases together
+  beforeAll(() => {
+    handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, mockProvider as any);
   });
 
- mockProvider = new MockEthersProvider();
- const provider = mockProvider as unknown as ethers.providers.Provider;
-  const configProvider = (contractAddress: string) => {
-   mockProvider.addCallTo(contractAddress, 0, Iface, 'token0', { inputs: [], outputs: [(createAddress('0x765'))] })
-    
-    mockProvider.addCallTo(contractAddress, 0, Iface, 'token1', { inputs: [], outputs: [mockToken1] });
-    mockProvider.addCallTo(contractAddress, 0, Iface, 'fee', { inputs: [], outputs: [mockFee] });
+  /*
+ const mockProvider: MockEthersProvider = new MockEthersProvider()
+  .addCallTo(address, 20, iface, "myAwesomeFunction", { inputs: [10, "tests"], outputs: [1, 2000] });
 
-    mockProvider.setLatestBlock(0);
-    console.log("Configured");
-  }
+  const createBalanceOfCall = (moduleAddress: string, tokenAmount: BigNumber, blockNumber: number) => {
+    mockProvider.addCallTo(mockNetworkManager.usdcAddress, blockNumber, USDC_IFACE, "balanceOf", {
+      inputs: [moduleAddress],
+      outputs: [tokenAmount],
+    });
+  };
+ */
 
+  it.only("returns a finding if there is a single valid swap event from Uniswap", async () => {
+    const createUniswapPairCalls = (pairAddress: string, functionName: string, output: string | number, blockNumber: number) => {
+      mockProvider.addCallTo(pairAddress, blockNumber, Iface, functionName, {
+        inputs: [],
+        outputs: [output],
+      });
+    };
 
-  // Test case for no swap events
+    createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
+    createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
 
-  it("returns an empty finding if there are no swap events", async () => {
-
-    
-    // const findings = await handleTransaction(txEvent);
-
-    // expect(findings.length).toEqual(0);
-    // expect(findings).toStrictEqual([]);
-
-    
-      // txEvent.setFrom(mockRandomAddress).setTo(mockPoolAddress).setValue('123456789');
-      // const findings = await handleTransaction(txEvent);
-
-      // expect(findings).toStrictEqual([]);
-      
-    
-  });
-
-  // Test case for a single valid swap event
-
-  it("returns a finding if there is a single valid swap event from Uniswap", async () => {
     txEvent = new TestTransactionEvent();
 
-    txEvent.setBlock(0).addEventLog("event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)", mockPoolAddress, [
+    txEvent
+    .setBlock(0)
+      .addEventLog(
+        "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+        mockPoolAddress,
+        [
+          mockSwapEventArgs[0],
+          mockSwapEventArgs[1],
+          mockSwapEventArgs[2],
+          mockSwapEventArgs[3],
+          mockSwapEventArgs[4],
+          mockSwapEventArgs[5],
+          mockSwapEventArgs[6],
+        ]
+      );
+  
+  
+
       
-   mockSwapEventArgs[0],
-   mockSwapEventArgs[1],
-   mockSwapEventArgs[2],
-   mockSwapEventArgs[3],
-   mockSwapEventArgs[4],
-   mockSwapEventArgs[5],
-   mockSwapEventArgs[6],
+
+    const findings = await handleTransaction(txEvent)
+      .then((findings) => {
+        console.log(findings);
+        expect(findings.length).toStrictEqual(1);
+        expect(findings).toStrictEqual([
+          Finding.fromObject({
+            name: 'Uniswap V3 Swap Detector',
+            description: 'This Bot detects the Swaps executed on Uniswap V3',
+            alertId: 'FORTA-1',
+            severity: FindingSeverity.Info,
+            type: FindingType.Info,
+            protocol: 'UniswapV3',
+            metadata: {
+              
+            },
+          }),
+        ]);
+      })
       
-          
-    ]);
-    console.log("Successful");
-
-    configProvider(mockPoolAddress);
-    console.log("Configured");
- 
-    const findings = await handleTransaction(txEvent).then((findings) => {
-      console.log(findings.length);
-    }).catch((error) => { console.error(error) });
-    
-   
-
-
-    // txEvent = new TestTransactionEvent().addEventLog(
-    //   "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
-    //   TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
-    //   [
-    //     TEST_VALUE_1.TOKEN1_ADDRESS,
-    //     TEST_VALUE_1.TOKEN0_ADDRESS,
-    //     TEST_VALUE_1.TOKEN0_VALUE,
-    //     TEST_VALUE_1.TOKEN1_VALUE,
-    //     SQRT_PRICE,
-    //     LIQUIDITY,
-    //     TICK,
-    //   ]
-    // );
-
-    // const poolVal = {
-    //   token0: TEST_VALUE_1.TOKEN0_ADDRESS,
-    //   token1: TEST_VALUE_1.TOKEN1_ADDRESS,
-    //   fee: TEST_VALUE_1.FEE,
-    // };
-    // const mockFinding = createFinding(TEST_VALUE_1.TOKEN0_ADDRESS, TEST_VALUE_1.TOKEN1_ADDRESS);
-
-    // const findings = await handleTransaction(txEvent);
-    // expect(findings.length).toEqual(1);
-  });
-
-  it("returns multiple findings if there are multiple valid swap events from Uniswap", async () => {
-    // txEvent = new TestTransactionEvent()
-    //   .addEventLog(
-    //     "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
-    //     TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
-    //     [
-    //       TEST_VALUE_1.TOKEN1_ADDRESS,
-    //       TEST_VALUE_1.TOKEN0_ADDRESS,
-    //       TEST_VALUE_1.TOKEN0_VALUE,
-    //       TEST_VALUE_1.TOKEN1_VALUE,
-    //       SQRT_PRICE,
-    //       LIQUIDITY,
-    //       TICK,
-    //     ]
-    //   )
-    //   .addEventLog(
-    //     "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
-    //     TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
-    //     [
-    //       TEST_VALUE_1.TOKEN1_ADDRESS,
-    //       TEST_VALUE_1.TOKEN0_ADDRESS,
-    //       TEST_VALUE_1.TOKEN0_VALUE,
-    //       TEST_VALUE_1.TOKEN1_VALUE,
-    //       SQRT_PRICE,
-    //       LIQUIDITY,
-    //       TICK,
-    //     ]
-    //   );
-
-    // const poolVal = {
-    //   token0: TEST_VALUE_1.TOKEN0_ADDRESS,
-    //   token1: TEST_VALUE_1.TOKEN1_ADDRESS,
-    //   fee: TEST_VALUE_1.FEE,
-    // };
-    // const mockFinding = createFinding(TEST_VALUE_1.TOKEN0_ADDRESS, TEST_VALUE_1.TOKEN1_ADDRESS);
-
-    // const findings = await handleTransaction(txEvent);
-    // expect(findings.length).toEqual(2);
-    // expect(findings).toEqual([mockFinding, mockFinding]);
-  // });
-
-  // it("returns no findings if a non-swap event is used", async () => {
-  //   txEvent = new TestTransactionEvent().addEventLog(
-  //     "event NonSwapEvent(address indexed sender, address indexed recipient, int256 amount0, int256 amount1)",
-  //     TEST_VALUE_1.POOL_ADDRESS.toLowerCase(),
-  //     [TEST_VALUE_1.TOKEN1_ADDRESS, TEST_VALUE_1.TOKEN0_ADDRESS, TEST_VALUE_1.TOKEN0_VALUE, TEST_VALUE_1.TOKEN1_VALUE]
-  //   );
-
-  //   const findings = await handleTransaction(txEvent);
-  //   expect(findings.length).toEqual(0);
-  // });
-// });
   });
 });
-  
