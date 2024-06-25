@@ -1,8 +1,3 @@
-/**
- * Utility functions and constants for the Uniswap integration.
- */
-
-import { keccak256 } from "@ethersproject/solidity";
 
 /**
  * The address of the Uniswap factory contract.

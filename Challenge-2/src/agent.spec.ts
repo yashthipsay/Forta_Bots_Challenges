@@ -7,6 +7,7 @@ import Retrieval from "./retrieval";
 import { createAddress } from "forta-agent-tools";
 import { Interface } from "@ethersproject/abi";
 import { ethers } from "forta-agent";
+import { Provider } from "@ethersproject/abstract-provider";
 
 // Test values setup for mock events
 
@@ -53,42 +54,44 @@ const mockFactoryAddress= createAddress('0x4');
 
 // Describe block groups test cases together
 beforeAll(() => {
+  const mockProvider = new MockEthersProvider();
+  const provider = mockProvider as unknown as ethers.providers.Provider;
   const retrieval = new Retrieval(new MockEthersProvider() as any);
+  handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, provider);
+
   Iface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
 });
 describe("Uniswap test suite", () => {
   const retrieval = new Retrieval(new MockEthersProvider() as any);
   let txEvent: TestTransactionEvent;
   const mockFactoryAddress = createAddress('0x4');
-  const mockToken0 = createAddress('0x765');
+
   const mockToken1 = createAddress('0x987');
   const mockFee = 10000;
-  const mockPoolValues = [mockToken0, mockToken1, mockFee];
-  const mockPoolAddress = retrieval.getUniswapPairCreate2Address(mockFactoryAddress, mockToken0, mockToken1, mockFee);
+  const mockPoolValues = [createAddress('0x765'), mockToken1, mockFee];
+  const mockPoolAddress = retrieval.getUniswapPairCreate2Address(mockFactoryAddress, createAddress('0x765'), mockToken1, mockFee);
   console.log(mockPoolAddress);
   let mockProvider: MockEthersProvider;
   const mockRandomAddress = createAddress('0x123');
 
 
   const mockSwapEventArgs = [
-    createAddress('0x123'),
-    createAddress('0x456'),
-    500,
-    600,
-    200000,
-    4000,
+    createAddress('0x234'),
+    createAddress('0x345'),
+    ethers.BigNumber.from('5378335736229591174395'),
+    ethers.BigNumber.from('266508884993980604'),
+    ethers.BigNumber.from('555620238891309147094159455'),
+    ethers.BigNumber.from('14900188386820019615173'),
     99206,
   ];
   beforeEach(() => {
-   txEvent = new TestTransactionEvent();
-  handleTransaction = provideSwapHandler(mockFactoryAddress, COMPUTED_INIT_CODE_HASH);
 
-   txEvent.setBlock(0);
   });
 
  mockProvider = new MockEthersProvider();
-  const configProvider = async (contractAddress: string) => {
-   mockProvider.addCallTo(contractAddress, 0, Iface, 'token0', { inputs: [], outputs: [mockToken0] })
+ const provider = mockProvider as unknown as ethers.providers.Provider;
+  const configProvider = (contractAddress: string) => {
+   mockProvider.addCallTo(contractAddress, 0, Iface, 'token0', { inputs: [], outputs: [(createAddress('0x765'))] })
     
     mockProvider.addCallTo(contractAddress, 0, Iface, 'token1', { inputs: [], outputs: [mockToken1] });
     mockProvider.addCallTo(contractAddress, 0, Iface, 'fee', { inputs: [], outputs: [mockFee] });
@@ -120,28 +123,31 @@ describe("Uniswap test suite", () => {
   // Test case for a single valid swap event
 
   it("returns a finding if there is a single valid swap event from Uniswap", async () => {
+    txEvent = new TestTransactionEvent();
 
-    txEvent.addEventLog("event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)", mockPoolAddress.toLowerCase(), [
+    txEvent.setBlock(0).addEventLog("event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)", mockPoolAddress, [
       
-            TEST_VALUE_1.TOKEN1_ADDRESS,
-            TEST_VALUE_1.TOKEN0_ADDRESS,
-            TEST_VALUE_1.TOKEN0_VALUE,
-            TEST_VALUE_1.TOKEN1_VALUE,
-            SQRT_PRICE,
-            LIQUIDITY,
-            TICK,
+   mockSwapEventArgs[0],
+   mockSwapEventArgs[1],
+   mockSwapEventArgs[2],
+   mockSwapEventArgs[3],
+   mockSwapEventArgs[4],
+   mockSwapEventArgs[5],
+   mockSwapEventArgs[6],
+      
           
     ]);
     console.log("Successful");
 
     configProvider(mockPoolAddress);
-    try{
-    const findings = await handleTransaction(txEvent);
-    console.log(findings);
+    console.log("Configured");
+ 
+    const findings = await handleTransaction(txEvent).then((findings) => {
+      console.log(findings.length);
+    }).catch((error) => { console.error(error) });
+    
    
-} catch (error) {
-  console.log(error);
-}
+
 
     // txEvent = new TestTransactionEvent().addEventLog(
     //   "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
