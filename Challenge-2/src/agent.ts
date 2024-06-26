@@ -6,7 +6,7 @@ import { getUniswapPoolValues, getUniswapCreate2Address } from "./retrieval";
 export function provideSwapHandler(
   provider: ethers.providers.Provider,
   SWAP_EVENT: string[],
-  UNISWAP_PAIR_ABI: string[]
+  UNISWAP_PAIR_ABI: string[],
 ): HandleTransaction {
   return async (txEvent: TransactionEvent): Promise<Finding[]> => {
     const findings: Finding[] = [];
