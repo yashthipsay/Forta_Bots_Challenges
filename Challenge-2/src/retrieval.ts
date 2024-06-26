@@ -1,133 +1,38 @@
-// import { Contract, ContractRunner, Provider } from "ethers";
-// import { ethers } from "forta-agent";
-
-// import { COMPUTED_INIT_CODE_HASH, UNISWAP_FACTORY_ADDRESS, UNISWAP_PAIR_ABI } from "./utils";
-
-// export default class Retrieval {
-//   private provider: ethers.providers.Provider;
-
-//   // Constructor to initialize with an ethers provider
-//   constructor(provider: ethers.providers.Provider) {
-//     this.provider = provider;
-//   }
-
-//   // Computes the CREATE2 address for a Uniswap pair
-
-//   public getUniswapPairCreate2Address(
-//     factoryAddress: string,
-//     token0: string,
-//     token1: string,
-//     fee: number,
-//   ): string {
-//     return ethers.utils.getCreate2Address(
-//       factoryAddress,
-//       ethers.utils.keccak256(
-//         ethers.utils.defaultAbiCoder.encode(["address", "address", "uint24"], [token0, token1, fee])
-//       ),
-//       COMPUTED_INIT_CODE_HASH
-//     );
-//   }
-
-//   // Validates if a given Uniswap pair address is correct by recomputing its CREATE2 address
-
-//   public async isValidUniswapPair(
-//     pairAddress: string,
-//     block: number,
-//     uniswapFactoryAddr: string,
-//     init: string
-//   ): Promise<[boolean, string, string]> {
-//     // Create a contract instance for the pair
-
-//     const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, this.provider);
-   
-//     // Fetch token addresses and fee from the contract
-
-//     // [token0Address, token1Address, fee] = await Promise.all([
-//     //   pairContract.token0({blockTag: block}),
-//     //   pairContract.token1({blockTag: block}),
-//     //   pairContract.fee({blockTag: block}),
-//     // ]);
-//     const token0Address = await pairContract.token0({blockTag: block});
-//     const token1Address = await pairContract.token1({blockTag: block});
-//     const fee = await pairContract.fee({blockTag: block});
-
-//     // Compute the expected pair address using CREATE2
-
-//     const tokenPair = this.getUniswapPairCreate2Address(
-//       UNISWAP_FACTORY_ADDRESS,
-//       token0Address,
-//       token1Address,
-//       Number(fee),
-//     );
-//     // Compare computed address with the provided pair address
-
-//     const isValid = tokenPair.toLowerCase() === pairAddress.toLowerCase() ? true : false;
-
-//     return [isValid, token0Address.toLowerCase(), token1Address.toLowerCase()];
-//   }
-// }
-
-
-
 import { ethers } from "forta-agent";
 import { BigNumber } from "@ethersproject/bignumber";
-import { IUNISWAPV3FACTORY, UNISWAPV3FACTORY_ADDRESS, POOL_INIT_CODE_HASH } from "./utils";
+import { POOL_INIT_CODE_HASH } from "./utils";
 
-//Create a custom type that to store the pool values
-export type poolValues = {
-  token0: string;
-  token1: string;
-  fee: number | BigNumber;
+export type PoolValues = {
+  token0: string; // address of token0
+  token1: string; // address of token1
+  fee: number | BigNumber; // fee value
 };
-
-
 
 export const getUniswapPoolValues = async (
-  poolAddress: string,
-  IUNISWAPV3POOL: string[],
-  provider: ethers.providers.Provider,
-  blockNumber: number
-): Promise<poolValues> => {
- 
-  //If we have called this function before with the same pool address, it
-  //should have the vals in cache so we can return them and skip everything else
-  const key: string = poolAddress;
+  poolAddress: string, // address of the Uniswap pool
+  IUNISWAPV3POOL: string[], // array of Uniswap pool interfaces
+  provider: ethers.providers.Provider, // Ethereum provider
+  blockNumber: number // block number
+): Promise<PoolValues> => {
+  const cacheKey: string = poolAddress; // cache key for the pool address
 
-  const uniswap_pool = new ethers.Contract(poolAddress, IUNISWAPV3POOL, provider);
-  let token0 = await uniswap_pool.token0({ blockTag: blockNumber });
-  let token1 = await uniswap_pool.token1({ blockTag: blockNumber });
-  let fee = await uniswap_pool.fee({ blockTag: blockNumber });
-  // Store vals in cache so we don't repeat the same calls
+  const uniswapPool = new ethers.Contract(poolAddress, IUNISWAPV3POOL, provider); // create Uniswap pool contract instance
+  let token0 = await uniswapPool.token0({ blockTag: blockNumber }); // get token0 address
+  let token1 = await uniswapPool.token1({ blockTag: blockNumber }); // get token1 address
+  let fee = await uniswapPool.fee({ blockTag: blockNumber }); // get fee value
 
-  return { token0, token1, fee } as poolValues;
+  return { token0, token1, fee } as PoolValues; // return pool values
 };
 
-
-export const getUniswapCreate2Address = (poolVal: poolValues, factoryContract: ethers.Contract) => {
+export const getUniswapCreate2Address = (poolValues: PoolValues, factoryContract: ethers.Contract) => {
   return ethers.utils.getCreate2Address(
     factoryContract.address,
     ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "uint24"],
-        [poolVal.token0, poolVal.token1, poolVal.fee]
+        [poolValues.token0, poolValues.token1, poolValues.fee]
       )
     ),
     POOL_INIT_CODE_HASH
   );
 };
-
-//alternative method to confirm the pool address
-//less gas effecient
-/*
-export const getPoolAddress = async (
-  poolVal: poolValues,
-  factoryContract: Contract,
-  blockNumber: number
-): Promise<string> => {
-  const poolAddress = await factoryContract.getPool(poolVal.token0, poolVal.token1, poolVal.fee, {
-    blockTag: blockNumber,
-  });
-
-  return poolAddress;
-};
-*/

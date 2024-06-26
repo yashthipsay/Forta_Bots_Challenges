@@ -1,17 +1,16 @@
 import { Finding, FindingSeverity, FindingType } from "forta-agent";
-import { poolValues } from "./retrieval";
+import { PoolValues } from "./retrieval";
 
-export const createFinding = (poolVal: poolValues, newAddress: string) => {
+export const createFinding = (poolVal: PoolValues, newAddress: string) => {
   return Finding.fromObject({
-    name: "UniswapV3 Swap Event Emission",
-    description: `UniswapV3 Swap event detected for pool contract: ${newAddress}`,
-    alertId: "UNISWAP-SWAP-1",
+    name: "Uniswap Swap Detection",
+    description: `Uniswap swap detected in pool ${poolVal} at address ${newAddress}`,
+    alertId: "UNISWAP_SWAP_DETECTED",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "Uniswap",
     metadata: {
       pool: newAddress,
-     
     },
   });
 };
