@@ -26,7 +26,6 @@ describe("Uniswap test suite", () => {
     99206,
     COMPUTED_INIT_CODE_HASH
   );
-  console.log(mockPoolAddress);
 
   const mockSwapEventArgs = [
     createAddress("0x234"),
@@ -89,7 +88,6 @@ describe("Uniswap test suite", () => {
       );
 
     const findings = await handleTransaction(txEvent).then((findings) => {
-      console.log(findings);
       expect(findings.length).toStrictEqual(1);
       expect(findings).toStrictEqual([
         Finding.fromObject({
@@ -122,7 +120,6 @@ describe("Uniswap test suite", () => {
       99206,
       COMPUTED_INIT_CODE_HASH
     );
-    console.log(mockPoolAddress2);
 
     createUniswapPairCalls(mockPoolAddress2, "token0", createAddress("0x888"), 0);
     createUniswapPairCalls(mockPoolAddress2, "token1", createAddress("0x456"), 0);
@@ -159,7 +156,6 @@ describe("Uniswap test suite", () => {
 
     // Execute handleTransaction and verify multiple findings are returned
     const findings = await handleTransaction(txEvent).then((findings) => {
-      console.log(findings);
       expect(findings.length).toStrictEqual(2); // Expecting two findings now
       expect(findings).toEqual([
         Finding.fromObject({
@@ -206,7 +202,6 @@ describe("Uniswap test suite", () => {
 
     // Execute handleTransaction and verify that no findings are returned
     const findings = await handleTransaction(txEvent).then((findings) => {
-      console.log(findings);
       expect(findings.length).toStrictEqual(0); // Expecting zero findings
     });
   });
@@ -231,7 +226,6 @@ describe("Uniswap test suite", () => {
 
     // Execute handleTransaction and verify that no findings are returned for both events
     const findings = await handleTransaction(txEvent).then((findings) => {
-      console.log(findings);
       expect(findings.length).toStrictEqual(0); // Expecting zero findings for both non-swap events
     });
   });

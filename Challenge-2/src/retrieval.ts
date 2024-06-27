@@ -39,7 +39,6 @@ export default class Retrieval {
     const tokenPair = this.getUniswapPairCreate2Address(factoryAddress, token0Address, token1Address, fee, initcode);
 
     const isValid = tokenPair.toLowerCase() === pairAddress.toLowerCase();
-    console.log(isValid, tokenPair, pairAddress);
     return [isValid, token0Address.toLowerCase(), token1Address.toLowerCase()];
   }
 }

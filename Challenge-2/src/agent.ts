@@ -45,7 +45,6 @@ export function provideSwapHandler(
         const token0Address = await pairContract.token0({ blockTag: txEvent.blockNumber });
         const token1Address = await pairContract.token1({ blockTag: txEvent.blockNumber });
         const fee = await pairContract.fee({ blockTag: txEvent.blockNumber });
-        console.log(token0Address, token1Address, fee);
 
         const [isValid] = await retrieval.isValidUniswapPair(
           uniswapFactoryAddress,
