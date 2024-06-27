@@ -9,14 +9,11 @@ import {
 } from "forta-agent";
 import {
   UNISWAP_FACTORY_ADDRESS,
-  UNISWAP_FACTORY_ABI,
   COMPUTED_INIT_CODE_HASH,
   SWAP_EVENT,
   UNISWAP_PAIR_ABI,
 } from "./utils";
 import Retrieval from "./retrieval";
-import { Provider } from "@ethersproject/providers";
-import { EtherscanProvider } from "ethers";
 
 // Function to provide a handler for swap events
 
@@ -59,18 +56,22 @@ export function provideSwapHandler(
           initcode
         );
         if (isValid) {
-        // If the pair address is valid, create a finding
-        findings.push(
-          Finding.fromObject({
-            name: "Uniswap V3 Swap Detector",
-            description: "This Bot detects the Swaps executed on Uniswap V3",
-            alertId: "UNISWAP_SWAP_EVENT",
-            severity: FindingSeverity.Info,
-            protocol: "UniswapV3",
-            type: FindingType.Info,
-            metadata: {},
-          })
-        );
+          // If the pair address is valid, create a finding
+          findings.push(
+            Finding.fromObject({
+              name: "Uniswap V3 Swap Detector",
+              description: "This Bot detects the Swaps executed on Uniswap V3",
+              alertId: "UNISWAP_SWAP_EVENT",
+              severity: FindingSeverity.Info,
+              protocol: "UniswapV3",
+              type: FindingType.Info,
+              metadata: {
+                token0: token0Address,
+                token1: token1Address,
+                fee: fee.toString(),
+              },
+            })
+          );
         }
       })
     );
