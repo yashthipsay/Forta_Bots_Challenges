@@ -7,7 +7,13 @@ import {
   getEthersProvider,
   ethers,
 } from "forta-agent";
-import { UNISWAP_FACTORY_ADDRESS, UNISWAP_FACTORY_ABI, COMPUTED_INIT_CODE_HASH, SWAP_EVENT } from "./utils";
+import {
+  UNISWAP_FACTORY_ADDRESS,
+  UNISWAP_FACTORY_ABI,
+  COMPUTED_INIT_CODE_HASH,
+  SWAP_EVENT,
+  UNISWAP_PAIR_ABI,
+} from "./utils";
 import Retrieval from "./retrieval";
 import { Provider } from "@ethersproject/providers";
 import { EtherscanProvider } from "ethers";
@@ -38,26 +44,33 @@ export function provideSwapHandler(
 
         // Validate the Uniswap pair address
 
+        const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
+        const token0Address = await pairContract.token0({ blockTag: txEvent.blockNumber });
+        const token1Address = await pairContract.token1({ blockTag: txEvent.blockNumber });
+        const fee = await pairContract.fee({ blockTag: txEvent.blockNumber });
+        console.log(token0Address, token1Address, fee);
+
         const [isValid] = await retrieval.isValidUniswapPair(
-          pairAddress,
-          txEvent.blockNumber,
           uniswapFactoryAddress,
+          pairAddress,
+          token0Address,
+          token1Address,
+          fee,
           initcode
         );
         if (isValid) {
-          // If the pair address is valid, create a finding
-          findings.push(
-            Finding.fromObject({
-              name: "Swap Event",
-              description: "Swap event detected",
-              alertId: "UNISWAP_SWAP_EVENT",
-              severity: FindingSeverity.Low,
-              type: FindingType.Info,
-              metadata: {
-                isValid: isValid.toString(),
-              },
-            })
-          );
+        // If the pair address is valid, create a finding
+        findings.push(
+          Finding.fromObject({
+            name: "Uniswap V3 Swap Detector",
+            description: "This Bot detects the Swaps executed on Uniswap V3",
+            alertId: "UNISWAP_SWAP_EVENT",
+            severity: FindingSeverity.Info,
+            protocol: "UniswapV3",
+            type: FindingType.Info,
+            metadata: {},
+          })
+        );
         }
       })
     );
@@ -67,9 +80,5 @@ export function provideSwapHandler(
 }
 
 export default {
-  handleTransaction: provideSwapHandler(
-    UNISWAP_FACTORY_ADDRESS,
-    COMPUTED_INIT_CODE_HASH,
-    getEthersProvider()
-  ),
+  handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, getEthersProvider()),
 };

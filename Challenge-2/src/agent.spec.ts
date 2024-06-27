@@ -9,10 +9,8 @@ import { Interface } from "@ethersproject/abi";
 import { ethers } from "forta-agent";
 import { Provider } from "@ethersproject/abstract-provider";
 
-
 let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
-
 
 describe("Uniswap test suite", () => {
   const mockProvider = new MockEthersProvider();
@@ -20,15 +18,22 @@ describe("Uniswap test suite", () => {
   let txEvent: TestTransactionEvent;
 
   const mockToken1 = createAddress("0x987");
-  const mockFee = 10000;
-//   const mockPoolAddress = createAddress("0x42069");
-    let mockPoolAddress: string
-    try{
-        const retrieval = new Retrieval(mockProvider as any);
-        mockPoolAddress = retrieval.getUniswapPairCreate2Address(createAddress('0x23124'), createAddress('0x765'), mockToken1, 99206)
-    } catch (error) {
-        console.error(error);
-    }
+  const mockFee = 99206;
+  //   const mockPoolAddress = createAddress("0x42069");
+  let mockPoolAddress: string;
+  try {
+    const retrieval = new Retrieval(mockProvider as any);
+    mockPoolAddress = retrieval.getUniswapPairCreate2Address(
+      createAddress("0x284"),
+      createAddress("0x765"),
+      mockToken1,
+      99206,
+      COMPUTED_INIT_CODE_HASH
+    );
+    console.log(mockPoolAddress);
+  } catch (error) {
+    console.error(error);
+  }
 
   const mockSwapEventArgs = [
     createAddress("0x234"),
@@ -42,7 +47,7 @@ describe("Uniswap test suite", () => {
 
   // Describe block groups test cases together
   beforeAll(() => {
-    handleTransaction = provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, mockProvider as any);
+    handleTransaction = provideSwapHandler(createAddress("0x284"), COMPUTED_INIT_CODE_HASH, mockProvider as any);
   });
 
   /*
@@ -58,7 +63,12 @@ describe("Uniswap test suite", () => {
  */
 
   it.only("returns a finding if there is a single valid swap event from Uniswap", async () => {
-    const createUniswapPairCalls = (pairAddress: string, functionName: string, output: string | number, blockNumber: number) => {
+    const createUniswapPairCalls = (
+      pairAddress: string,
+      functionName: string,
+      output: string | number,
+      blockNumber: number
+    ) => {
       mockProvider.addCallTo(pairAddress, blockNumber, Iface, functionName, {
         inputs: [],
         outputs: [output],
@@ -72,7 +82,7 @@ describe("Uniswap test suite", () => {
     txEvent = new TestTransactionEvent();
 
     txEvent
-    .setBlock(0)
+      .setBlock(0)
       .addEventLog(
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress,
@@ -86,29 +96,22 @@ describe("Uniswap test suite", () => {
           mockSwapEventArgs[6],
         ]
       );
-  
-  
 
-      
+    const findings = await handleTransaction(txEvent).then((findings) => {
+      console.log(findings);
+      expect(findings.length).toStrictEqual(1);
+      expect(findings).toStrictEqual([
+        Finding.fromObject({
+          name: "Uniswap V3 Swap Detector",
+          description: "This Bot detects the Swaps executed on Uniswap V3",
+          alertId: "UNISWAP_SWAP_EVENT",
+          severity: FindingSeverity.Info,
+          type: FindingType.Info,
+          protocol: "UniswapV3",
 
-    const findings = await handleTransaction(txEvent)
-      .then((findings) => {
-        console.log(findings);
-        expect(findings.length).toStrictEqual(1);
-        expect(findings).toStrictEqual([
-          Finding.fromObject({
-            name: 'Uniswap V3 Swap Detector',
-            description: 'This Bot detects the Swaps executed on Uniswap V3',
-            alertId: 'FORTA-1',
-            severity: FindingSeverity.Info,
-            type: FindingType.Info,
-            protocol: 'UniswapV3',
-            metadata: {
-              
-            },
-          }),
-        ]);
-      })
-      
+          metadata: {},
+        }),
+      ]);
+    });
   });
 });
