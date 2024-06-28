@@ -1,6 +1,6 @@
 {
   "name": "uniswap-swap-detection",
-  "displayName": "UNISWAP SWAP DETECTION",
+  "displayName": "Uniswap Swap Detection",
   "version": "0.0.1",
   "description": "Challenge-2 for detecting swaps on Uniswap ",
   "longDescription": "This bot detects swaps on Uniswap. It listens to the Uniswap contract and detects swaps. It then sends an alert to the Forta dashboard.",
