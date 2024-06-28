@@ -2,11 +2,12 @@
 
 ## Description
 
-This bot detects swaps in a Uniswap Factory contract on Polygon network
+This bot detects swaps in a UniswapV3 Pool contract on the network of the given RPC URL
 
 ## Supported Chains
 
 - Polygon (RPC-URL: "https://rpc.ankr.com/polygon")
+- Ethereum (default)
 
 
 ## Alerts
