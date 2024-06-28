@@ -6,7 +6,7 @@ This bot detects swaps in a UniswapV3 Pool contract on the network of the given 
 
 ## Supported Chains
 
-- Polygon (RPC-URL: "https://rpc.ankr.com/polygon")
+- Polygon 
 - Ethereum (default)
 
 
