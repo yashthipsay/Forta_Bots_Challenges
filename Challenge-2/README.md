@@ -24,9 +24,6 @@ Describe each of the type of alerts fired by this agent
 
 The bot behaviour can be verified with the following addresses:
 
-Token 1 value = `0x74993dD14475b25986B6ed8d12d3a0dFf92248f4`
-Token 2 value = `0x08d16B72dad2c52FD94835FF49f51514aFcBfBfC`
-Pool address = `0x61D3f523cd7e93d8deF89bb5d5c4eC178f7CfE76`
-RPC-URL = `https://rpc.ankr.com/polygon`
+Txn Hash - `0x76eda3e5118fda2ec63ba850da54f9305c11a4712715180c8a97a54f2340b8fa`
 
 
