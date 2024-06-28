@@ -6,6 +6,7 @@ import {
   FindingType,
   getEthersProvider,
   ethers,
+  Initialize,
 } from "forta-agent";
 import {
   UNISWAP_FACTORY_ADDRESS,
@@ -79,6 +80,10 @@ export function provideSwapHandler(
   };
 }
 
+export function provideInitialize (provider: ethers.providers.Provider) {
+  const retrieval = new Retrieval(provider);
+}
 export default {
+  initialize: provideInitialize(getEthersProvider()),
   handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, getEthersProvider()),
 };
