@@ -1,4 +1,4 @@
-# UNISWAP SWAP EVENT DETECTION BOT
+# Uniswap Swap Detection Bot
 
 ## Description
 
