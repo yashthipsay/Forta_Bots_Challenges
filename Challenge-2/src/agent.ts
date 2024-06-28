@@ -6,7 +6,6 @@ import {
   FindingType,
   getEthersProvider,
   ethers,
-  Initialize,
 } from "forta-agent";
 import {
   UNISWAP_FACTORY_ADDRESS,
@@ -16,18 +15,23 @@ import {
 } from "./utils";
 import Retrieval from "./retrieval";
 
+let retrieval: Retrieval;
 // Function to provide a handler for swap events
+
+export function provideInitialize (provider: ethers.providers.Provider){
+  retrieval = new Retrieval(provider);
+  
+}
 
 export function provideSwapHandler(
   uniswapFactoryAddress: string,
   initcode: string,
-  provider: ethers.providers.Provider
+  provider: ethers.providers.Provider,
 ): HandleTransaction {
   return async function handleTransaction(txEvent: TransactionEvent) {
     const findings: Finding[] = [];
-    const retrieval = new Retrieval(provider);
-    // Destructure necessary ABI and event signatures
 
+    // Destructure necessary ABI and event data
     const [swapEvent] = SWAP_EVENT;
 
     // Filter swap events from the transaction
@@ -80,9 +84,7 @@ export function provideSwapHandler(
   };
 }
 
-export function provideInitialize (provider: ethers.providers.Provider) {
-  const retrieval = new Retrieval(provider);
-}
+
 export default {
   initialize: provideInitialize(getEthersProvider()),
   handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, getEthersProvider()),
