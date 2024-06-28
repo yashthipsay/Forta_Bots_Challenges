@@ -1,5 +1,5 @@
 {
-  "name": "uniswap_swap_detection",
+  "name": "uniswap-swap-detection",
   "displayName": "UNISWAP SWAP DETECTION",
   "version": "0.0.1",
   "description": "Challenge-2 for detecting swaps on Uniswap ",
