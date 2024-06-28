@@ -1,7 +1,7 @@
 import { MockEthersProvider, TestTransactionEvent } from "forta-agent-tools/lib/test";
 import { Finding, FindingSeverity, FindingType, getEthersProvider, HandleTransaction } from "forta-agent";
 import { provideSwapHandler } from "./agent";
-import { COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_FACTORY_ADDRESS, UNISWAP_PAIR_ABI } from "./utils";
+import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./utils";
 import Retrieval from "./retrieval";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
