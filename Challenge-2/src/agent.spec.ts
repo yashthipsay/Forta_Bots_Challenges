@@ -42,10 +42,10 @@ describe("Uniswap test suite", () => {
   const mockSwapEventArgs2 = [
     createAddress("0x284"),
     createAddress("0x567"),
-    ethers.BigNumber.from("1000000000000000000"),
-    ethers.BigNumber.from("500000000000000000"),
-    ethers.BigNumber.from("600000000000000000000000000"),
-    ethers.BigNumber.from("20000000000000000000000"),
+    ethers.BigNumber.from("5378335736229591174395"),
+    ethers.BigNumber.from("266508884993980604"),
+    ethers.BigNumber.from("555620238891309147094159455"),
+    ethers.BigNumber.from("14900188386820019615173"),
     99206,
   ];
 
@@ -133,6 +133,8 @@ describe("Uniswap test suite", () => {
             token0: createAddress("0x765"),
             token1: mockToken1,
             fee: mockFee.toString(),
+            amount1: mockSwapEventArgs[3].toString(),
+            amount0: mockSwapEventArgs[2].toString(),
           },
         }),
       ]);
@@ -200,6 +202,8 @@ describe("Uniswap test suite", () => {
             token0: createAddress("0x765"),
             token1: mockToken1,
             fee: mockFee.toString(),
+            amount1: mockSwapEventArgs[3].toString(),
+            amount0: mockSwapEventArgs[2].toString(),
           },
         }),
         Finding.fromObject({
@@ -213,6 +217,8 @@ describe("Uniswap test suite", () => {
             token0: createAddress("0x765"),
             token1: createAddress("0x987"),
             fee: mockFee.toString(),
+            amount1: mockSwapEventArgs2[3].toString(),
+            amount0: mockSwapEventArgs2[2].toString(),
           },
         }),
       ]);

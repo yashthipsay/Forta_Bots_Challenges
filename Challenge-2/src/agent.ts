@@ -37,13 +37,8 @@ export function provideSwapHandler(
     await Promise.all(
       swapEvents.map(async (event) => {
         const pairAddress = event.address;
-
+        const params = event.args;
         // Validate the Uniswap pair address
-
-        // const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
-        // const token0Address = await pairContract.token0({ blockTag: txEvent.blockNumber });
-        // const token1Address = await pairContract.token1({ blockTag: txEvent.blockNumber });
-        // const fee = await pairContract.fee({ blockTag: txEvent.blockNumber });
 
         const [isValid, token0Address, token1Address, fee] = await retrieval.isValidUniswapPair(
           uniswapFactoryAddress,
@@ -66,6 +61,8 @@ export function provideSwapHandler(
                 token0: token0Address,
                 token1: token1Address,
                 fee: fee.toString(),
+                amount1: params[3].toString(),
+                amount0: params[2].toString(),
               },
             })
           );

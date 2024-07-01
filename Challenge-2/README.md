@@ -18,6 +18,8 @@ Describe each of the type of alerts fired by this agent
   - Address of the first token in the swap
   - Address of the second token in the swap
   - Fee required for the swap
+  - Amount for token 1
+  - Amount for token 2
 
 ## Test Data
 
