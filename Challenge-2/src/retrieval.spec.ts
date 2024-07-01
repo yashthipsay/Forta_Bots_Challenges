@@ -50,12 +50,11 @@ describe("Uniswap test suite", () => {
      const [isValid] = await retrieval.isValidUniswapPair(
         createAddress("0x284"),
         mockPoolAddress,
-        createAddress("0x765"),
-        mockToken1,
-        mockFee,
-        COMPUTED_INIT_CODE_HASH
+
+        COMPUTED_INIT_CODE_HASH,
+        mockProvider as any,
+        0
       );
-      console.log(isValid);
 
       expect(isValid).toBe(true);
 
@@ -76,7 +75,6 @@ describe("Uniswap test suite", () => {
       99206,
       COMPUTED_INIT_CODE_HASH
     );
-    console.log(result);
   
     expect(result).toBe("0x0000000000000000000000000000000000000234");
   });

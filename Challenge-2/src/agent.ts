@@ -46,18 +46,17 @@ export function provideSwapHandler(
 
         // Validate the Uniswap pair address
 
-        const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
-        const token0Address = await pairContract.token0({ blockTag: txEvent.blockNumber });
-        const token1Address = await pairContract.token1({ blockTag: txEvent.blockNumber });
-        const fee = await pairContract.fee({ blockTag: txEvent.blockNumber });
+        // const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
+        // const token0Address = await pairContract.token0({ blockTag: txEvent.blockNumber });
+        // const token1Address = await pairContract.token1({ blockTag: txEvent.blockNumber });
+        // const fee = await pairContract.fee({ blockTag: txEvent.blockNumber });
 
-        const [isValid] = await retrieval.isValidUniswapPair(
+        const [isValid, token0Address, token1Address, fee] = await retrieval.isValidUniswapPair(
           uniswapFactoryAddress,
           pairAddress,
-          token0Address,
-          token1Address,
-          fee,
-          initcode
+          initcode,
+          provider,
+          txEvent.blockNumber
         );
         if (isValid) {
           // If the pair address is valid, create a finding

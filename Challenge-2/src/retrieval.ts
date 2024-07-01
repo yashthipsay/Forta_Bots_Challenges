@@ -1,4 +1,5 @@
 import { ethers } from "forta-agent";
+import { UNISWAP_PAIR_ABI } from "./utils";
 
 export default class Retrieval {
   private provider: ethers.providers.Provider;
@@ -31,14 +32,17 @@ export default class Retrieval {
   public async isValidUniswapPair(
     factoryAddress: string,
     pairAddress: string,
-    token0Address: string,
-    token1Address: string,
-    fee: number,
-    initcode: string
-  ): Promise<[boolean, string, string]> {
+    initcode: string,
+    provider: ethers.providers.Provider,
+    block: number,
+  ): Promise<[boolean, string, string, string]> {
+    const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
+    const token0Address = await pairContract.token0({ blockTag: block });
+    const token1Address = await pairContract.token1({ blockTag: block });
+    const fee = await pairContract.fee({ blockTag: block });
     const tokenPair = this.getUniswapPairCreate2Address(factoryAddress, token0Address, token1Address, fee, initcode);
-
+   
     const isValid = tokenPair.toLowerCase() === pairAddress.toLowerCase();
-    return [isValid, token0Address.toLowerCase(), token1Address.toLowerCase()];
+    return [isValid, token0Address, token1Address, fee];
   }
 }
