@@ -77,7 +77,7 @@ export default class Helper {
     }
     else{
       try{
-      const {alerts} = await getL1Alerts(L1Alert);
+      console.log(alerts[0].metadata.abtEscBal);
       l1Balance = alerts[0].metadata.abtEscBal;
         
       l2Network = "Arbitrum";
@@ -86,6 +86,7 @@ export default class Helper {
         findings.push(createFinding(l1Balance, l2BigNumber.toString(), "Optimism"));
       }
     } catch(e) {
+      console.log(e);
     
     }
     }
@@ -93,6 +94,7 @@ export default class Helper {
     
    
 } catch (error) {
+  console.error('An error occurred while getting alerts:', error);
 }
 return totalSupply;
   }
