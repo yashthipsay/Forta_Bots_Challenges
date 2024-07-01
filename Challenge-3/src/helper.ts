@@ -48,7 +48,6 @@ export default class Helper {
     } else {
       alerts[0].metadata.abtEscBal = balance;
     }
-    console.log("Alert metadata: " + alerts[0].metadata.optEscBal + " " + alerts[0].metadata.abtEscBal);
     return balance;
   }
   
@@ -69,12 +68,9 @@ export default class Helper {
     let l2BigNumber = ethers.BigNumber.from(totalSupply);
    let l1BigNumber = BigNumber as any; 
     if(chainId == 10) {
-    console.log("Optimism");
       l1Balance = alerts[0].metadata.optEscBal;
-      console.log(l1Balance);
       l2Network = "Optimism";
       l1BigNumber = ethers.BigNumber.from(l1Balance);
-      console.log(l1BigNumber.toString());
       if(l1BigNumber.lt(l2BigNumber)) {
         findings.push(createFinding(l1Balance, l2BigNumber.toString(), l2Network))
       }
@@ -82,7 +78,6 @@ export default class Helper {
     else{
       try{
       const {alerts} = await getL1Alerts(L1Alert);
-      console.log(alerts[0].metadata.abtEscBal);
       l1Balance = alerts[0].metadata.abtEscBal;
         
       l2Network = "Arbitrum";
@@ -91,7 +86,6 @@ export default class Helper {
         findings.push(createFinding(l1Balance, l2BigNumber.toString(), "Optimism"));
       }
     } catch(e) {
-      console.log(e);
     
     }
     }
@@ -99,7 +93,6 @@ export default class Helper {
     
    
 } catch (error) {
-  console.error('An error occurred while getting alerts:', error);
 }
 return totalSupply;
   }

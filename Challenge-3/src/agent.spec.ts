@@ -67,15 +67,6 @@ const MakeMockCall = (
     });
 };
 
-// async function getMockAlerts(botId: string, optEscrowBal: number): Promise<AlertsResponse> {
-//     const alerts = await getAlerts({
-//         botIds: [botId],
-//         addresses: [OPT_ESCROW_ADDRESS, ABT_ESCROW_ADDRESS],
-//     });
-
-//     return alerts;
-// }
-
 
 describe("Dai bridge 11-12 solvency check", () => {
     let handleBlock: HandleBlock;
@@ -102,17 +93,13 @@ describe("Dai bridge 11-12 solvency check", () => {
             outputs: [TEST_VAL1.OPT_ESCROW_VALUE]
         });
     
-        console.log('Mocked call to totalSupply:', DAI_L2_ADDRESS, 10, L2_IFACE, "totalSupply", {
-            inputs: [],
-            outputs: [TEST_VAL1.OPT_ESCROW_VALUE]
-        });
+      
     
         mockProvider.setNetwork(10);
 
         // Pass in AlertQueryOptions
         const findings = await handleBlock(blockEvent);
     
-        console.log('Findings:', findings);
     
         expect(findings.length).toEqual(0);
         expect(findings).toStrictEqual([]);
@@ -170,7 +157,6 @@ describe("Dai bridge 11-12 solvency check", () => {
                
 
                 mockProvider.setNetwork(10);
-                console.log(TEST_VAL1.OPT_L2_BAL + "  " + TEST_VAL1.OPT_ESCROW_VALUE)
                 mockGetAlerts.mockReturnValue({
                     alerts: 
                         [{

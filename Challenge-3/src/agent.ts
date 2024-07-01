@@ -77,9 +77,7 @@ export function provideHandleBlock(
       findings.push(createL1OptFinding(optBalance, abtBalance));
       
     }
-    console.log("test-4")
     if (chainId != 1) {
-      console.log("test-5");
       
         const l2Cond = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId, findings, getAlerts);
      
