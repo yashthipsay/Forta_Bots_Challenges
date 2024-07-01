@@ -41,7 +41,7 @@ describe("Uniswap test suite", () => {
   };
 
   // It returns a single finding if there is a single valid swap event from Uniswap
-  it("returns a finding if there is a single valid swap event from Uniswap", async () => {
+  it("Testing validity for swap event from Uniswap", async () => {
     createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
