@@ -21,8 +21,10 @@ export const createFinding = (
   });
 };
 
-
-export const createL1OptFinding = (optEscBal: string, abtEscBal: string): Finding => {
+export const createL1OptFinding = (
+  optEscBal: string,
+  abtEscBal: string,
+): Finding => {
   return Finding.fromObject({
     name: `Total supply of Optimism escrow in L1 DAI`,
     description: `Optimism L1 escrow balance: ${optEscBal}`,
@@ -32,11 +34,10 @@ export const createL1OptFinding = (optEscBal: string, abtEscBal: string): Findin
     protocol: "Ethereum",
     metadata: {
       optEscBal: `${optEscBal}`,
-      abtEscBal: `${abtEscBal}`
+      abtEscBal: `${abtEscBal}`,
     },
   });
 };
-
 
 // export const createL1AbtFinding = (abtEscBal: string): Finding => {
 //   return Finding.fromObject({

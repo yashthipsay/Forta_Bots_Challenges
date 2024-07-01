@@ -15,13 +15,10 @@ import {
   GetAlerts,
   getAlerts,
   Alert,
-  AlertQueryOptions
+  AlertQueryOptions,
 } from "forta-agent";
 // import { JsonRpcProvider } from "ethers";
-import {
-  createFinding,
-  createL1OptFinding,
-} from "./findings";
+import { createFinding, createL1OptFinding } from "./findings";
 import { Provider } from "@ethersproject/providers";
 import { L1Alert } from "./mockAlerts";
 
@@ -30,44 +27,50 @@ import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
 const alert: Alert = {
   alertId: "L1_ESCROW",
-    chainId: 1,
-    hasAddress: () => true,
-    metadata: {
-        optEscBal: Number,
-        abtEscBal: Number
-    }
-  }
+  chainId: 1,
+  hasAddress: () => true,
+  metadata: {
+    optEscBal: Number,
+    abtEscBal: Number,
+  },
+};
 const emptyAlertResponse: AlertsResponse = {
-  alerts: [
-    alert
-  ],
+  alerts: [alert],
   pageInfo: {
     hasNextPage: false,
   },
 };
 const critAlerts: AlertQueryOptions = {
-  
- botIds: ["0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612"]
-
-}
+  botIds: [
+    "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612",
+  ],
+};
 export function provideHandleBlock(
   provider: ethers.providers.Provider,
-  getAlerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse> 
+  getAlerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse>,
 ): HandleBlock {
-  return async function handleBlock(blockEvent: BlockEvent): Promise<Finding[]> {
+  return async function handleBlock(
+    blockEvent: BlockEvent,
+  ): Promise<Finding[]> {
     let balance: string;
     const findings: Finding[] = [];
     const HelperInstance = new Helper(provider);
     // const BOT_ID_1 =
     //   "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612";
     const { chainId } = await provider.getNetwork();
- 
-    const {alert} = await L1Alert(blockEvent.blockNumber); 
-    
+
+    const { alert } = await L1Alert(blockEvent.blockNumber);
+
     // const l1Alerts: AlertsResponse = await getL1Alerts(BOT_ID_1);
     if (chainId == 1) {
-      const optBalance = await HelperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber);
-      const abtBalance = await HelperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber);
+      const optBalance = await HelperInstance.getL1Balance(
+        OPT_ESCROW_ADDRESS,
+        blockEvent.blockNumber,
+      );
+      const abtBalance = await HelperInstance.getL1Balance(
+        ABT_ESCROW_ADDRESS,
+        blockEvent.blockNumber,
+      );
       // try{
       //   Object.assign(alert.metadata, { optEscBal: optBalance, abtEscBal: abtBalance });
       //   console.log("Alert metadata: " + alert.metadata.optEscBal + " " + alert.metadata.abtEscBal);
@@ -75,14 +78,16 @@ export function provideHandleBlock(
       //   console.log(e);
       // }
       findings.push(createL1OptFinding(optBalance, abtBalance));
-      
     }
     if (chainId != 1) {
-      
-        const l2Cond = await HelperInstance.getL2Supply(blockEvent.blockNumber, chainId, findings, getAlerts);
-     
-        return findings;
-      
+      const l2Cond = await HelperInstance.getL2Supply(
+        blockEvent.blockNumber,
+        chainId,
+        findings,
+        getAlerts,
+      );
+
+      return findings;
     }
     // else if (l1Alerts.alerts.length == 0) {
     //   return findings;
@@ -125,12 +130,9 @@ export default {
   // handleBlock,
   handleBlock: provideHandleBlock(
     getEthersProvider(),
-    emptyAlertResponse as any
+    emptyAlertResponse as any,
   ),
-
 };
-
-
 
 // const l1Alerts: AlertsResponse = await getMockAlerts(blockEvent.blockNumber);
 
