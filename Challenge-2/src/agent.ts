@@ -7,26 +7,20 @@ import {
   getEthersProvider,
   ethers,
 } from "forta-agent";
-import {
-  UNISWAP_FACTORY_ADDRESS,
-  COMPUTED_INIT_CODE_HASH,
-  SWAP_EVENT,
-  UNISWAP_PAIR_ABI,
-} from "./utils";
+import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_PAIR_ABI } from "./utils";
 import Retrieval from "./retrieval";
 
 let retrieval: Retrieval;
 // Function to provide a handler for swap events
 
-export function provideInitialize (provider: ethers.providers.Provider){
+export function provideInitialize(provider: ethers.providers.Provider) {
   retrieval = new Retrieval(provider);
-  
 }
 
 export function provideSwapHandler(
   uniswapFactoryAddress: string,
   initcode: string,
-  provider: ethers.providers.Provider,
+  provider: ethers.providers.Provider
 ): HandleTransaction {
   return async function handleTransaction(txEvent: TransactionEvent) {
     const findings: Finding[] = [];
@@ -82,7 +76,6 @@ export function provideSwapHandler(
     return findings;
   };
 }
-
 
 export default {
   initialize: provideInitialize(getEthersProvider()),

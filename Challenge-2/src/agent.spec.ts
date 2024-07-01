@@ -27,6 +27,8 @@ describe("Uniswap test suite", () => {
     COMPUTED_INIT_CODE_HASH
   );
 
+  const nonUniswapV3PoolAddress = createAddress("0x123");
+
   const mockSwapEventArgs = [
     createAddress("0x234"),
     createAddress("0x345"),
@@ -62,6 +64,35 @@ describe("Uniswap test suite", () => {
       outputs: [output],
     });
   };
+
+  // It returns zero findings for non valid Uniswap V3 pool
+  it("returns zero findings for non valid Uniswap V3 pool", async() => {
+    createUniswapPairCalls(nonUniswapV3PoolAddress, "token0", createAddress("0x765"), 0);
+    createUniswapPairCalls(nonUniswapV3PoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(nonUniswapV3PoolAddress, "fee", mockFee, 0);
+
+    txEvent = new TestTransactionEvent();
+
+    txEvent
+      .setBlock(0)
+      .addEventLog(
+        "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+        nonUniswapV3PoolAddress,
+        [
+          mockSwapEventArgs[0],
+          mockSwapEventArgs[1],
+          mockSwapEventArgs[2],
+          mockSwapEventArgs[3],
+          mockSwapEventArgs[4],
+          mockSwapEventArgs[5],
+          mockSwapEventArgs[6],
+        ]
+      );
+
+    const findings = await handleTransaction(txEvent).then((findings) => {
+      expect(findings.length).toStrictEqual(0);
+    })
+  })
 
   // It returns a single finding if there is a single valid swap event from Uniswap
   it("returns a finding if there is a single valid swap event from Uniswap", async () => {
@@ -229,7 +260,4 @@ describe("Uniswap test suite", () => {
       expect(findings.length).toStrictEqual(0); // Expecting zero findings for both non-swap events
     });
   });
-
-  
 });
-

@@ -1,4 +1,4 @@
-import { MockEthersProvider} from "forta-agent-tools/lib/test";
+import { MockEthersProvider } from "forta-agent-tools/lib/test";
 import { HandleTransaction } from "forta-agent";
 import { provideSwapHandler } from "./agent";
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./utils";
@@ -46,28 +46,25 @@ describe("Uniswap test suite", () => {
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
 
+    const [isValid] = await retrieval.isValidUniswapPair(
+      createAddress("0x284"),
+      mockPoolAddress,
 
-     const [isValid] = await retrieval.isValidUniswapPair(
-        createAddress("0x284"),
-        mockPoolAddress,
+      COMPUTED_INIT_CODE_HASH,
+      mockProvider as any,
+      0
+    );
 
-        COMPUTED_INIT_CODE_HASH,
-        mockProvider as any,
-        0
-      );
-
-      expect(isValid).toBe(true);
-
- 
+    expect(isValid).toBe(true);
   });
 
   it("returns valid Uniswap address for correct set of parameters", async () => {
     const mockGetUniswapPairCreate2Address = jest.fn();
     retrieval.getUniswapPairCreate2Address = mockGetUniswapPairCreate2Address;
-  
+
     // Use mockResolvedValue if getUniswapPairCreate2Address is async
     mockGetUniswapPairCreate2Address.mockResolvedValue("0x0000000000000000000000000000000000000234");
-  
+
     const result = await retrieval.getUniswapPairCreate2Address(
       createAddress("0x284"),
       createAddress("0x765"),
@@ -75,10 +72,7 @@ describe("Uniswap test suite", () => {
       99206,
       COMPUTED_INIT_CODE_HASH
     );
-  
+
     expect(result).toBe("0x0000000000000000000000000000000000000234");
   });
-
-  
 });
-
