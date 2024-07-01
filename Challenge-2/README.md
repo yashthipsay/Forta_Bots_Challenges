@@ -15,10 +15,9 @@ This bot detects swaps in a UniswapV3 Pool contract on the network of the given 
 Describe each of the type of alerts fired by this agent
 
 - UNISWAP_SWAP_EVENT
-  - Fired when a swap takes place emitting a Swap event
-  - Severity is set to "low" as it is only meant to give us information
-  - Type is always set to "info" 
-  - In the metadata field, the validity of the token pair is mentioned
+  - Address of the first token in the swap
+  - Address of the second token in the swap
+  - Fee required for the swap
 
 ## Test Data
 
