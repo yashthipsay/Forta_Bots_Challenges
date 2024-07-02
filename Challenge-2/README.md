@@ -14,7 +14,7 @@ This bot detects swaps in a UniswapV3 Pool contract on the network of the given 
 
 Describe each of the type of alerts fired by this agent
 
-- NETHERMIND-1
+- `NETHERMIND-1`
   - Address of the first token in the swap
   - Address of the second token in the swap
   - Fee required for the swap

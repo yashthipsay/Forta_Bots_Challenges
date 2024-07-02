@@ -1,7 +1,7 @@
 import { MockEthersProvider, TestTransactionEvent } from "forta-agent-tools/lib/test";
 import { Finding, FindingSeverity, FindingType, getEthersProvider, HandleTransaction } from "forta-agent";
 import { provideSwapHandler } from "./agent";
-import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./utils";
+import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./constants";
 import Retrieval from "./retrieval";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
@@ -124,7 +124,7 @@ describe("Uniswap test suite", () => {
         Finding.fromObject({
           name: "Uniswap V3 Swap Detector",
           description: "This Bot detects the Swaps executed on Uniswap V3",
-          alertId: "UNISWAP_SWAP_EVENT",
+          alertId: "NETHERMIND-1",
           severity: FindingSeverity.Info,
           type: FindingType.Info,
           protocol: "UniswapV3",
@@ -135,6 +135,8 @@ describe("Uniswap test suite", () => {
             fee: mockFee.toString(),
             amount1: mockSwapEventArgs[3].toString(),
             amount0: mockSwapEventArgs[2].toString(),
+            severity: FindingSeverity.Info.toString(),
+            type: FindingType.Info.toString(),
           },
         }),
       ]);
@@ -194,7 +196,7 @@ describe("Uniswap test suite", () => {
         Finding.fromObject({
           name: "Uniswap V3 Swap Detector",
           description: "This Bot detects the Swaps executed on Uniswap V3",
-          alertId: "UNISWAP_SWAP_EVENT",
+          alertId: "NETHERMIND-1",
           severity: FindingSeverity.Info,
           type: FindingType.Info,
           protocol: "UniswapV3",
@@ -204,12 +206,14 @@ describe("Uniswap test suite", () => {
             fee: mockFee.toString(),
             amount1: mockSwapEventArgs[3].toString(),
             amount0: mockSwapEventArgs[2].toString(),
+            severity: FindingSeverity.Info.toString(),
+            type: FindingType.Info.toString(),
           },
         }),
         Finding.fromObject({
           name: "Uniswap V3 Swap Detector",
           description: "This Bot detects the Swaps executed on Uniswap V3",
-          alertId: "UNISWAP_SWAP_EVENT",
+          alertId: "NETHERMIND-1",
           severity: FindingSeverity.Info,
           type: FindingType.Info,
           protocol: "UniswapV3",
@@ -219,6 +223,8 @@ describe("Uniswap test suite", () => {
             fee: mockFee.toString(),
             amount1: mockSwapEventArgs2[3].toString(),
             amount0: mockSwapEventArgs2[2].toString(),
+            severity: FindingSeverity.Info.toString(),
+            type: FindingType.Info.toString(),
           },
         }),
       ]);

@@ -1,5 +1,5 @@
 import { ethers } from "forta-agent";
-import { UNISWAP_PAIR_ABI } from "./utils";
+import { UNISWAP_PAIR_ABI } from "./constants";
 
 export default class Retrieval {
   private provider: ethers.providers.Provider;

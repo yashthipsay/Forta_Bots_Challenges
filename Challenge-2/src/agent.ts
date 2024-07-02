@@ -7,7 +7,7 @@ import {
   getEthersProvider,
   ethers,
 } from "forta-agent";
-import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_PAIR_ABI } from "./utils";
+import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_PAIR_ABI } from "./constants";
 import Retrieval from "./retrieval";
 
 let retrieval: Retrieval;
@@ -53,7 +53,7 @@ export function provideSwapHandler(
             Finding.fromObject({
               name: "Uniswap V3 Swap Detector",
               description: "This Bot detects the Swaps executed on Uniswap V3",
-              alertId: "UNISWAP_SWAP_EVENT",
+              alertId: "NETHERMIND-1",
               severity: FindingSeverity.Info,
               protocol: "UniswapV3",
               type: FindingType.Info,
@@ -63,6 +63,8 @@ export function provideSwapHandler(
                 fee: fee.toString(),
                 amount1: params[3].toString(),
                 amount0: params[2].toString(),
+                severity: FindingSeverity.Info.toString(),
+                type: FindingType.Info.toString(),
               },
             })
           );
