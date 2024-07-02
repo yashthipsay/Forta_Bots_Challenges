@@ -20,7 +20,7 @@ describe("Uniswap test suite", () => {
     createAddress("0x284"),
     createAddress("0x765"),
     mockToken1,
-    99206,
+    mockFee,
     COMPUTED_INIT_CODE_HASH
   );
 
@@ -40,7 +40,6 @@ describe("Uniswap test suite", () => {
     });
   };
 
-  // It returns a single finding if there is a single valid swap event from Uniswap
   it("Testing validity for swap event from Uniswap", async () => {
     createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
@@ -56,6 +55,22 @@ describe("Uniswap test suite", () => {
 
     expect(isValid).toBe(true);
   });
+  it("Testing validity for swap event from Uniswap", async () => {
+    const mockIncorrectFactoryAddress = createAddress("0x123235");
+    createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
+    createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
+
+    const [isValid] = await helper.isValidUniswapPair(
+      mockIncorrectFactoryAddress,
+      mockPoolAddress,
+      COMPUTED_INIT_CODE_HASH,
+      mockProvider as any,
+      0
+    );
+
+    expect(isValid).toBe(false);
+  });
 
   it("returns valid Uniswap address for correct set of parameters", async () => {
     const mockGetUniswapPairCreate2Address = jest.fn();
@@ -68,10 +83,12 @@ describe("Uniswap test suite", () => {
       createAddress("0x284"),
       createAddress("0x765"),
       mockToken1,
-      99206,
+      mockFee,
       COMPUTED_INIT_CODE_HASH
     );
 
     expect(result).toBe("0x0000000000000000000000000000000000000234");
   });
+
+
 });
