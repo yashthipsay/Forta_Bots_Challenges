@@ -1,6 +1,6 @@
 import { MockEthersProvider } from "forta-agent-tools/lib/test";
 import { HandleTransaction } from "forta-agent";
-import { provideSwapHandler } from "./agent";
+import { provideHandleTransaction } from "./agent";
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./constants";
 import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
@@ -26,7 +26,7 @@ describe("Uniswap test suite", () => {
 
   // Describe block groups test cases together
   beforeAll(() => {
-    handleTransaction = provideSwapHandler(createAddress("0x284"), COMPUTED_INIT_CODE_HASH, mockProvider as any);
+    handleTransaction = provideHandleTransaction(createAddress("0x284"), COMPUTED_INIT_CODE_HASH, mockProvider as any);
   });
   const createUniswapPairCalls = (
     pairAddress: string,

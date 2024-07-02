@@ -17,7 +17,7 @@ export function provideInitialize(provider: ethers.providers.Provider) {
   helper = new Helper(provider);
 }
 
-export function provideSwapHandler(
+export function provideHandleTransaction(
   uniswapFactoryAddress: string,
   initcode: string,
   provider: ethers.providers.Provider
@@ -76,5 +76,5 @@ export function provideSwapHandler(
 
 export default {
   initialize: provideInitialize(getEthersProvider()),
-  handleTransaction: provideSwapHandler(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, getEthersProvider()),
+  handleTransaction: provideHandleTransaction(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, getEthersProvider()),
 };
