@@ -40,11 +40,7 @@ const emptyAlertResponse: AlertsResponse = {
     hasNextPage: false,
   },
 };
-const critAlerts: AlertQueryOptions = {
-  botIds: [
-    "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612",
-  ],
-};
+
 export function provideHandleBlock(
   provider: ethers.providers.Provider,
   getAlerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse>,
@@ -59,10 +55,10 @@ export function provideHandleBlock(
     //   "0x1908ef6008007a2d4a3f3c2aa676832bbc42f747a54dbce88c6842cfa8b18612";
     const { chainId } = await provider.getNetwork();
 
-    const { alert } = await L1Alert(blockEvent.blockNumber);
 
     // const l1Alerts: AlertsResponse = await getL1Alerts(BOT_ID_1);
     if (chainId == 1) {
+      
       const optBalance = await HelperInstance.getL1Balance(
         OPT_ESCROW_ADDRESS,
         blockEvent.blockNumber,
@@ -70,6 +66,7 @@ export function provideHandleBlock(
       const abtBalance = await HelperInstance.getL1Balance(
         ABT_ESCROW_ADDRESS,
         blockEvent.blockNumber,
+        
       );
       // try{
       //   Object.assign(alert.metadata, { optEscBal: optBalance, abtEscBal: abtBalance });

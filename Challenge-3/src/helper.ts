@@ -22,6 +22,10 @@ let L1Alert: Alert = {
   },
 };
 
+let query: AlertQueryOptions = {
+  alertIds: ["L2_Alert"],
+}
+
 const l1Alerts: AlertsResponse = {
   alerts: [L1Alert],
   pageInfo: {
@@ -45,6 +49,8 @@ export default class Helper {
     const balance = await L1Contract.balanceOf(address, {
       blockTag: blockNumber,
     });
+    
+    
     if (address.toLowerCase() === OPT_ESCROW_ADDRESS.toLowerCase()) {
       alerts[0].metadata.optEscBal = balance;
     } else {
@@ -70,28 +76,30 @@ export default class Helper {
     });
 
     // const {metadata} =  (await getL1Alerts(l1Alerts as any)).alerts[0].metadata;
-    const metadata = (await getL1Alerts(l1Alerts as any)).alerts[0].metadata;
-    const { alerts } = l1Alerts;
-    console.log(metadata);
-
+    
+    // console.log(metadata);
     try {
       let l1Balance: string;
       let l2Network: string;
       let l2BigNumber = ethers.BigNumber.from(totalSupply);
       let l1BigNumber = BigNumber as any;
       if (chainId == 10) {
-        l1Balance = alerts[0].metadata.optEscBal;
+        const metadata = (await getL1Alerts(query)).alerts[0].metadata;
+        console.log(metadata);
+        l1Balance = metadata.optEscBal;
         l2Network = "Optimism";
         l1BigNumber = ethers.BigNumber.from(l1Balance);
         if (l1BigNumber.lt(l2BigNumber)) {
+         
           findings.push(
             createFinding(l1Balance, l2BigNumber.toString(), l2Network),
           );
         }
       } else {
         try {
-          const { alerts } = await getL1Alerts(L1Alert);
-          l1Balance = alerts[0].metadata.abtEscBal;
+          const metadata = (await getL1Alerts(query)).alerts[0].metadata;
+
+          l1Balance = metadata.abtEscBal;
 
           l2Network = "Arbitrum";
           l1BigNumber = BigNumber.from(l1Balance);

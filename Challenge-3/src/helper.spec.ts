@@ -52,8 +52,9 @@ import { ethers, Contract } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import { Alert, AlertsResponse, Finding } from "forta-agent";
 import Helper from "./helper";
-import { DAI_L2_ADDRESS } from "./constants";
+import { DAI_ADDRESS, DAI_L2_ADDRESS, ESCROW_ABI, OPT_ESCROW_ADDRESS } from "./constants";
 import getL2Supply from "./helper";
+import { createAddress } from "forta-agent-tools";
 const L2_ABI = ["function totalSupply() view returns (uint256)"];
 
 // Mock data
@@ -120,6 +121,38 @@ describe("getL2Supply", () => {
     const blockNumber = 12345;
     const chainId = 10; // Optimism chain ID
 
+   
+      const result = await helper.getL2Supply.call(
+        { provider: mockProvider },
+        blockNumber,
+        chainId,
+        findings,
+        getL1Alerts as any,
+      );
+      console.log(result);
+   
+    
+    expect(findings).toHaveLength(1);
+    // expect(findings[0].metadata.l1Escrow).toBe("50000000");
+    // expect(findings[0].metadata.l2Balance).toBe("1000000000000000000000000");
+    // expect(findings[0].metadata.network).toBe("Optimism");
+  });
+
+  it("should correctly get L2 supply and compare with L1 balance for Arbitrum", async () => {
+    mockProvider.setNetwork(42161); // Set the network to Arbitrum
+    mockGetAlerts.mockReturnValue({
+      alerts: [
+        {
+          metadata: {
+            optEscBal: ethers.BigNumber.from("300000000000000000000000"),
+            abtEscBal: ethers.BigNumber.from("250000000000000000000000"),
+          },
+        },
+      ],
+    });
+    const blockNumber = 12345;
+    const chainId = 42161; // Arbitrum chain ID
+
     try {
       const result = await helper.getL2Supply.call(
         { provider: mockProvider },
@@ -133,20 +166,47 @@ describe("getL2Supply", () => {
       console.log(e);
     }
     expect(findings).toHaveLength(1);
-    // expect(findings[0].metadata.l1Balance).toBe("500000000000000000000000");
-    // expect(findings[0].metadata.l2Balance).toBe("1000000000000000000000000");
-    // expect(findings[0].metadata.network).toBe("Optimism");
+    expect(findings[0].metadata.l1Escrow).toBe("40000000");
+    // Adjust the expected values according to the Arbitrum test scenario
+    // expect(findings[0].metadata.l2Balance).toBe("YourExpectedL2BalanceForArbitrum");
+    // expect(findings[0].metadata.network).toBe("Arbitrum");
   });
 
-  //   it("should correctly get L2 supply and compare with L1 balance for Arbitrum", async () => {
-  //     const blockNumber = 12345;
-  //     const chainId = 42161; // Arbitrum chain ID
+  it("should return correct L1 escrow balances on L1 chain", async () => {
+    mockProvider.setNetwork(1);
+    mockProvider.addCallTo(
+      DAI_ADDRESS,
+      12345,
+      new ethers.utils.Interface([ESCROW_ABI]),
+      "balanceOf",
+      {
+        inputs: [OPT_ESCROW_ADDRESS],
+        outputs: [ethers.BigNumber.from("1000000000000000000000000")],
+      },
+    )
+    mockGetAlerts.mockReturnValue({
+      alerts: [
+        {
+          metadata: {
+            optEscBal: ethers.BigNumber.from("500000000000000000000000"),
+            abtEscBal: ethers.BigNumber.from("400000000000000000000000"),
+          },
+        },
+      ],
+    
+    });
 
-  //     const result = await helper.getL2Supply.call({ provider: mockProvider }, blockNumber, chainId, findings, getL1Alerts);
+    const blockNumber = 12345;
+    const chainId = 1;
 
-  //     expect(findings).toHaveLength(1);
-  //     expect(findings[0].metadata.l1Balance).toBe("400000000000000000000000");
-  //     expect(findings[0].metadata.l2Balance).toBe("1000000000000000000000000");
-  //     expect(findings[0].metadata.network).toBe("Arbitrum");
-  //   });
+    
+      const result = await helper.getL1Balance.call(
+        {provider: mockProvider},
+        OPT_ESCROW_ADDRESS,
+        blockNumber,
+      )
+   
+    expect(result.toString()).toBe("1000000000000000000000000");
+    // expect(findings).toHaveLength(1);
+  });
 });
