@@ -8,13 +8,13 @@ import {
   ethers,
 } from "forta-agent";
 import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_PAIR_ABI } from "./constants";
-import Retrieval from "./retrieval";
+import Helper from "./helper";
 
-let retrieval: Retrieval;
+let helper: Helper;
 // Function to provide a handler for swap events
 
 export function provideInitialize(provider: ethers.providers.Provider) {
-  retrieval = new Retrieval(provider);
+  helper = new Helper(provider);
 }
 
 export function provideSwapHandler(
@@ -29,18 +29,16 @@ export function provideSwapHandler(
     const [swapEvent] = SWAP_EVENT;
 
     // Filter swap events from the transaction
-
     const swapEvents = txEvent.filterLog([swapEvent]);
 
     // Process each swap event asynchronously
-
     await Promise.all(
       swapEvents.map(async (event) => {
         const pairAddress = event.address;
         const params = event.args;
         // Validate the Uniswap pair address
 
-        const [isValid, token0Address, token1Address, fee] = await retrieval.isValidUniswapPair(
+        const [isValid, token0Address, token1Address, fee] = await helper.isValidUniswapPair(
           uniswapFactoryAddress,
           pairAddress,
           initcode,

@@ -2,7 +2,7 @@ import { MockEthersProvider } from "forta-agent-tools/lib/test";
 import { HandleTransaction } from "forta-agent";
 import { provideSwapHandler } from "./agent";
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./constants";
-import Retrieval from "./retrieval";
+import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
 
@@ -14,9 +14,9 @@ describe("Uniswap test suite", () => {
   const mockToken1 = createAddress("0x987");
   const mockFee = 99206;
   let mockPoolAddress: string;
-
-  const retrieval = new Retrieval(mockProvider as any);
-  mockPoolAddress = retrieval.getUniswapPairCreate2Address(
+  
+  const helper = new Helper(mockProvider as any);
+  mockPoolAddress = helper.getUniswapPairCreate2Address(
     createAddress("0x284"),
     createAddress("0x765"),
     mockToken1,
@@ -46,10 +46,9 @@ describe("Uniswap test suite", () => {
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
 
-    const [isValid] = await retrieval.isValidUniswapPair(
+    const [isValid] = await helper.isValidUniswapPair(
       createAddress("0x284"),
       mockPoolAddress,
-
       COMPUTED_INIT_CODE_HASH,
       mockProvider as any,
       0
@@ -60,12 +59,12 @@ describe("Uniswap test suite", () => {
 
   it("returns valid Uniswap address for correct set of parameters", async () => {
     const mockGetUniswapPairCreate2Address = jest.fn();
-    retrieval.getUniswapPairCreate2Address = mockGetUniswapPairCreate2Address;
+    helper.getUniswapPairCreate2Address = mockGetUniswapPairCreate2Address;
 
     // Use mockResolvedValue if getUniswapPairCreate2Address is async
     mockGetUniswapPairCreate2Address.mockResolvedValue("0x0000000000000000000000000000000000000234");
 
-    const result = await retrieval.getUniswapPairCreate2Address(
+    const result = await helper.getUniswapPairCreate2Address(
       createAddress("0x284"),
       createAddress("0x765"),
       mockToken1,

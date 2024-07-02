@@ -2,7 +2,7 @@ import { MockEthersProvider, TestTransactionEvent } from "forta-agent-tools/lib/
 import { Finding, FindingSeverity, FindingType, getEthersProvider, HandleTransaction } from "forta-agent";
 import { provideSwapHandler } from "./agent";
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./constants";
-import Retrieval from "./retrieval";
+import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
 
@@ -13,15 +13,16 @@ describe("Uniswap test suite", () => {
   const mockProvider = new MockEthersProvider();
 
   let txEvent: TestTransactionEvent;
-
+  const mockFactoryAddress = createAddress("0x284");
+  const mockToken0 = createAddress("0x765");
   const mockToken1 = createAddress("0x987");
   const mockFee = 99206;
   let mockPoolAddress: string;
 
-  const retrieval = new Retrieval(mockProvider as any);
-  mockPoolAddress = retrieval.getUniswapPairCreate2Address(
-    createAddress("0x284"),
-    createAddress("0x765"),
+  const helper = new Helper(mockProvider as any);
+  mockPoolAddress = helper.getUniswapPairCreate2Address(
+    mockFactoryAddress,
+    mockToken0,
     mockToken1,
     99206,
     COMPUTED_INIT_CODE_HASH
@@ -29,24 +30,33 @@ describe("Uniswap test suite", () => {
 
   const nonUniswapV3PoolAddress = createAddress("0x123");
 
+  const mockSender1 = createAddress("0x234");
+  const mockRecipient1 = createAddress("0x345");
+  const mockAmount0 = ethers.BigNumber.from("5378335736229591174395");
+  const mockAmount1 = ethers.BigNumber.from("266508884993980604");
+  const mockSqrtPriceX96 = ethers.BigNumber.from("555620238891309147094159455");
+  const mockLiquidity = ethers.BigNumber.from("14900188386820019615173");
+  const mockTick = 99206;
   const mockSwapEventArgs = [
-    createAddress("0x234"),
-    createAddress("0x345"),
-    ethers.BigNumber.from("5378335736229591174395"),
-    ethers.BigNumber.from("266508884993980604"),
-    ethers.BigNumber.from("555620238891309147094159455"),
-    ethers.BigNumber.from("14900188386820019615173"),
-    99206,
+    mockSender1,
+    mockRecipient1,
+    mockAmount0,
+    mockAmount1,
+    mockSqrtPriceX96,
+    mockLiquidity,
+    mockTick,
   ];
 
+  const mockSender2 = createAddress("0x284");
+  const mockRecipient2 = createAddress("0x567");
   const mockSwapEventArgs2 = [
-    createAddress("0x284"),
-    createAddress("0x567"),
-    ethers.BigNumber.from("5378335736229591174395"),
-    ethers.BigNumber.from("266508884993980604"),
-    ethers.BigNumber.from("555620238891309147094159455"),
-    ethers.BigNumber.from("14900188386820019615173"),
-    99206,
+    mockSender2,
+    mockRecipient2,
+    mockAmount0,
+    mockAmount1,
+    mockSqrtPriceX96,
+    mockLiquidity,
+    mockTick,
   ];
 
   // Describe block groups test cases together
@@ -67,7 +77,7 @@ describe("Uniswap test suite", () => {
 
   // It returns zero findings for non valid Uniswap V3 pool
   it("returns zero findings for non valid Uniswap V3 pool", async() => {
-    createUniswapPairCalls(nonUniswapV3PoolAddress, "token0", createAddress("0x765"), 0);
+    createUniswapPairCalls(nonUniswapV3PoolAddress, "token0", mockToken0, 0);
     createUniswapPairCalls(nonUniswapV3PoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(nonUniswapV3PoolAddress, "fee", mockFee, 0);
 
@@ -79,13 +89,7 @@ describe("Uniswap test suite", () => {
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         nonUniswapV3PoolAddress,
         [
-          mockSwapEventArgs[0],
-          mockSwapEventArgs[1],
-          mockSwapEventArgs[2],
-          mockSwapEventArgs[3],
-          mockSwapEventArgs[4],
-          mockSwapEventArgs[5],
-          mockSwapEventArgs[6],
+          ...mockSwapEventArgs
         ]
       );
 
@@ -96,7 +100,7 @@ describe("Uniswap test suite", () => {
 
   // It returns a single finding if there is a single valid swap event from Uniswap
   it("returns a finding if there is a single valid swap event from Uniswap", async () => {
-    createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
+    createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
 
@@ -108,13 +112,7 @@ describe("Uniswap test suite", () => {
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress,
         [
-          mockSwapEventArgs[0],
-          mockSwapEventArgs[1],
-          mockSwapEventArgs[2],
-          mockSwapEventArgs[3],
-          mockSwapEventArgs[4],
-          mockSwapEventArgs[5],
-          mockSwapEventArgs[6],
+          ...mockSwapEventArgs2
         ]
       );
 
@@ -130,7 +128,7 @@ describe("Uniswap test suite", () => {
           protocol: "UniswapV3",
 
           metadata: {
-            token0: createAddress("0x765"),
+            token0: mockToken0,
             token1: mockToken1,
             fee: mockFee.toString(),
             amount1: mockSwapEventArgs[3].toString(),
@@ -148,7 +146,7 @@ describe("Uniswap test suite", () => {
     // Mock additional swap event arguments for a second swap event
 
     // Add calls for the second swap event's pair
-    const mockPoolAddress2 = retrieval.getUniswapPairCreate2Address(
+    const mockPoolAddress2 = helper.getUniswapPairCreate2Address(
       createAddress("0x999"),
       createAddress("0x888"),
       createAddress("0x456"),
@@ -166,26 +164,14 @@ describe("Uniswap test suite", () => {
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress2,
         [
-          mockSwapEventArgs2[0],
-          mockSwapEventArgs2[1],
-          mockSwapEventArgs2[2],
-          mockSwapEventArgs2[3],
-          mockSwapEventArgs2[4],
-          mockSwapEventArgs2[5],
-          mockSwapEventArgs2[6],
+          ...mockSwapEventArgs2
         ]
       )
       .addEventLog(
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress,
         [
-          mockSwapEventArgs[0],
-          mockSwapEventArgs[1],
-          mockSwapEventArgs[2],
-          mockSwapEventArgs[3],
-          mockSwapEventArgs[4],
-          mockSwapEventArgs[5],
-          mockSwapEventArgs[6],
+          ...mockSwapEventArgs
         ]
       );
 
@@ -201,7 +187,7 @@ describe("Uniswap test suite", () => {
           type: FindingType.Info,
           protocol: "UniswapV3",
           metadata: {
-            token0: createAddress("0x765"),
+            token0: mockToken0,
             token1: mockToken1,
             fee: mockFee.toString(),
             amount1: mockSwapEventArgs[3].toString(),
@@ -218,8 +204,8 @@ describe("Uniswap test suite", () => {
           type: FindingType.Info,
           protocol: "UniswapV3",
           metadata: {
-            token0: createAddress("0x765"),
-            token1: createAddress("0x987"),
+            token0: mockToken0,
+            token1: mockToken1,
             fee: mockFee.toString(),
             amount1: mockSwapEventArgs2[3].toString(),
             amount0: mockSwapEventArgs2[2].toString(),

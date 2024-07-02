@@ -2,12 +2,12 @@
 
 ## Description
 
-This bot detects swaps in a UniswapV3 Pool contract on the network of the given RPC URL
+This bot detects swaps in UniswapV3 Pool contracts on Ethereum and Polygon.
 
 ## Supported Chains
 
 - Polygon 
-- Ethereum (default)
+- Ethereum
 
 
 ## Alerts
@@ -23,8 +23,8 @@ Describe each of the type of alerts fired by this agent
 
 ## Test Data
 
-The bot behaviour can be verified with the following addresses:
+The bot behaviour can be verified with the following transactions:
 
-Txn Hash - `0x76eda3e5118fda2ec63ba850da54f9305c11a4712715180c8a97a54f2340b8fa`
+[0x76eda3e5118fda2ec63ba850da54f9305c11a4712715180c8a97a54f2340b8fa](https://etherscan.io/tx/0x76eda3e5118fda2ec63ba850da54f9305c11a4712715180c8a97a54f2340b8fa)
 
 
