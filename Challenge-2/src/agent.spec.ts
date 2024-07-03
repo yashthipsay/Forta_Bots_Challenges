@@ -209,8 +209,8 @@ describe("Uniswap test suite", () => {
 
   it("returns zero findings for multiple non-swap events", async () => {
     const mockTransferEventArgs2 = [createAddress("0x789"), createAddress("0x890"), ethers.BigNumber.from("2000")];
- 
-    txEvent = new TestTransactionEvent()
+
+    txEvent = new TestTransactionEvent();
     // Add a second non-swap event to the transaction event
     txEvent
       .setBlock(0)
@@ -249,11 +249,11 @@ describe("Uniswap test suite", () => {
         [...mockSwapEventArgs2]
       )
       // Add non-swap events
-      .addEventLog("event Transfer(address indexed from, address indexed to, uint256 value)", mockTransferEventAddress, [
-        mockTransferEventArgs[0],
-        mockTransferEventArgs[1],
-        mockTransferEventArgs[2],
-      ])
+      .addEventLog(
+        "event Transfer(address indexed from, address indexed to, uint256 value)",
+        mockTransferEventAddress,
+        [mockTransferEventArgs[0], mockTransferEventArgs[1], mockTransferEventArgs[2]]
+      )
       .addEventLog(
         "event Approval(address indexed owner, address indexed spender, uint256 value)",
         mockTransferEventAddress,
