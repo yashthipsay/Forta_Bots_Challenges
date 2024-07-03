@@ -1,10 +1,11 @@
 import { MockEthersProvider, TestTransactionEvent } from "forta-agent-tools/lib/test";
-import { Finding, FindingSeverity, FindingType, getEthersProvider, HandleTransaction } from "forta-agent";
+import { Finding, FindingSeverity, FindingType, HandleTransaction } from "forta-agent";
 import { provideHandleTransaction } from "./agent";
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./constants";
 import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
+
 
 let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
@@ -141,7 +142,9 @@ describe("Uniswap test suite", () => {
 
 
   it("returns findings for multiple swaps among several events, for valid swap events", async () => {
-   
+    createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
+    createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
     // Add swap events for mockPoolAddress and mockPoolAddress2
     txEvent = new TestTransactionEvent()
       .setBlock(0)
