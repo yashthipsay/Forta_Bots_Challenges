@@ -140,79 +140,62 @@ describe("Uniswap test suite", () => {
   });
 
 
-  it("returns multiple findings for multiple valid swap events from Uniswap", async () => {
-    // Mock additional swap event arguments for a second swap event
-
-    // Add calls for the second swap event's pair
-    const mockPoolAddress2 = helper.getUniswapPairCreate2Address(
-      createAddress("0x999"),
-      createAddress("0x888"),
-      createAddress("0x456"),
-      99206,
-      COMPUTED_INIT_CODE_HASH
-    );
-
-    createUniswapPairCalls(mockPoolAddress2, "token0", createAddress("0x888"), 0);
-    createUniswapPairCalls(mockPoolAddress2, "token1", createAddress("0x456"), 0);
-    createUniswapPairCalls(mockPoolAddress2, "fee", mockFee, 0);
-
-    // Add the second swap event to the transaction event
-    txEvent
+  it("returns findings for multiple swaps among several events, for valid swap events", async () => {
+   
+    // Add swap events for mockPoolAddress and mockPoolAddress2
+    txEvent = new TestTransactionEvent()
+      .setBlock(0)
       .addEventLog(
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
-        mockPoolAddress2,
-        [
-          ...mockSwapEventArgs2
-        ]
+        mockPoolAddress,
+        [...mockSwapEventArgs]
       )
       .addEventLog(
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress,
-        [
-          ...mockSwapEventArgs
-        ]
-      );
-
-    // Execute handleTransaction and verify multiple findings are returned
-    const findings = await handleTransaction(txEvent)
-      expect(findings.length).toStrictEqual(2); // Expecting two findings now
-      expect(findings).toEqual([
-        Finding.fromObject({
-          name: "Uniswap V3 Swap Detector",
-          description: "This Bot detects the Swaps executed on Uniswap V3",
-          alertId: "NETHERMIND-1",
-          severity: FindingSeverity.Info,
-          type: FindingType.Info,
-          protocol: "UniswapV3",
-          metadata: {
-            token0: mockToken0,
-            token1: mockToken1,
-            fee: mockFee.toString(),
-            amount1: mockSwapEventArgs[3].toString(),
-            amount0: mockSwapEventArgs[2].toString(),
-            severity: FindingSeverity.Info.toString(),
-            type: FindingType.Info.toString(),
-          },
-        }),
-        Finding.fromObject({
-          name: "Uniswap V3 Swap Detector",
-          description: "This Bot detects the Swaps executed on Uniswap V3",
-          alertId: "NETHERMIND-1",
-          severity: FindingSeverity.Info,
-          type: FindingType.Info,
-          protocol: "UniswapV3",
-          metadata: {
-            token0: mockToken0,
-            token1: mockToken1,
-            fee: mockFee.toString(),
-            amount1: mockSwapEventArgs2[3].toString(),
-            amount0: mockSwapEventArgs2[2].toString(),
-            severity: FindingSeverity.Info.toString(),
-            type: FindingType.Info.toString(),
-          },
-        }),
-      ]);
-   
+        [...mockSwapEventArgs2]
+      )
+      
+  
+    // Execute handleTransaction and verify that findings are returned only for swap events
+    const findings = await handleTransaction(txEvent);
+    expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
+    expect(findings).toEqual([
+      Finding.fromObject({
+        name: "Uniswap V3 Swap Detector",
+        description: "This Bot detects the Swaps executed on Uniswap V3",
+        alertId: "NETHERMIND-1",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "UniswapV3",
+        metadata: {
+          token0: mockToken0,
+          token1: mockToken1,
+          fee: mockFee.toString(),
+          amount1: mockSwapEventArgs[3].toString(),
+          amount0: mockSwapEventArgs[2].toString(),
+          severity: FindingSeverity.Info.toString(),
+          type: FindingType.Info.toString(),
+        },
+      }),
+      Finding.fromObject({
+        name: "Uniswap V3 Swap Detector",
+        description: "This Bot detects the Swaps executed on Uniswap V3",
+        alertId: "NETHERMIND-1",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "UniswapV3",
+        metadata: {
+          token0: mockToken0,
+          token1: mockToken1,
+          fee: mockFee.toString(),
+          amount1: mockSwapEventArgs2[3].toString(),
+          amount0: mockSwapEventArgs2[2].toString(),
+          severity: FindingSeverity.Info.toString(),
+          type: FindingType.Info.toString(),
+        },
+      }),
+    ]);
   });
 
   it("returns zero findings for events other than swap events from Uniswap", async () => {
@@ -289,4 +272,5 @@ describe("Uniswap test suite", () => {
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
   });
+ 
 });

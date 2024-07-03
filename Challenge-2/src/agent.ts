@@ -7,7 +7,7 @@ import {
   getEthersProvider,
   ethers,
 } from "forta-agent";
-import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT, UNISWAP_PAIR_ABI } from "./constants";
+import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT } from "./constants";
 import Helper from "./helper";
 
 let helper: Helper;
@@ -26,10 +26,10 @@ export function provideHandleTransaction(
     const findings: Finding[] = [];
 
     // Destructure necessary ABI and event data
-    const [swapEvent] = SWAP_EVENT;
+    
 
     // Filter swap events from the transaction
-    const swapEvents = txEvent.filterLog([swapEvent]);
+    const swapEvents = txEvent.filterLog(SWAP_EVENT);
 
     // Process each swap event asynchronously
     await Promise.all(

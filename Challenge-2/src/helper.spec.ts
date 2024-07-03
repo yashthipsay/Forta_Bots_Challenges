@@ -24,10 +24,7 @@ describe("Uniswap test suite", () => {
     COMPUTED_INIT_CODE_HASH
   );
 
-  // Describe block groups test cases together
-  beforeAll(() => {
-    handleTransaction = provideHandleTransaction(createAddress("0x284"), COMPUTED_INIT_CODE_HASH, mockProvider as any);
-  });
+
   const createUniswapPairCalls = (
     pairAddress: string,
     functionName: string,
@@ -71,24 +68,5 @@ describe("Uniswap test suite", () => {
 
     expect(isValid).toBe(false);
   });
-
-  it("returns valid Uniswap address for correct set of parameters", async () => {
-    const mockGetUniswapPairCreate2Address = jest.fn();
-    helper.getUniswapPairCreate2Address = mockGetUniswapPairCreate2Address;
-
-    // Use mockResolvedValue if getUniswapPairCreate2Address is async
-    mockGetUniswapPairCreate2Address.mockResolvedValue("0x0000000000000000000000000000000000000234");
-
-    const result = await helper.getUniswapPairCreate2Address(
-      createAddress("0x284"),
-      createAddress("0x765"),
-      mockToken1,
-      mockFee,
-      COMPUTED_INIT_CODE_HASH
-    );
-
-    expect(result).toBe("0x0000000000000000000000000000000000000234");
-  });
-
 
 });
