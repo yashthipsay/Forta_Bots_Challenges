@@ -6,7 +6,6 @@ import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
 
-
 let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
 
@@ -76,7 +75,7 @@ describe("Uniswap test suite", () => {
     });
   };
 
-  it("returns zero findings for non valid Uniswap V3 pool", async() => {
+  it("returns zero findings for non valid Uniswap V3 pool", async () => {
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token0", mockToken0, 0);
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "fee", mockFee, 0);
@@ -88,15 +87,12 @@ describe("Uniswap test suite", () => {
       .addEventLog(
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockNonUniswapV3PoolAddress,
-        [
-          ...mockSwapEventArgs
-        ]
+        [...mockSwapEventArgs]
       );
 
-    const findings = await handleTransaction(txEvent)
-      expect(findings.length).toStrictEqual(0);
-   
-  })
+    const findings = await handleTransaction(txEvent);
+    expect(findings.length).toStrictEqual(0);
+  });
 
   it("returns a finding if there is a single valid swap event from Uniswap", async () => {
     createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
@@ -110,36 +106,32 @@ describe("Uniswap test suite", () => {
       .addEventLog(
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress,
-        [
-          ...mockSwapEventArgs2
-        ]
+        [...mockSwapEventArgs2]
       );
 
-    const findings = await handleTransaction(txEvent)
-      expect(findings.length).toStrictEqual(1);
-      expect(findings).toStrictEqual([
-        Finding.fromObject({
-          name: "Uniswap V3 Swap Detector",
-          description: "This Bot detects the Swaps executed on Uniswap V3",
-          alertId: "NETHERMIND-1",
-          severity: FindingSeverity.Info,
-          type: FindingType.Info,
-          protocol: "UniswapV3",
+    const findings = await handleTransaction(txEvent);
+    expect(findings.length).toStrictEqual(1);
+    expect(findings).toStrictEqual([
+      Finding.fromObject({
+        name: "Uniswap V3 Swap Detector",
+        description: "This Bot detects the Swaps executed on Uniswap V3",
+        alertId: "NETHERMIND-1",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "UniswapV3",
 
-          metadata: {
-            token0: mockToken0,
-            token1: mockToken1,
-            fee: mockFee.toString(),
-            amount1: mockSwapEventArgs[3].toString(),
-            amount0: mockSwapEventArgs[2].toString(),
-            severity: FindingSeverity.Info.toString(),
-            type: FindingType.Info.toString(),
-          },
-        }),
-      ]);
-    
+        metadata: {
+          token0: mockToken0,
+          token1: mockToken1,
+          fee: mockFee.toString(),
+          amount1: mockSwapEventArgs[3].toString(),
+          amount0: mockSwapEventArgs[2].toString(),
+          severity: FindingSeverity.Info.toString(),
+          type: FindingType.Info.toString(),
+        },
+      }),
+    ]);
   });
-
 
   it("returns findings for multiple swaps among several events, for valid swap events", async () => {
     createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
@@ -157,9 +149,8 @@ describe("Uniswap test suite", () => {
         "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
         mockPoolAddress,
         [...mockSwapEventArgs2]
-      )
-      
-  
+      );
+
     // Execute handleTransaction and verify that findings are returned only for swap events
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
@@ -202,7 +193,6 @@ describe("Uniswap test suite", () => {
   });
 
   it("returns zero findings for events other than swap events from Uniswap", async () => {
-
     // Use a different event signature to simulate a non-swap event
     txEvent = new TestTransactionEvent()
       .setBlock(0)
@@ -213,39 +203,38 @@ describe("Uniswap test suite", () => {
       ]);
 
     // Execute handleTransaction and verify that no findings are returned
-    const findings = await handleTransaction(txEvent)
-      expect(findings.length).toStrictEqual(0); // Expecting zero findings
-    
+    const findings = await handleTransaction(txEvent);
+    expect(findings.length).toStrictEqual(0); // Expecting zero findings
   });
 
   it("returns zero findings for multiple non-swap events", async () => {
-    const mockNonSwapEventArgs2 = [createAddress("0x789"), createAddress("0x890"), ethers.BigNumber.from("2000")];
-
+    const mockTransferEventArgs2 = [createAddress("0x789"), createAddress("0x890"), ethers.BigNumber.from("2000")];
+ 
+    txEvent = new TestTransactionEvent()
     // Add a second non-swap event to the transaction event
     txEvent
       .setBlock(0)
       .addEventLog(
         "event Approval(address indexed owner, address indexed spender, uint256 value)",
         createAddress("0xdef"),
-        [mockNonSwapEventArgs2[0], mockNonSwapEventArgs2[1], mockNonSwapEventArgs2[2]]
+        [mockTransferEventArgs2[0], mockTransferEventArgs2[1], mockTransferEventArgs2[2]]
       )
       .addEventLog("event Transfer(address indexed from, address indexed to, uint256 value)", mockPoolAddress, [
-        mockSwapEventArgs[0],
-        mockSwapEventArgs[1],
-        mockSwapEventArgs[2],
+        mockTransferEventArgs2[0],
+        mockTransferEventArgs2[1],
+        mockTransferEventArgs2[2],
       ]);
 
     // Execute handleTransaction and verify that no findings are returned for both events
-    const findings = await handleTransaction(txEvent)
-      expect(findings.length).toStrictEqual(0); // Expecting zero findings for both non-swap events
-   
+    const findings = await handleTransaction(txEvent);
+    expect(findings.length).toStrictEqual(0); // Expecting zero findings for both non-swap events
   });
 
   it("returns findings for multiple swaps among several events, ignoring non-swap events", async () => {
     // Setup multiple swap and non-swap events in the same transaction
-    const mockNonSwapEventAddress = createAddress("0x212");
-    const mockNonSwapEventArgs = [createAddress("0x323"), createAddress("0x868"), ethers.BigNumber.from("1000")];
-  
+    const mockTransferEventAddress = createAddress("0x212");
+    const mockTransferEventArgs = [createAddress("0x323"), createAddress("0x868"), ethers.BigNumber.from("1000")];
+
     // Add swap events for mockPoolAddress and mockPoolAddress2
     txEvent = new TestTransactionEvent()
       .setBlock(0)
@@ -260,20 +249,19 @@ describe("Uniswap test suite", () => {
         [...mockSwapEventArgs2]
       )
       // Add non-swap events
-      .addEventLog("event Transfer(address indexed from, address indexed to, uint256 value)", mockNonSwapEventAddress, [
-        mockNonSwapEventArgs[0],
-        mockNonSwapEventArgs[1],
-        mockNonSwapEventArgs[2],
+      .addEventLog("event Transfer(address indexed from, address indexed to, uint256 value)", mockTransferEventAddress, [
+        mockTransferEventArgs[0],
+        mockTransferEventArgs[1],
+        mockTransferEventArgs[2],
       ])
-      .addEventLog("event Approval(address indexed owner, address indexed spender, uint256 value)", mockNonSwapEventAddress, [
-        mockNonSwapEventArgs[0],
-        mockNonSwapEventArgs[1],
-        mockNonSwapEventArgs[2],
-      ]);
-  
+      .addEventLog(
+        "event Approval(address indexed owner, address indexed spender, uint256 value)",
+        mockTransferEventAddress,
+        [mockTransferEventArgs[0], mockTransferEventArgs[1], mockTransferEventArgs[2]]
+      );
+
     // Execute handleTransaction and verify that findings are returned only for swap events
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
   });
- 
 });

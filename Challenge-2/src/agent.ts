@@ -26,7 +26,6 @@ export function provideHandleTransaction(
     const findings: Finding[] = [];
 
     // Destructure necessary ABI and event data
-    
 
     // Filter swap events from the transaction
     const swapEvents = txEvent.filterLog(SWAP_EVENT);

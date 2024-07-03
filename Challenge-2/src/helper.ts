@@ -10,7 +10,7 @@ export default class Helper {
   // Constructor to initialize with an ethers provider
   constructor(provider: ethers.providers.Provider) {
     this.provider = provider;
-    this.cache = new LRUCache<string, [boolean, string, string, string]>({max: 1000});  
+    this.cache = new LRUCache<string, [boolean, string, string, string]>({ max: 1000 });
   }
 
   // Computes the CREATE2 address for a Uniswap pair

@@ -8,6 +8,8 @@ This bot detects swaps in UniswapV3 Pool contracts on Ethereum and Polygon.
 
 - Polygon 
 - Ethereum
+- Celo
+- Linea
 
 
 ## Alerts

@@ -1,12 +1,9 @@
 import { MockEthersProvider } from "forta-agent-tools/lib/test";
-import { HandleTransaction } from "forta-agent";
-import { provideHandleTransaction } from "./agent";
 import { COMPUTED_INIT_CODE_HASH, UNISWAP_PAIR_ABI } from "./constants";
 import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 import { ethers } from "forta-agent";
 
-let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
 
 function generateMockPoolAddress(
@@ -22,11 +19,7 @@ function generateMockPoolAddress(
   );
 
   // Use the getCreate2Address utility to compute the address
-  const address = ethers.utils.getCreate2Address(
-    factoryAddress,
-    salt,
-    initcode
-  );
+  const address = ethers.utils.getCreate2Address(factoryAddress, salt, initcode);
 
   return address;
 }
@@ -36,7 +29,7 @@ describe("Uniswap test suite", () => {
   const mockToken1 = createAddress("0x987");
   const mockFee = 99206;
   let mockPoolAddress: string;
-  
+
   const helper = new Helper(mockProvider as any);
   mockPoolAddress = generateMockPoolAddress(
     createAddress("0x284"),
@@ -45,7 +38,6 @@ describe("Uniswap test suite", () => {
     mockFee,
     COMPUTED_INIT_CODE_HASH
   );
-
 
   const createUniswapPairCalls = (
     pairAddress: string,
@@ -90,5 +82,4 @@ describe("Uniswap test suite", () => {
 
     expect(isValid).toBe(false);
   });
-
 });
