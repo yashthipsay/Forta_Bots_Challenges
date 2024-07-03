@@ -9,6 +9,28 @@ import { ethers } from "forta-agent";
 let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(UNISWAP_PAIR_ABI);
 
+function generateMockPoolAddress(
+  factoryAddress: string,
+  token0: string,
+  token1: string,
+  fee: number,
+  initcode: string
+): string {
+  // Compute the salt by hashing the encoded parameters
+  const salt = ethers.utils.keccak256(
+    ethers.utils.defaultAbiCoder.encode(["address", "address", "uint24"], [token0, token1, fee])
+  );
+
+  // Use the getCreate2Address utility to compute the address
+  const address = ethers.utils.getCreate2Address(
+    factoryAddress,
+    salt,
+    initcode
+  );
+
+  return address;
+}
+
 describe("Uniswap test suite", () => {
   const mockProvider = new MockEthersProvider();
   const mockToken1 = createAddress("0x987");
@@ -16,7 +38,7 @@ describe("Uniswap test suite", () => {
   let mockPoolAddress: string;
   
   const helper = new Helper(mockProvider as any);
-  mockPoolAddress = helper.getUniswapPairCreate2Address(
+  mockPoolAddress = generateMockPoolAddress(
     createAddress("0x284"),
     createAddress("0x765"),
     mockToken1,
