@@ -1,7 +1,6 @@
 import { ethers } from "forta-agent";
 import { UNISWAP_PAIR_ABI } from "./constants";
 import { LRUCache } from "lru-cache";
-import { BigNumber } from "@ethersproject/bignumber";
 
 export default class Helper {
   private provider: ethers.providers.Provider;
