@@ -4,13 +4,13 @@ import { LRUCache } from "lru-cache";
 import { BigNumber } from "@ethersproject/bignumber";
 
 export default class Helper {
-  private provider: ethers.providers.Provider;
   private cache: LRUCache<string, [boolean, string, string, string]>;
+  private externalCallCount: number;
 
   // Constructor to initialize with an ethers provider
-  constructor(provider: ethers.providers.Provider) {
-    this.provider = provider;
+  constructor() {
     this.cache = new LRUCache<string, [boolean, string, string, string]>({ max: 1000 });
+    this.externalCallCount = 0;
   }
 
   // Computes the CREATE2 address for a Uniswap pair
@@ -22,10 +22,6 @@ export default class Helper {
     fee: number,
     initcode: string
   ): string {
-    const key = `${factoryAddress}-${token0}-${token1}-${fee}`;
-    if (this.cache.has(key)) {
-      return this.cache.get(key) as any;
-    }
     return ethers.utils.getCreate2Address(
       factoryAddress,
       ethers.utils.keccak256(
@@ -35,6 +31,13 @@ export default class Helper {
     );
   }
 
+  public getExternalCallCount(): number {
+    return this.externalCallCount;
+  }
+
+  public resetExternalCount() {
+    this.externalCallCount = 0;
+  }
   // Validates if a given Uniswap pair address is correct by recomputing its CREATE2 address
 
   public async isValidUniswapPair(
@@ -48,6 +51,8 @@ export default class Helper {
     if (this.cache.has(key)) {
       return this.cache.get(key) as [boolean, string, string, string];
     }
+
+    this.externalCallCount++;
     const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
     const [token0Address, token1Address, fee] = await Promise.all([
       pairContract.token0({ blockTag: block }),
@@ -57,6 +62,7 @@ export default class Helper {
     const tokenPair = this.getUniswapPairCreate2Address(factoryAddress, token0Address, token1Address, fee, initcode);
 
     const isValid = tokenPair.toLowerCase() === pairAddress.toLowerCase();
+    this.cache.set(key, [isValid, token0Address, token1Address, fee.toString()]);
     return [isValid, token0Address, token1Address, fee];
   }
 }

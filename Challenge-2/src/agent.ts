@@ -14,7 +14,7 @@ let helper: Helper;
 // Function to provide a handler for swap events
 
 export function provideInitialize(provider: ethers.providers.Provider) {
-  helper = new Helper(provider);
+  helper = new Helper();
 }
 
 export function provideHandleTransaction(

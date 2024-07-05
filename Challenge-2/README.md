@@ -2,14 +2,12 @@
 
 ## Description
 
-This bot detects swaps in UniswapV3 Pool contracts on Ethereum and Polygon.
+This bot detects swaps in UniswapV3 Pool contracts on Ethereum, Polygon.
 
 ## Supported Chains
 
 - Polygon 
 - Ethereum
-- Celo
-- Linea
 
 
 ## Alerts

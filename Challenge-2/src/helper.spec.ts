@@ -30,7 +30,7 @@ describe("Uniswap test suite", () => {
   const mockFee = 99206;
   let mockPoolAddress: string;
 
-  const helper = new Helper(mockProvider as any);
+  const helper = new Helper();
   mockPoolAddress = generateMockPoolAddress(
     createAddress("0x284"),
     createAddress("0x765"),
@@ -51,6 +51,10 @@ describe("Uniswap test suite", () => {
     });
   };
 
+  beforeEach(() => {
+    mockProvider.clear();
+  });
+
   it("Testing validity for swap event from Uniswap", async () => {
     createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
@@ -65,8 +69,22 @@ describe("Uniswap test suite", () => {
     );
 
     expect(isValid).toBe(true);
+
+    // Test if the external call count is 1
+    await helper.isValidUniswapPair(
+      createAddress("0x284"),
+      mockPoolAddress,
+      COMPUTED_INIT_CODE_HASH,
+      mockProvider as any,
+      0
+    );
+
+    expect(helper.getExternalCallCount()).toBe(1);
   });
+
   it("Testing validity for swap event from Uniswap", async () => {
+    await Promise.all([helper.resetExternalCount()]);
+
     const mockIncorrectFactoryAddress = createAddress("0x123235");
     createUniswapPairCalls(mockPoolAddress, "token0", createAddress("0x765"), 0);
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
@@ -81,5 +99,16 @@ describe("Uniswap test suite", () => {
     );
 
     expect(isValid).toBe(false);
+
+    // Test if the external call count is 1
+    await helper.isValidUniswapPair(
+      mockIncorrectFactoryAddress,
+      mockPoolAddress,
+      COMPUTED_INIT_CODE_HASH,
+      mockProvider as any,
+      0
+    );
+
+    expect(helper.getExternalCallCount()).toBe(1);
   });
 });

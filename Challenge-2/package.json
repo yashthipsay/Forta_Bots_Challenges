@@ -9,9 +9,7 @@
   "promoUrl": "https://forta.org",
   "chainIds": [
     1,
-    137,
-    42220,
-    59144
+    137
   ],
   "scripts": {
     "build": "tsc",

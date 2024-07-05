@@ -19,7 +19,7 @@ describe("Uniswap test suite", () => {
   const mockFee = 99206;
   let mockPoolAddress: string;
 
-  const helper = new Helper(mockProvider as any);
+  const helper = new Helper();
   mockPoolAddress = helper.getUniswapPairCreate2Address(
     mockUniswapV3Factory,
     mockToken0,
@@ -59,7 +59,6 @@ describe("Uniswap test suite", () => {
     mockTick,
   ];
 
-  // Describe block groups test cases together
   beforeAll(() => {
     handleTransaction = provideHandleTransaction(createAddress("0x284"), COMPUTED_INIT_CODE_HASH, mockProvider as any);
   });
@@ -235,7 +234,6 @@ describe("Uniswap test suite", () => {
     const mockTransferEventAddress = createAddress("0x212");
     const mockTransferEventArgs = [createAddress("0x323"), createAddress("0x868"), ethers.BigNumber.from("1000")];
 
-    // Add swap events for mockPoolAddress and mockPoolAddress2
     txEvent = new TestTransactionEvent()
       .setBlock(0)
       .addEventLog(
