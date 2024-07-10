@@ -1,12 +1,4 @@
-import {
-  FindingType,
-  FindingSeverity,
-  Finding,
-  HandleTransaction,
-  createTransactionEvent,
-  ethers,
-  TransactionEvent,
-} from "forta-agent";
+import { FindingType, FindingSeverity, Finding, HandleTransaction, TransactionEvent } from "forta-agent";
 import { Interface } from "@ethersproject/abi";
 import { provideTransaction } from "./agent";
 import { createAddress } from "forta-agent-tools";
@@ -14,8 +6,7 @@ import { TestTransactionEvent } from "forta-agent-tools/lib/test";
 import {
   CREATE_BOT_FUNCTION,
   UPDATE_BOT_FUNCTION,
-  BOT_DEPLOYED_ADDRESS,
-  BOT_UPDATE_EVENT,
+  FORTA_BOT_REGISTRY,
   NETHERMIND_DEPLOYER_ADDRESS,
 } from "./constants";
 
@@ -26,36 +17,28 @@ describe("bot creation agent", () => {
   const args = [1, createAddress("0x02"), "Mock tx 2", [137]];
   const mockUpdateAgentEventData2 = [1, "Mock tx 2", [137]];
 
-  const mockBotDeployedAddress: string = BOT_DEPLOYED_ADDRESS;
+  const mockBotDeployedAddress: string = FORTA_BOT_REGISTRY;
   const mockNethermindAddress: string = NETHERMIND_DEPLOYER_ADDRESS;
-  const mockCreateBotFunction: string = CREATE_BOT_FUNCTION;
-  const mockUpdateBotFunction: string = UPDATE_BOT_FUNCTION;
-  const OTHER_FUNCTION_ABI =
-    "function otherFunction(uint256 agentId, address, string metadata, uint256[] chainIds)";
+  const OTHER_FUNCTION_ABI = "function otherFunction(uint256 agentId, address, string metadata, uint256[] chainIds)";
 
   // Setup for the tests
   beforeAll(() => {
     handleTransaction = provideTransaction(
       CREATE_BOT_FUNCTION,
       UPDATE_BOT_FUNCTION,
-      BOT_DEPLOYED_ADDRESS,
-      BOT_UPDATE_EVENT,
-      NETHERMIND_DEPLOYER_ADDRESS,
+      FORTA_BOT_REGISTRY,
+      NETHERMIND_DEPLOYER_ADDRESS
     );
   });
 
   // Test suite for the handleTransaction function
   describe("handleTransaction", () => {
-    const provideInterface = new Interface([
-      CREATE_BOT_FUNCTION,
-      UPDATE_BOT_FUNCTION,
-      OTHER_FUNCTION_ABI,
-    ]);
+    const provideInterface = new Interface([CREATE_BOT_FUNCTION, UPDATE_BOT_FUNCTION, OTHER_FUNCTION_ABI]);
 
     // Test for bot creation
     it("should find created bot", async () => {
       const tx: TransactionEvent = new TestTransactionEvent()
-        .setTo(BOT_DEPLOYED_ADDRESS)
+        .setTo(FORTA_BOT_REGISTRY)
         .setFrom(NETHERMIND_DEPLOYER_ADDRESS)
         .addTraces({
           function: provideInterface.getFunction("createAgent"),
@@ -71,7 +54,7 @@ describe("bot creation agent", () => {
         Finding.fromObject({
           name: "Bot Creation",
           protocol: "ethereum",
-          description: `Bot created`,
+          description: "Detects Bot created by a Nethermind address",
           alertId: "BOT-1",
           severity: FindingSeverity.Low,
           // timestamp: new Date(),
@@ -80,6 +63,9 @@ describe("bot creation agent", () => {
           metadata: {
             // address: mockNethermindAddress,
             botDeployedAddress: mockBotDeployedAddress,
+            agentId: "1",
+            chainId: "137",
+            metadata: "Mock tx 2",
           },
           addresses: [],
           labels: [],
@@ -92,7 +78,7 @@ describe("bot creation agent", () => {
     // Test for bot update
     it("should find updated bot", async () => {
       const tx: TransactionEvent = new TestTransactionEvent()
-        .setTo(BOT_DEPLOYED_ADDRESS)
+        .setTo(FORTA_BOT_REGISTRY)
         .setFrom(NETHERMIND_DEPLOYER_ADDRESS)
         .addTraces({
           function: provideInterface.getFunction("updateAgent"),
@@ -107,12 +93,15 @@ describe("bot creation agent", () => {
         Finding.fromObject({
           name: "Bot Updating",
           protocol: "ethereum",
-          description: `Bot updated`,
+          description: "Detects Bot updated by a Nethermind address",
           alertId: "BOT-2",
           severity: FindingSeverity.Low,
           type: FindingType.Info,
           metadata: {
             botDeployedAddress: mockBotDeployedAddress,
+            agentId: "1",
+            chainId: "137",
+            metadata: "Mock tx 2",
           },
           addresses: [],
           labels: [],
@@ -123,9 +112,9 @@ describe("bot creation agent", () => {
     });
 
     // Test for no findings for bot creation
-    it("should not have any findings for bot creation", async () => {
+    it("should not emit findings for function calls other than bot creation and bot update", async () => {
       const tx: TransactionEvent = new TestTransactionEvent()
-        .setTo(BOT_DEPLOYED_ADDRESS)
+        .setTo(FORTA_BOT_REGISTRY)
         .setFrom(NETHERMIND_DEPLOYER_ADDRESS)
         .addTraces({
           function: provideInterface.getFunction("otherFunction"),
@@ -137,6 +126,65 @@ describe("bot creation agent", () => {
       const findings = await handleTransaction(tx);
 
       expect(findings).toEqual([]);
+    });
+
+    // Test for no findings when there's a creation but the deployer is not Nethermind
+    it("should not emit findings for bot creation by non-Nethermind deployer", async () => {
+      const tx: TransactionEvent = new TestTransactionEvent()
+        .setTo(FORTA_BOT_REGISTRY)
+        .setFrom(createAddress("0x03")) // Non-Nethermind address
+        .addTraces({
+          function: provideInterface.getFunction("createAgent"),
+          to: mockBotDeployedAddress,
+          from: createAddress("0x03"), // Non-Nethermind address
+          arguments: args,
+        });
+
+      const findings = await handleTransaction(tx);
+
+      expect(findings).toEqual([]);
+    });
+
+    // Test for no findings when there's a creation by Nethermind but not on Forta Bot Registry
+    it("should not emit findings for bot creation not on Forta Bot Registry", async () => {
+      const tx: TransactionEvent = new TestTransactionEvent()
+        .setTo(createAddress("0x04")) // Non-Forta Bot Registry address
+        .setFrom(NETHERMIND_DEPLOYER_ADDRESS)
+        .addTraces({
+          function: provideInterface.getFunction("createAgent"),
+          to: createAddress("0x04"), // Non-Forta Bot Registry address
+          from: NETHERMIND_DEPLOYER_ADDRESS,
+          arguments: args,
+        });
+
+      const findings = await handleTransaction(tx);
+
+      expect(findings).toEqual([]);
+    });
+
+    // Test for multiple findings when there are multiple bot creations in the same tx
+    it("should return multiple findings when there are multiple bot creations in the same tx", async () => {
+      const tx: TransactionEvent = new TestTransactionEvent()
+        .setTo(FORTA_BOT_REGISTRY)
+        .setFrom(NETHERMIND_DEPLOYER_ADDRESS)
+        .addTraces(
+          {
+            function: provideInterface.getFunction("createAgent"),
+            to: mockBotDeployedAddress,
+            from: NETHERMIND_DEPLOYER_ADDRESS,
+            arguments: args,
+          },
+          {
+            function: provideInterface.getFunction("createAgent"),
+            to: mockBotDeployedAddress,
+            from: NETHERMIND_DEPLOYER_ADDRESS,
+            arguments: args,
+          }
+        );
+
+      const findings = await handleTransaction(tx);
+
+      expect(findings.length).toEqual(2);
     });
   });
 });
