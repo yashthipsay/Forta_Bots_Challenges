@@ -11,8 +11,7 @@ import {
   DAI_ADDRESS,
   DAI_L2_ADDRESS,
 } from "./constants";
-import { createFinding, createL1OptFinding } from "./findings";
-import { getAlerts, AlertsResponse } from "forta-agent";
+import { createFinding, createL2Finding } from "./findings";
 
 const TEST_VAL1 = {
   OPT_ESCROW_ADDRESS: OPT_ESCROW_ADDRESS,
@@ -31,25 +30,6 @@ const TEST_VAL2 = {
   ABT_ESCROW_VALUE: BigNumber.from("400"),
   OPT_L2_BAL: BigNumber.from("100"),
   ABT_L2_BAL: BigNumber.from("100"),
-};
-
-const mockAlertResponse = {
-  alerts: [
-    {
-      metadata: {
-        OptEscrBal: TEST_VAL1.OPT_ESCROW_VALUE,
-        AbtEscrBal: TEST_VAL1.ABT_ESCROW_VALUE,
-      },
-    },
-  ],
-
-  pageInfo: {
-    hasNextPage: false,
-    endCursor: {
-      alertId: "L1 Escrow Supply",
-      blockNumber: 10,
-    },
-  },
 };
 
 const mockGetAlerts = jest.fn();
@@ -97,6 +77,16 @@ describe("Dai bridge 11-12 solvency check", () => {
     });
 
     mockProvider.setNetwork(10);
+    mockGetAlerts.mockReturnValue({
+      alerts: [
+        {
+          metadata: {
+            optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
+            abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
+          },
+        },
+      ],
+    });
 
     // Pass in AlertQueryOptions
     const findings = await handleBlock(blockEvent);
@@ -123,7 +113,7 @@ describe("Dai bridge 11-12 solvency check", () => {
 
     const findings = await handleBlock(blockEvent);
     expect(findings).toEqual([
-      createL1OptFinding(
+      createL2Finding(
         TEST_VAL1.OPT_ESCROW_VALUE.toString(),
         TEST_VAL1.ABT_ESCROW_VALUE.toString(),
       ),

@@ -1,5 +1,3 @@
-import { BigNumber } from "@ethersproject/bignumber";
-
 import { Finding, FindingSeverity, FindingType } from "forta-agent";
 
 export const createFinding = (
@@ -21,7 +19,7 @@ export const createFinding = (
   });
 };
 
-export const createL1OptFinding = (
+export const createL2Finding = (
   optEscBal: string,
   abtEscBal: string,
 ): Finding => {
@@ -38,17 +36,3 @@ export const createL1OptFinding = (
     },
   });
 };
-
-// export const createL1AbtFinding = (abtEscBal: string): Finding => {
-//   return Finding.fromObject({
-//     name: `Total supply of Optimism escrow in L1 DAI`,
-//     description: `Optimism L1 escrow balance: ${abtEscBal}`,
-//     alertId: "l1-escrow-supply",
-//     severity: FindingSeverity.Info,
-//     type: FindingType.Info,
-//     protocol: "Ethereum",
-//     metadata: {
-//       abtEscBal: `${abtEscBal}`,
-//     },
-//   });
-// };

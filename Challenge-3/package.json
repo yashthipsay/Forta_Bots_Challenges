@@ -40,7 +40,8 @@
     "@ethersproject/contracts": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "forta-agent": "^0.1.48",
-    "forta-agent-tools": "^3.2.12"
+    "forta-agent-tools": "^3.2.12",
+    "lru-cache": "^11.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.10",
