@@ -12,6 +12,7 @@ import {
   DAI_L2_ADDRESS,
 } from "./constants";
 import { createFinding, createL2Finding } from "./findings";
+import Helper from "./helper";
 
 const TEST_VAL1 = {
   OPT_ESCROW_ADDRESS: OPT_ESCROW_ADDRESS,
@@ -53,6 +54,7 @@ const MakeMockCall = (
 };
 
 describe("Dai bridge 11-12 solvency check", () => {
+  let helper: Helper;
   let handleBlock: HandleBlock;
   let mockProvider: MockEthersProvider;
   let provider: ethers.providers.Provider;
@@ -60,39 +62,22 @@ describe("Dai bridge 11-12 solvency check", () => {
   beforeEach(() => {
     mockProvider = new MockEthersProvider();
     provider = mockProvider as unknown as ethers.providers.Provider;
-    handleBlock = provideHandleBlock(provider, mockGetAlerts);
-  });
+    handleBlock = provideHandleBlock(provider);
+    helper = new Helper(provider);
 
-  it("returns no finding if the optimism layer 2 dai supply is less than the layer 1 escrow dai balance", async () => {
-    const blockEvent = createBlockEvent({
-      block: {
-        hash: "0xa",
-        number: 10,
-      } as any,
-    });
-
-    mockProvider.addCallTo(DAI_L2_ADDRESS, 10, L2_IFACE, "totalSupply", {
-      inputs: [],
-      outputs: [TEST_VAL1.OPT_ESCROW_VALUE],
-    });
-
-    mockProvider.setNetwork(10);
-    mockGetAlerts.mockReturnValue({
+    jest.spyOn(helper, "getL1Alerts").mockResolvedValue({
       alerts: [
         {
+          alertId: "L2_Alert",
+          hasAddress: jest.fn().mockReturnValue(false),
           metadata: {
             optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
             abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
           },
         },
       ],
+      pageInfo: { hasNextPage: false },
     });
-
-    // Pass in AlertQueryOptions
-    const findings = await handleBlock(blockEvent);
-
-    expect(findings.length).toEqual(0);
-    expect(findings).toStrictEqual([]);
   });
 
   it("returns a findings for layer one escrows when on the eth network", async () => {
@@ -138,6 +123,24 @@ describe("Dai bridge 11-12 solvency check", () => {
     expect(findings).toStrictEqual([]);
   });
 
+  it("returns no finding if the opt layer 2 dai supply is less than arbitrum escrow balance", async () => {
+    const blockEvent = createBlockEvent({
+      block: { hash: "0xa", number: 10 } as any,
+    });
+
+    mockProvider.addCallTo(DAI_L2_ADDRESS, 10, L2_IFACE, "totalSupply", {
+      inputs: [],
+      outputs: [TEST_VAL2.OPT_L2_BAL],
+    });
+
+    mockProvider.setNetwork(10);
+
+    const findings = await handleBlock(blockEvent);
+
+    expect(findings.length).toEqual(0);
+    expect(findings).toStrictEqual([]);
+  });
+
   it("returns a finding if optimism l2 supply is more than L1 escrow balance", async () => {
     const blockEvent = createBlockEvent({
       block: { hash: "0xa", number: 10 } as any,
@@ -149,16 +152,7 @@ describe("Dai bridge 11-12 solvency check", () => {
     });
 
     mockProvider.setNetwork(10);
-    mockGetAlerts.mockReturnValue({
-      alerts: [
-        {
-          metadata: {
-            optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
-            abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
-          },
-        },
-      ],
-    });
+
     const findings = await handleBlock(blockEvent);
 
     const expectedFindings = createFinding(

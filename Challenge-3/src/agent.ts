@@ -25,15 +25,14 @@ const alert: Alert = {
 };
 
 // Default response structure for alert queries
-const emptyAlertResponse: AlertsResponse = {
-  alerts: [alert],
-  pageInfo: { hasNextPage: false },
-};
+// const emptyAlertResponse: AlertsResponse = {
+//   alerts: [alert],
+//   pageInfo: { hasNextPage: false },
+// };
 
 // Factory function to provide a block handler with custom dependencies
 export function provideHandleBlock(
   provider: ethers.providers.Provider,
-  getAlerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse>,
 ): HandleBlock {
   return async function handleBlock(
     blockEvent: BlockEvent,
@@ -57,7 +56,6 @@ export function provideHandleBlock(
         blockEvent.blockNumber,
         chainId,
         findings,
-        getAlerts,
       );
     }
 
@@ -66,8 +64,5 @@ export function provideHandleBlock(
 }
 
 export default {
-  handleBlock: provideHandleBlock(
-    getEthersProvider(),
-    emptyAlertResponse as any,
-  ),
+  handleBlock: provideHandleBlock(getEthersProvider()),
 };

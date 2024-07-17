@@ -20,12 +20,13 @@ const L1Alert: Alert = {
   },
 };
 
-const query: AlertQueryOptions = { alertIds: ["L2_Alert"] };
 
 const l1Alerts: AlertsResponse = {
   alerts: [L1Alert],
   pageInfo: { hasNextPage: false },
 };
+
+
 
 export default class Helper {
   private provider: Provider;
@@ -56,6 +57,10 @@ export default class Helper {
     return balance.toString();
   }
 
+  public async getL1Alerts(): Promise<AlertsResponse> {
+    return l1Alerts;
+  }
+
   /**
    * Retrieves the L2 supply and compares it with the L1 balance.
    * If the L1 balance is less than the L2 supply, a finding is created and added to the findings array.
@@ -69,7 +74,6 @@ export default class Helper {
     blockNumber: number,
     chainId: number,
     findings: Finding[],
-    getL1Alerts: (alertQuery: AlertQueryOptions) => Promise<AlertsResponse>,
   ): Promise<string> {
     const l2ChainContract = new Contract(
       DAI_L2_ADDRESS,
@@ -80,8 +84,8 @@ export default class Helper {
       blockTag: blockNumber,
     });
 
-    const { alerts } = await getL1Alerts(query);
-    const metadata = alerts[0].metadata;
+    const l1Alerts = await this.getL1Alerts();
+    const metadata = l1Alerts.alerts[0].metadata;
 
     const isOptimism = chainId === 10;
     const l1Balance = isOptimism ? metadata.optEscBal : metadata.abtEscBal;

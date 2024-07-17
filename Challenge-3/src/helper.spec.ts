@@ -15,8 +15,8 @@ let L1Alert: Alert = {
   alertId: "L2_Alert",
   hasAddress: (address: string) => false,
   metadata: {
-    optEscBal: ethers.BigNumber.from("50000000"),
-    abtEscBal: ethers.BigNumber.from("40000000"),
+    optEscBal: "50000000", // Ensure this value is a string and not undefined
+    abtEscBal: "40000000",
   },
 };
 
@@ -27,20 +27,20 @@ const l1Alerts: AlertsResponse = {
   },
 };
 
-const mockGetAlerts = jest.fn();
-
 describe("getL2Supply", () => {
   let mockProvider: any;
   let findings: Finding[];
-  let getL1Alerts: jest.Mock<Promise<any>, any>;
   let helper: Helper;
+
   beforeEach(() => {
     // Create the mock provider
     mockProvider = new MockEthersProvider() as any;
 
-    // Initialize findings and getL1Alerts mock
+    // Initialize findings
     findings = [];
-    getL1Alerts = jest.fn().mockResolvedValue(l1Alerts);
+
+    // Initialize the Helper instance
+    helper = new Helper(mockProvider as any);
 
     // Mock the totalSupply call with block tag
     mockProvider.addCallTo(
@@ -53,10 +53,9 @@ describe("getL2Supply", () => {
         outputs: [ethers.BigNumber.from("1000000000000000000000000")], // 1,000,000 DAI
       },
     );
-  });
 
-  beforeAll(() => {
-    helper = new Helper(mockProvider as any);
+    // Mock the getL1Alerts method
+    jest.spyOn(helper, "getL1Alerts").mockResolvedValue(l1Alerts);
   });
 
   it("should return correct L1 escrow balances on L1 chain", async () => {
@@ -71,53 +70,21 @@ describe("getL2Supply", () => {
         outputs: [ethers.BigNumber.from("1000000000000000000000000")],
       },
     );
-    mockGetAlerts.mockReturnValue({
-      alerts: [
-        {
-          metadata: {
-            optEscBal: ethers.BigNumber.from("500000000000000000000000"),
-            abtEscBal: ethers.BigNumber.from("400000000000000000000000"),
-          },
-        },
-      ],
-    });
 
     const blockNumber = 12345;
-    const chainId = 1;
 
-    const result = await helper.getL1Balance.call(
-      { provider: mockProvider },
-      OPT_ESCROW_ADDRESS,
-      blockNumber,
-    );
+    const result = await helper.getL1Balance(OPT_ESCROW_ADDRESS, blockNumber);
 
     expect(result.toString()).toBe("1000000000000000000000000");
-    // expect(findings).toHaveLength(1);
   });
 
   it("should correctly get L2 supply and compare with L1 balance for Optimism", async () => {
     mockProvider.setNetwork(10); // Set the network to Optimism
-    mockGetAlerts.mockReturnValue({
-      alerts: [
-        {
-          metadata: {
-            optEscBal: ethers.BigNumber.from("500000000000000000000000"),
-            abtEscBal: ethers.BigNumber.from("400000000000000000000000"),
-          },
-        },
-      ],
-    });
+
     const blockNumber = 12345;
     const chainId = 10; // Optimism chain ID
 
-    const result = await helper.getL2Supply.call(
-      { provider: mockProvider },
-      blockNumber,
-      chainId,
-      findings,
-      getL1Alerts as any,
-    );
-
+    const result = await helper.getL2Supply(blockNumber, chainId, findings);
     expect(findings).toHaveLength(1);
     expect(findings[0].metadata.l1Escrow).toBe("50000000");
     expect(findings[0].metadata.l2Supply).toBe("1000000000000000000000000");
@@ -126,26 +93,11 @@ describe("getL2Supply", () => {
 
   it("should correctly get L2 supply and compare with L1 balance for Arbitrum", async () => {
     mockProvider.setNetwork(42161); // Set the network to Arbitrum
-    mockGetAlerts.mockReturnValue({
-      alerts: [
-        {
-          metadata: {
-            optEscBal: ethers.BigNumber.from("300000000000000000000000"),
-            abtEscBal: ethers.BigNumber.from("250000000000000000000000"),
-          },
-        },
-      ],
-    });
+
     const blockNumber = 12345;
     const chainId = 42161; // Arbitrum chain ID
 
-    const result = await helper.getL2Supply.call(
-      { provider: mockProvider },
-      blockNumber,
-      chainId,
-      findings,
-      getL1Alerts as any,
-    );
+    const result = await helper.getL2Supply(blockNumber, chainId, findings);
 
     expect(findings).toHaveLength(1);
     expect(findings[0].metadata.l1Escrow).toBe("40000000");
