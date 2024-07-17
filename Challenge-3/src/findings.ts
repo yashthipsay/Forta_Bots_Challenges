@@ -8,7 +8,7 @@ export const createFinding = (
   return Finding.fromObject({
     name: `L1 Escrow has less balance than L2 supply on ${network}`,
     description: `balance of ${l1Escrow}, ${network} l2Supply-> ${l2Supply}`,
-    alertId: "FORTA-2",
+    alertId: "L2-SUPPLY",
     severity: FindingSeverity.High,
     type: FindingType.Exploit,
     protocol: `${network}`,
@@ -24,9 +24,9 @@ export const createL2Finding = (
   abtEscBal: string,
 ): Finding => {
   return Finding.fromObject({
-    name: `Total supply of Optimism escrow in L1 DAI`,
-    description: `Optimism L1 escrow balance: ${optEscBal}`,
-    alertId: "FORTA-1",
+    name: `Total supply of Optimism and Arbitrum escrow in L1 DAI`,
+    description: `Optimism/Arbitrum L1 escrow balance: ${optEscBal}`,
+    alertId: "L1-ESCROW",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "Ethereum",
