@@ -13,6 +13,11 @@ import {
 } from "./constants";
 import { createFinding, createL2Finding } from "./findings";
 import Helper from "./helper";
+import {getAlerts} from "forta-agent";
+jest.mock("forta-agent", () => ({
+  ...jest.requireActual("forta-agent"),
+  getAlerts: jest.fn(),
+}));
 
 const TEST_VAL1 = {
   OPT_ESCROW_ADDRESS: OPT_ESCROW_ADDRESS,
@@ -64,20 +69,23 @@ describe("Dai bridge 11-12 solvency check", () => {
     provider = mockProvider as unknown as ethers.providers.Provider;
     handleBlock = provideHandleBlock(provider);
     helper = new Helper(provider);
-
-    jest.spyOn(helper, "getL1Alerts").mockResolvedValue({
-      alerts: [
-        {
-          alertId: "L2_Alert",
-          hasAddress: jest.fn().mockReturnValue(false),
-          metadata: {
-            optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
-            abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
+    (getAlerts as jest.Mock).mockResolvedValue(
+      {
+        alerts: [
+          {
+            alertId: "L2_Alert",
+            hasAddress: jest.fn().mockReturnValue(false),
+            metadata: {
+              optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
+              abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
+            },
           },
-        },
-      ],
-      pageInfo: { hasNextPage: false },
-    });
+        ],
+        pageInfo: { hasNextPage: false },
+      }
+    );
+
+    
   });
 
   it("returns a findings for layer one escrows when on the eth network", async () => {

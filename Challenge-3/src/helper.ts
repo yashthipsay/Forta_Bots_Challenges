@@ -10,6 +10,7 @@ import {
 } from "./constants";
 import { BigNumber } from "ethers";
 import { createFinding } from "./findings";
+import { getAlerts } from "forta-agent";
 
 const L1Alert: Alert = {
   alertId: "L2_Alert",
@@ -58,7 +59,11 @@ export default class Helper {
   }
 
   public async getL1Alerts(): Promise<AlertsResponse> {
-    return l1Alerts;
+    
+    // return l1Alerts;
+    return await getAlerts({
+      alertId: "L2_Alert"
+    })
   }
 
   /**

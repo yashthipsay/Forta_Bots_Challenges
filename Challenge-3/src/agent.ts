@@ -7,6 +7,7 @@ import {
   ethers,
   Alert,
   AlertQueryOptions,
+  getAlerts,
 } from "forta-agent";
 import { createL2Finding } from "./findings";
 import Helper from "./helper";
@@ -25,10 +26,11 @@ const alert: Alert = {
 };
 
 // Default response structure for alert queries
-// const emptyAlertResponse: AlertsResponse = {
-//   alerts: [alert],
-//   pageInfo: { hasNextPage: false },
-// };
+const emptyAlertResponse: AlertsResponse = {
+  alerts: [alert],
+  pageInfo: { hasNextPage: false },
+};
+
 
 // Factory function to provide a block handler with custom dependencies
 export function provideHandleBlock(
@@ -64,5 +66,5 @@ export function provideHandleBlock(
 }
 
 export default {
-  handleBlock: provideHandleBlock(getEthersProvider()),
+  handleBlock: provideHandleBlock(getEthersProvider() /*emptyAlertsResponse*/),
 };
