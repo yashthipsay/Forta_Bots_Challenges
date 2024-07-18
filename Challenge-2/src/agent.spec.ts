@@ -230,6 +230,9 @@ describe("Uniswap test suite", () => {
   });
 
   it("returns findings for multiple swaps among several events, ignoring non-swap events", async () => {
+    createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token0", mockToken0, 0);
+    createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockNonUniswapV3PoolAddress, "fee", mockFee, 0);
     // Setup multiple swap and non-swap events in the same transaction
     const mockTransferEventAddress = createAddress("0x212");
     const mockTransferEventArgs = [createAddress("0x323"), createAddress("0x868"), ethers.BigNumber.from("1000")];
