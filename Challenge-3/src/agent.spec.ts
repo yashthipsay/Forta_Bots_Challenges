@@ -38,11 +38,8 @@ const TEST_VAL2 = {
   ABT_L2_BAL: BigNumber.from("100"),
 };
 
-
 const L1_IFACE = new ethers.utils.Interface([ESCROW_ABI]);
 const L2_IFACE = new ethers.utils.Interface([L2_ABI]);
-
-
 
 describe("Dai bridge 11-12 solvency check", () => {
   let helper: Helper;

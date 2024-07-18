@@ -9,7 +9,6 @@ import { createL2Finding } from "./findings";
 import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
 
-
 let chainId: number;
 
 export function provideInitialize(provider: ethers.providers.Provider) {
