@@ -2,28 +2,13 @@ import {
   BlockEvent,
   Finding,
   HandleBlock,
-  AlertsResponse,
   getEthersProvider,
   ethers,
-  Alert,
-  AlertQueryOptions,
-  getAlerts,
 } from "forta-agent";
 import { createL2Finding } from "./findings";
 import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
 
-// Predefined alert structure for L1 Escrow monitoring
-const alert: Alert = {
-  alertId: "L1_ESCROW",
-  chainId: 1,
-  hasAddress: () => true,
-  metadata: {
-    optEscBal: Number,
-    abtEscBal: Number,
-    network: "Ethereum",
-  },
-};
 
 let chainId: number;
 
@@ -67,5 +52,5 @@ export function provideHandleBlock(
 
 export default {
   initialize: provideInitialize(getEthersProvider()),
-  handleBlock: provideHandleBlock(getEthersProvider() /*emptyAlertsResponse*/),
+  handleBlock: provideHandleBlock(getEthersProvider()),
 };

@@ -1,6 +1,6 @@
 import { Contract } from "@ethersproject/contracts";
 import { Provider } from "@ethersproject/providers";
-import { Alert, AlertQueryOptions, AlertsResponse, Finding } from "forta-agent";
+import { Alert, AlertsResponse, Finding } from "forta-agent";
 import {
   OPT_ESCROW_ADDRESS,
   DAI_ADDRESS,
@@ -12,8 +12,8 @@ import { BigNumber } from "ethers";
 import { createFinding } from "./findings";
 import { getAlerts } from "forta-agent";
 
-const L1Alert: Alert = {
-  alertId: "L2_Alert",
+const L2Alert: Alert = {
+  alertId: "L2-SUPPLY",
   hasAddress: () => false,
   metadata: {
     optEscBal: BigNumber,
@@ -21,8 +21,8 @@ const L1Alert: Alert = {
   },
 };
 
-const l1Alerts: AlertsResponse = {
-  alerts: [L1Alert],
+const l2Alerts: AlertsResponse = {
+  alerts: [L2Alert],
   pageInfo: { hasNextPage: false },
 };
 
@@ -49,16 +49,17 @@ export default class Helper {
 
     const isOptEscrow =
       address.toLowerCase() === OPT_ESCROW_ADDRESS.toLowerCase();
-    l1Alerts.alerts[0].metadata[isOptEscrow ? "optEscBal" : "abtEscBal"] =
+    l2Alerts.alerts[0].metadata[isOptEscrow ? "optEscBal" : "abtEscBal"] =
       balance;
 
     return balance.toString();
   }
 
-  public async getL1Alerts(): Promise<AlertsResponse> {
+  public async getL1Alerts(chaindId: number): Promise<AlertsResponse> {
     // return l1Alerts;
     return await getAlerts({
-      alertId: "L2_Alert",
+      alertId: "L2-SUPPLY",
+      chainId: chaindId,
     });
   }
 
@@ -85,7 +86,7 @@ export default class Helper {
       blockTag: blockNumber,
     });
 
-    const l1Alerts = await this.getL1Alerts();
+    const l1Alerts = await this.getL1Alerts(chainId);
     const metadata = l1Alerts.alerts[0].metadata;
 
     const isOptimism = chainId === 10;

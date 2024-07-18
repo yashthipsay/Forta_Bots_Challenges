@@ -84,7 +84,7 @@ describe("getL2Supply", () => {
     const blockNumber = 12345;
     const chainId = 10; // Optimism chain ID
 
-    const result = await helper.getL2Supply(blockNumber, chainId, findings);
+    await helper.getL2Supply(blockNumber, chainId, findings);
     expect(findings).toHaveLength(1);
     expect(findings[0].metadata.l1Escrow).toBe("50000000");
     expect(findings[0].metadata.l2Supply).toBe("1000000000000000000000000");
@@ -97,7 +97,7 @@ describe("getL2Supply", () => {
     const blockNumber = 12345;
     const chainId = 42161; // Arbitrum chain ID
 
-    const result = await helper.getL2Supply(blockNumber, chainId, findings);
+    await helper.getL2Supply(blockNumber, chainId, findings);
 
     expect(findings).toHaveLength(1);
     expect(findings[0].metadata.l1Escrow).toBe("40000000");

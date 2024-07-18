@@ -12,7 +12,7 @@ This agent monitors the solvency of the DAI bridge between Layer 1 (Ethereum) an
 
 ## Alerts
 
-This agent can fire the following alerts:
+This bot can fire the following alerts:
 
 - L1-ESCROW
   - Fired when the L1 escrow balance for a specific L2 network (Optimism or Arbitrum) is less than the total DAI supply on that L2 network
@@ -44,5 +44,3 @@ The agent behavior can be verified with the following scenarios:
   - Compare the total DAI supply on the L2 network with the corresponding L1 escrow balance
   - An alert will be fired if the L2 supply exceeds the L1 escrow balance
   - Example block number: [122538585](https://etherscan.io/block/122538585)
-
-Note: Specific test transactions are not provided as the agent operates on a per-block basis rather than per-transaction.

@@ -13,8 +13,8 @@ export const createFinding = (
     type: FindingType.Exploit,
     protocol: `${network}`,
     metadata: {
-      l1Escrow: `${l1Escrow}`,
-      l2Supply: `${l2Supply}`,
+      l1Escrow: l1Escrow,
+      l2Supply: l2Supply,
     },
   });
 };
@@ -31,8 +31,8 @@ export const createL2Finding = (
     type: FindingType.Info,
     protocol: "Ethereum",
     metadata: {
-      optEscBal: `${optEscBal}`,
-      abtEscBal: `${abtEscBal}`,
+      optEscBal: optEscBal,
+      abtEscBal: abtEscBal,
     },
   });
 };

@@ -1,5 +1,5 @@
 import { MockEthersProvider } from "forta-agent-tools/lib/test";
-import { ethers, HandleBlock, createBlockEvent, getChainId } from "forta-agent";
+import { ethers, HandleBlock, createBlockEvent } from "forta-agent";
 import { provideHandleBlock, provideInitialize } from "./agent";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Interface } from "ethers/lib/utils";
@@ -38,25 +38,11 @@ const TEST_VAL2 = {
   ABT_L2_BAL: BigNumber.from("100"),
 };
 
-const mockGetAlerts = jest.fn();
 
 const L1_IFACE = new ethers.utils.Interface([ESCROW_ABI]);
 const L2_IFACE = new ethers.utils.Interface([L2_ABI]);
 
-const MakeMockCall = (
-  mockProvider: MockEthersProvider,
-  id: string,
-  inp: any[],
-  outp: any[],
-  addr: string,
-  intface: Interface,
-  block: number,
-) => {
-  mockProvider.addCallTo(addr, block, intface, id, {
-    inputs: inp,
-    outputs: outp,
-  });
-};
+
 
 describe("Dai bridge 11-12 solvency check", () => {
   let helper: Helper;
@@ -76,7 +62,7 @@ describe("Dai bridge 11-12 solvency check", () => {
     (getAlerts as jest.Mock).mockResolvedValue({
       alerts: [
         {
-          alertId: "L2_Alert",
+          alertId: "L2-SUPPLY",
           hasAddress: jest.fn().mockReturnValue(false),
           metadata: {
             optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),

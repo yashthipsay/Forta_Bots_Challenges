@@ -3,7 +3,7 @@
   "displayName": "MakerDAO Invariant Bot",
   "version": "0.0.1",
   "description": "Monitors L2 networks (Optimism, Arbitrum) for DAI supply discrepancies against L1 escrow balances.",
-  "longDescription": "This Forta Agent project is designed to enhance the security and integrity of Layer 2 (L2) networks such as Optimism and Arbitrum by monitoring the total DAI supply on these networks and comparing it with the corresponding Layer 1 (L1) escrow balances. An alert is triggered if the L2 supply exceeds the L1 escrow balance, ensuring timely detection of potential issues. This agent operates on a per-block basis, providing comprehensive coverage without the need for specific transactions.",
+  "longDescription": "This Forta Bot project is designed to enhance the security and integrity of Layer 2 (L2) networks such as Optimism and Arbitrum by monitoring the total DAI supply on these networks and comparing it with the corresponding Layer 1 (L1) escrow balances. An alert is triggered if the L2 supply exceeds the L1 escrow balance, ensuring timely detection of potential issues. This agent operates on a per-block basis, providing comprehensive coverage without the need for specific transactions.",
   "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges",
   "licenseUrl": "https://github.com/forta-network/forta-bot-sdk/blob/master/starter-project/LICENSE.md",
   "promoUrl": "https://forta.org",
@@ -35,9 +35,6 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
-    "@ethersproject/bignumber": "^5.7.0",
-    "@ethersproject/contracts": "^5.7.0",
-    "@ethersproject/providers": "^5.7.2",
     "forta-agent": "^0.1.48",
     "lru-cache": "^11.0.0"
   },
