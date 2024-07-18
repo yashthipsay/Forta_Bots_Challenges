@@ -21,13 +21,10 @@ const L1Alert: Alert = {
   },
 };
 
-
 const l1Alerts: AlertsResponse = {
   alerts: [L1Alert],
   pageInfo: { hasNextPage: false },
 };
-
-
 
 export default class Helper {
   private provider: Provider;
@@ -59,11 +56,10 @@ export default class Helper {
   }
 
   public async getL1Alerts(): Promise<AlertsResponse> {
-    
     // return l1Alerts;
     return await getAlerts({
-      alertId: "L2_Alert"
-    })
+      alertId: "L2_Alert",
+    });
   }
 
   /**

@@ -1,6 +1,6 @@
 import { MockEthersProvider } from "forta-agent-tools/lib/test";
 import { ethers, HandleBlock, createBlockEvent, getChainId } from "forta-agent";
-import { provideHandleBlock } from "./agent";
+import { provideHandleBlock, provideInitialize } from "./agent";
 import { BigNumber } from "@ethersproject/bignumber";
 import { Interface } from "ethers/lib/utils";
 import {
@@ -13,7 +13,7 @@ import {
 } from "./constants";
 import { createFinding, createL2Finding } from "./findings";
 import Helper from "./helper";
-import {getAlerts} from "forta-agent";
+import { getAlerts } from "forta-agent";
 jest.mock("forta-agent", () => ({
   ...jest.requireActual("forta-agent"),
   getAlerts: jest.fn(),
@@ -61,38 +61,40 @@ const MakeMockCall = (
 describe("Dai bridge 11-12 solvency check", () => {
   let helper: Helper;
   let handleBlock: HandleBlock;
+  let initialize: any;
   let mockProvider: MockEthersProvider;
   let provider: ethers.providers.Provider;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockProvider = new MockEthersProvider();
     provider = mockProvider as unknown as ethers.providers.Provider;
-    handleBlock = provideHandleBlock(provider);
-    helper = new Helper(provider);
-    (getAlerts as jest.Mock).mockResolvedValue(
-      {
-        alerts: [
-          {
-            alertId: "L2_Alert",
-            hasAddress: jest.fn().mockReturnValue(false),
-            metadata: {
-              optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
-              abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
-            },
-          },
-        ],
-        pageInfo: { hasNextPage: false },
-      }
-    );
+    initialize = provideInitialize(mockProvider as any);
 
-    
+    handleBlock = provideHandleBlock(provider);
+
+    helper = new Helper(provider);
+    (getAlerts as jest.Mock).mockResolvedValue({
+      alerts: [
+        {
+          alertId: "L2_Alert",
+          hasAddress: jest.fn().mockReturnValue(false),
+          metadata: {
+            optEscBal: TEST_VAL1.OPT_ESCROW_VALUE.toString(),
+            abtEscBal: TEST_VAL1.ABT_ESCROW_VALUE.toString(),
+          },
+        },
+      ],
+      pageInfo: { hasNextPage: false },
+    });
   });
 
   it("returns a findings for layer one escrows when on the eth network", async () => {
     const blockEvent = createBlockEvent({
       block: { hash: "0xa", number: 10 } as any,
     });
+
     mockProvider.setNetwork(1);
+    await initialize();
 
     mockProvider
       .addCallTo(DAI_ADDRESS, 10, L1_IFACE, "balanceOf", {
@@ -124,7 +126,7 @@ describe("Dai bridge 11-12 solvency check", () => {
     });
 
     mockProvider.setNetwork(42161);
-
+    await initialize();
     const findings = await handleBlock(blockEvent);
 
     expect(findings.length).toEqual(0);
@@ -135,6 +137,8 @@ describe("Dai bridge 11-12 solvency check", () => {
     const blockEvent = createBlockEvent({
       block: { hash: "0xa", number: 10 } as any,
     });
+    mockProvider.setNetwork(10);
+    await initialize();
 
     mockProvider.addCallTo(DAI_L2_ADDRESS, 10, L2_IFACE, "totalSupply", {
       inputs: [],
@@ -160,7 +164,7 @@ describe("Dai bridge 11-12 solvency check", () => {
     });
 
     mockProvider.setNetwork(10);
-
+    await initialize();
     const findings = await handleBlock(blockEvent);
 
     const expectedFindings = createFinding(

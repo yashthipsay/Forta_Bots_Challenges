@@ -25,12 +25,14 @@ const alert: Alert = {
   },
 };
 
-// Default response structure for alert queries
-const emptyAlertResponse: AlertsResponse = {
-  alerts: [alert],
-  pageInfo: { hasNextPage: false },
-};
+let chainId: number;
 
+export function provideInitialize(provider: ethers.providers.Provider) {
+  return async function initialize() {
+    const network = await provider.getNetwork();
+    chainId = network.chainId;
+  };
+}
 
 // Factory function to provide a block handler with custom dependencies
 export function provideHandleBlock(
@@ -41,8 +43,6 @@ export function provideHandleBlock(
   ): Promise<Finding[]> {
     const findings: Finding[] = [];
     const helperInstance = new Helper(provider);
-
-    const { chainId } = await provider.getNetwork();
 
     if (chainId === 1) {
       // Concurrently fetch balances for specified escrow addresses
@@ -66,5 +66,6 @@ export function provideHandleBlock(
 }
 
 export default {
+  initialize: provideInitialize(getEthersProvider()),
   handleBlock: provideHandleBlock(getEthersProvider() /*emptyAlertsResponse*/),
 };
