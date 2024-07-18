@@ -25,7 +25,6 @@ export function provideHandleTransaction(
   return async function handleTransaction(txEvent: TransactionEvent) {
     const findings: Finding[] = [];
 
-
     // Filter swap events from the transaction
     const swapEvents = txEvent.filterLog(SWAP_EVENT);
 

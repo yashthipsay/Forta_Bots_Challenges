@@ -30,13 +30,6 @@ export default class Helper {
     );
   }
 
-  public getExternalCallCount(): number {
-    return this.externalCallCount;
-  }
-
-  public resetExternalCount() {
-    this.externalCallCount = 0;
-  }
   // Validates if a given Uniswap pair address is correct by recomputing its CREATE2 address
 
   public async isValidUniswapPair(
