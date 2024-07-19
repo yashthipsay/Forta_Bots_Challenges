@@ -230,6 +230,10 @@ describe("Uniswap test suite", () => {
   });
 
   it("returns findings for multiple swaps among several events, ignoring non-swap events", async () => {
+    createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
+    createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
+
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token0", mockToken0, 0);
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "fee", mockFee, 0);
