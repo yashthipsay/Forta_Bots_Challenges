@@ -4,12 +4,10 @@ import { LRUCache } from "lru-cache";
 
 export default class Helper {
   private cache: LRUCache<string, [boolean, string, string, string]>;
-  private externalCallCount: number;
 
   // Constructor to initialize with an ethers provider
   constructor() {
     this.cache = new LRUCache<string, [boolean, string, string, string]>({ max: 1000 });
-    this.externalCallCount = 0;
   }
 
   // Computes the CREATE2 address for a Uniswap pair
@@ -44,7 +42,6 @@ export default class Helper {
       return this.cache.get(key) as [boolean, string, string, string];
     }
 
-    this.externalCallCount++;
     const pairContract = new ethers.Contract(pairAddress, UNISWAP_PAIR_ABI, provider);
     const [token0Address, token1Address, fee] = await Promise.all([
       pairContract.token0({ blockTag: block }),
