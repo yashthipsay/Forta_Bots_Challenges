@@ -19,7 +19,7 @@ export const createFinding = (
   });
 };
 
-export const createL2Finding = (
+export const createL1Finding = (
   optEscBal: string,
   abtEscBal: string,
 ): Finding => {

@@ -12,7 +12,7 @@ const L2_ABI = ["function totalSupply() view returns (uint256)"];
 
 // Mock data
 let L1Alert: Alert = {
-  alertId: "L2_Alert",
+  alertId: "L1_ESCROW",
   hasAddress: (address: string) => false,
   metadata: {
     optEscBal: "50000000", // Ensure this value is a string and not undefined

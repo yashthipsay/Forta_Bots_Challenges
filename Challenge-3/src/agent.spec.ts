@@ -11,7 +11,7 @@ import {
   DAI_ADDRESS,
   DAI_L2_ADDRESS,
 } from "./constants";
-import { createFinding, createL2Finding } from "./findings";
+import { createFinding, createL1Finding } from "./findings";
 import Helper from "./helper";
 import { getAlerts } from "forta-agent";
 jest.mock("forta-agent", () => ({
@@ -91,7 +91,7 @@ describe("Dai bridge 11-12 solvency check", () => {
 
     const findings = await handleBlock(blockEvent);
     expect(findings).toEqual([
-      createL2Finding(
+      createL1Finding(
         TEST_VAL1.OPT_ESCROW_VALUE.toString(),
         TEST_VAL1.ABT_ESCROW_VALUE.toString(),
       ),

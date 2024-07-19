@@ -5,11 +5,13 @@ import {
   getEthersProvider,
   ethers,
 } from "forta-agent";
-import { createL2Finding } from "./findings";
+import { createL1Finding } from "./findings";
 import Helper from "./helper";
 import { ABT_ESCROW_ADDRESS, OPT_ESCROW_ADDRESS } from "./constants";
 
 let chainId: number;
+let prevOptBalance: string;
+let prevAbtBalance: string;
 
 export function provideInitialize(provider: ethers.providers.Provider) {
   return async function initialize() {
@@ -34,8 +36,11 @@ export function provideHandleBlock(
         helperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber),
         helperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber),
       ]);
-
-      findings.push(createL2Finding(optBalance, abtBalance));
+      if (prevOptBalance !== optBalance || prevAbtBalance !== abtBalance || !prevOptBalance || !prevAbtBalance) {
+        prevOptBalance = optBalance;
+        prevAbtBalance = abtBalance;
+        findings.push(createL1Finding(optBalance, abtBalance));
+      }
     } else {
       // For non-mainnet chains, fetch L2 supply details
       await helperInstance.getL2Supply(
