@@ -11,7 +11,7 @@ export const createFinding = (
     alertId: "L2-SUPPLY",
     severity: FindingSeverity.High,
     type: FindingType.Exploit,
-    protocol: `${network}`,
+    protocol: network,
     metadata: {
       l1Escrow: l1Escrow,
       l2Supply: l2Supply,

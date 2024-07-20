@@ -62,20 +62,17 @@ export default class Helper {
     });
   }
 
-  /**
-   * Retrieves the L2 supply and compares it with the L1 balance.
-   * If the L1 balance is less than the L2 supply, a finding is created and added to the findings array.
-   * @param blockNumber - The block number to retrieve the L2 supply from.
-   * @param chainId - The chain ID of the blockchain.
-   * @param findings - An array of findings to store the comparison results.
-   * @param getL1Alerts - A function that retrieves L1 alerts.
-   * @returns The L2 supply as a string.
-   */
-  public async getL2Supply(
+/**
+ * Fetches the L2 supply and creates a high severity finding if L1 balance is less than L2 supply.
+ * @param blockNumber The block number to query the L2 supply at.
+ * @param chainId The chain ID to determine the network and corresponding L1 balance.
+ * @param findings Array to push findings into if a discrepancy is detected.
+ */
+  public async fetchL2SupplyAndCheckDiscrepancy(
     blockNumber: number,
     chainId: number,
     findings: Finding[],
-  ): Promise<string> {
+  ){
     const l2ChainContract = new Contract(
       DAI_L2_ADDRESS,
       [L2_ABI],
@@ -101,6 +98,5 @@ export default class Helper {
       );
     }
 
-    return totalSupply.toString();
   }
 }

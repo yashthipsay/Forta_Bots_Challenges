@@ -43,7 +43,7 @@ export function provideHandleBlock(
       }
     } else {
       // For non-mainnet chains, fetch L2 supply details
-      await helperInstance.getL2Supply(
+      await helperInstance.fetchL2SupplyAndCheckDiscrepancy(
         blockEvent.blockNumber,
         chainId,
         findings,
