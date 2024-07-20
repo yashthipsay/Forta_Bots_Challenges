@@ -269,4 +269,48 @@ describe("Uniswap test suite", () => {
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
   });
+
+
+  it("returns findings for multiple swaps among several events, ignoring non-swap events", async () => {
+    createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
+    createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
+
+    createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token0", mockToken0, 0);
+    createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token1", mockToken1, 0);
+    createUniswapPairCalls(mockNonUniswapV3PoolAddress, "fee", mockFee, 0);
+    // Setup multiple swap and non-swap events in the same transaction
+    const mockTransferEventAddress = createAddress("0x212");
+    const mockTransferEventArgs = [createAddress("0x323"), createAddress("0x868"), ethers.BigNumber.from("1000")];
+
+    txEvent = new TestTransactionEvent()
+      .setBlock(0)
+      .addEventLog(
+        "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+        mockPoolAddress,
+        [...mockSwapEventArgs]
+      )
+      .addEventLog(
+        "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+        mockPoolAddress,
+        [...mockSwapEventArgs2]
+      )
+      // Add non-swap events
+      .addEventLog(
+        "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+        mockNonUniswapV3PoolAddress,
+        [...mockSwapEventArgs]
+      )
+      .addEventLog(
+        "event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)",
+        mockNonUniswapV3PoolAddress,
+        [...mockSwapEventArgs2]
+      );
+
+    // Execute handleTransaction and verify that findings are returned only for swap events
+    const findings = await handleTransaction(txEvent);
+    expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
+  });
+
+  
 });
