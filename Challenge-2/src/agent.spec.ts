@@ -270,8 +270,7 @@ describe("Uniswap test suite", () => {
     expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
   });
 
-
-  it("returns findings for multiple swaps among several events, ignoring non-swap events", async () => {
+  it("returns findings for multiple swaps among several events, ignoring swap events in non-Uniswap pools", async () => {
     createUniswapPairCalls(mockPoolAddress, "token0", mockToken0, 0);
     createUniswapPairCalls(mockPoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockPoolAddress, "fee", mockFee, 0);
@@ -279,9 +278,6 @@ describe("Uniswap test suite", () => {
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token0", mockToken0, 0);
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "token1", mockToken1, 0);
     createUniswapPairCalls(mockNonUniswapV3PoolAddress, "fee", mockFee, 0);
-    // Setup multiple swap and non-swap events in the same transaction
-    const mockTransferEventAddress = createAddress("0x212");
-    const mockTransferEventArgs = [createAddress("0x323"), createAddress("0x868"), ethers.BigNumber.from("1000")];
 
     txEvent = new TestTransactionEvent()
       .setBlock(0)
@@ -311,6 +307,4 @@ describe("Uniswap test suite", () => {
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toStrictEqual(2); // Expecting two findings for the swap events, ignoring non-swap events
   });
-
-  
 });
