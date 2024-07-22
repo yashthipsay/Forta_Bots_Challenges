@@ -6,20 +6,20 @@ export function provideHandleGovernanceTransaction(configuratorProxyAddress: str
   return async function HandleTransaction(tx: TransactionEvent){
     const finding: Finding[] = [];
 
-  //   const cometContract = new ethers.Contract(USDC_TOKEN, [UTILIZATION], provider)
-  //   // console.log(cometContract);
-  //   const getUtilization = await cometContract.getUtilization(
-  //   );
+    const cometContract = new ethers.Contract(USDC_TOKEN, [UTILIZATION], provider)
+    // console.log(cometContract);
+    const getUtilization = await cometContract.getUtilization(
+    );
  
   
 
-  // try{
-  //   const borrowRate = new ethers.Contract(USDC_TOKEN, ["function getBorrowRate(uint utilization) public view returns (uint64)"], provider)
-  //   const getBorrowRate = await borrowRate.getBorrowRate(getUtilization);
-  //   console.log(getBorrowRate.toString());
-  // }catch (error){
-  //   console.log(error);
-  // }
+  try{
+    const borrowRate = new ethers.Contract(USDC_TOKEN, ["function getBorrowRate(uint utilization) public view returns (uint64)"], provider)
+    const getBorrowRate = await borrowRate.getBorrowRate(getUtilization);
+    console.log(getBorrowRate.toString());
+  }catch (error){
+    console.log(error);
+  }
 
   const eventFilterMapping: { [key: string]: ReturnType<typeof tx.filterLog> } = {
     "BORROW_KINK": tx.filterLog(BORROW_KINK, configuratorProxyAddress),
