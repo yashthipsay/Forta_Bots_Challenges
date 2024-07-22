@@ -6,6 +6,7 @@
     - It also provides interests for supplying and borrowing assets from the pool it provides, depending upon the market conditions. 
     - Users are rewarded COMP tokens based on their contribution to the protocol. They are incentivsed for lending or borrwing in the form of Annual Percentage Rate, which is a result of the interest they receive based on the utilization of the supplied assets
     - The protocol is designed to be a decentralized platform, which is governed by the community. The community can propose and vote on changes to the protocol, which are then implemented by the developers.
+    - The `Configurator.sol` has properties in a general config struct that can be changed by governance. Once a proposal is passed, the values are changed and anyone can call the `deploy()` function that creates a new comet instance
 
 ## Proposed Bots:
      - COMP01: CompoundV3 DAO Bot
