@@ -13,7 +13,7 @@ import { createFinding } from "./findings";
 import { getAlerts } from "forta-agent";
 
 const L2Alert: Alert = {
-  alertId: "L2-SUPPLY",
+  alertId: "L1-ESCROW",
   hasAddress: () => false,
   metadata: {
     optEscBal: BigNumber,
