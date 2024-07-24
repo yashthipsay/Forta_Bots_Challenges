@@ -2,9 +2,15 @@ import { Finding, FindingSeverity, FindingType } from 'forta-agent';
 
 export const createFinding = (
     tokenAddress: string,
-    assetData: string,
+    assetData: { [name: string]: string; },
     network: string,
+    changedEvents: { [key: string]: any; }
 ): Finding => {
+    let infoString = {"Collateral Asset": {
+        assetData
+    }};
+   
+    console.log(infoString);
     return Finding.fromObject({
         name: `Change of asset values due to governance proposal`,
         description: `The asset ${tokenAddress} has been modified by a governance proposal`,
@@ -13,7 +19,9 @@ export const createFinding = (
         type: FindingType.Info,
         protocol: network,
         metadata: {
-            assetInfo: assetData,
+            ...changedEvents,
+            ...assetData
+            
         }
 
     })

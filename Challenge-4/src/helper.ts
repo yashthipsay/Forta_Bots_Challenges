@@ -10,7 +10,7 @@ export async function getCollateralAsset(assetToken: string, abi: string[], prov
     while (true) {
         try {
             infoObject = await assetInfo.callStatic.getAssetInfo(index);
-            const collateralName = await getCollateralName(provider, infoObject.asset);
+            const collateralName ="Collateral Asset - " +  await getCollateralName(provider, infoObject.asset);
             infoArray[collateralName] = infoObject.asset;
             index++; // Increment after successful fetch
         } catch (error) {

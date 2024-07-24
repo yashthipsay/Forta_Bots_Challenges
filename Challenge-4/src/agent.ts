@@ -1,4 +1,4 @@
-import { Finding, FindingSeverity, HandleTransaction, TransactionEvent, ethers, getEthersProvider } from "forta-agent";
+import { Finding, FindingSeverity, HandleTransaction, LogDescription, TransactionEvent, TxEventBlock, ethers, getEthersProvider } from "forta-agent";
 import {CONFIGURATOR_PROXY, ASSET_INFO, RESERVES, LIQUIDATE_CF, BORROW_CF, SET_GOVERNOR, BORROW_PYIR, USDC_TOKEN, SUPPLY_KINK, COMET_FACTORY, BORROW_KINK, CONFIGURATOR, UTILIZATION, CONFIGURATION_ABI} from "./constants";
 import { abiJson } from "./configuratorAbi";
 import { createFinding } from "./findings";
@@ -57,9 +57,7 @@ export function provideHandleGovernanceTransaction(configuratorProxyAddress: str
   // index++;
   // }
 
-  const obj = await getCollateralAsset(USDC_TOKEN, ASSET_INFO, provider);
 
-  console.log(obj);
 
   try{
     const borrowRate = new ethers.Contract(USDC_TOKEN, ["function getBorrowRate(uint utilization) public view returns (uint64)"], provider)
@@ -78,7 +76,27 @@ export function provideHandleGovernanceTransaction(configuratorProxyAddress: str
     "LIQUIDATE_CF": tx.filterLog(LIQUIDATE_CF, configuratorProxyAddress),
   };
 
-  // finding.push(createFinding(USDC_TOKEN, infoObject, tx.network.toString()));
+  const changedEvents: { [key: string]: any } = {};
+
+  Object.entries(eventFilterMapping).forEach(([key, value]) => {
+    if (Array.isArray(value) && value.length > 0) {
+      changedEvents[key] = {
+        "Old_value": value[0].args[1].toString(),
+        "New_value": value[0].args[2].toString(),
+      };
+    }
+  })
+
+  console.log(changedEvents);
+
+
+  const obj = await getCollateralAsset("0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840", ASSET_INFO, provider);
+
+  console.log(obj);
+
+  const infoObject = obj;
+
+  finding.push(createFinding(USDC_TOKEN, infoObject, tx.network.toString(), changedEvents));
   
   
 
