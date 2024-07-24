@@ -1,6 +1,8 @@
-import { Finding, HandleTransaction, TransactionEvent, ethers, getEthersProvider } from "forta-agent";
+import { Finding, FindingSeverity, HandleTransaction, TransactionEvent, ethers, getEthersProvider } from "forta-agent";
 import {CONFIGURATOR_PROXY, ASSET_INFO, RESERVES, LIQUIDATE_CF, BORROW_CF, SET_GOVERNOR, BORROW_PYIR, USDC_TOKEN, SUPPLY_KINK, COMET_FACTORY, BORROW_KINK, CONFIGURATOR, UTILIZATION, CONFIGURATION_ABI} from "./constants";
 import { abiJson } from "./configuratorAbi";
+import { createFinding } from "./findings";
+import { getCollateralAsset } from "./helper";
 
 export function provideHandleGovernanceTransaction(configuratorProxyAddress: string, provider: ethers.providers.Provider): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent){
@@ -11,13 +13,13 @@ export function provideHandleGovernanceTransaction(configuratorProxyAddress: str
     const getUtilization = await cometContract.getUtilization(
     );
     
-    try {
-      const configurationContract = new ethers.Contract(configuratorProxyAddress, CONFIGURATION_ABI, provider);
-      const configuration = await configurationContract.callStatic.getConfiguration("0x1C1853Bc7C6bFf0D276Da53972C0b1a066DB1AE7");
-      console.log(configuration);
-    } catch (error) {
-      console.error("Error fetching configuration:", error);
-    }
+    // try {
+    //   const configurationContract = new ethers.Contract(CONFIGURATOR_PROXY, CONFIGURATION_ABI, provider);
+    //   const configuration = await configurationContract.getConfiguration(CONFIGURATOR);
+    //   console.log(configuration);
+    // } catch (error) {
+    //   console.error("Error fetching configuration:", error);
+    // }
 
   //   const struct = new ethers.Contract(USDC_TOKEN, abiJson, provider);
   //   const reserves = await struct.getReserves()
@@ -29,10 +31,35 @@ export function provideHandleGovernanceTransaction(configuratorProxyAddress: str
 
   //   console.log(getReserves.toString());
 
-  const assetInfo = new ethers.Contract(USDC_TOKEN, ASSET_INFO, provider);
+  // const assetInfoByAddress = new ethers.Contract(USDC_TOKEN, ["function getAssetInfoByAddress(address asset) public view returns (uint8 offset, address asset, address priceFeed, uint64 scale, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)"], provider)
+  // const getAssetInfoByAddress = await assetInfoByAddress.getAssetInfoByAddress("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
 
-  const infoObject = await assetInfo.callStatic.getAssetInfo(0);
-  // console.log(infoObject);
+
+  // const assetInfo = new ethers.Contract(USDC_TOKEN, ASSET_INFO, provider);
+
+  // for(let i = 0; i<=4; i++){
+  //   const infoObject = await assetInfo.callStatic.getAssetInfo(i);
+  //   console.log(infoObject)
+
+
+  // }
+
+  // let infoObject;
+  // let index = 0;
+  // let flag = 0;
+  // infoObject = await assetInfo.callStatic.getAssetInfo(index)
+  // while(flag == 0){
+  //   console.log(infoObject);
+  // infoObject = await assetInfo.callStatic.getAssetInfo(index).catch(()=> {
+  //   console.log("Done");
+  //   flag = 1
+  // })
+  // index++;
+  // }
+
+  const obj = await getCollateralAsset(USDC_TOKEN, ASSET_INFO, provider);
+
+  console.log(obj);
 
   try{
     const borrowRate = new ethers.Contract(USDC_TOKEN, ["function getBorrowRate(uint utilization) public view returns (uint64)"], provider)
@@ -50,6 +77,10 @@ export function provideHandleGovernanceTransaction(configuratorProxyAddress: str
     "BORROW_CF": tx.filterLog(BORROW_CF, configuratorProxyAddress),
     "LIQUIDATE_CF": tx.filterLog(LIQUIDATE_CF, configuratorProxyAddress),
   };
+
+  // finding.push(createFinding(USDC_TOKEN, infoObject, tx.network.toString()));
+  
+  
 
   // const assetInfo = new ethers.Contract("0x343715FA797B8e9fe48b9eFaB4b54f01CA860e78", ["function getAssetInfoByAddress(address asset) public view returns (AssetInfo)"], provider);
 //  console.log(assetInfo);
