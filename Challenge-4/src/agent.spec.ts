@@ -2,12 +2,17 @@ import { TestTransactionEvent, MockEthersProvider } from 'forta-agent-tools/lib/
 import { provideHandleGovernanceTransaction } from './agent';
 import {ethers, Finding, FindingSeverity, FindingType, HandleTransaction} from 'forta-agent' 
 import { ASSET_INFO, CONFIGURATOR_PROXY, USDC_TOKEN } from './constants';
-import { getCollateralAsset } from './helper';
 import { createAddress } from 'forta-agent-tools';
+import * as helpers from './helper';
+
+jest.mock('./helper');
+
+const mockedGetCollateralAsset = helpers.getCollateralAsset as jest.MockedFn<typeof helpers.getCollateralAsset>;
 
 let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(ASSET_INFO);
 let getCollateralName = new ethers.utils.Interface(["function name() view returns (string)"])
+
 
 describe("Compound test suite", () => {
     let txEvent: TestTransactionEvent;
@@ -43,13 +48,19 @@ describe("Compound test suite", () => {
     })
 
     beforeEach(async () => {
+        
         mockProvider = new MockEthersProvider() as any;
     provider = mockProvider as unknown as ethers.providers.Provider;
     handleTransaction = provideHandleGovernanceTransaction(USDC_TOKEN, CONFIGURATOR_PROXY, provider);
-
+        mockedGetCollateralAsset.mockImplementation(async(assetToken: string, abi: string[], provider: ethers.providers.Provider, blockNumber: number) => {
+            return {
+                "Collateral Asset - Mock Collateral Name": createAddress("0x123")
+            };
+        })
     })
 
     it("should return a finding", async() => {
+        jest.clearAllMocks();
         mockProvider.setNetwork(1)
         mockProvider.addCallTo(USDC_TOKEN, 0, Iface, "getAssetInfo", {
             inputs: [0],
@@ -60,6 +71,8 @@ describe("Compound test suite", () => {
             outputs: ["Collateral-1"]
         });
 
+        const mockValueForName = 'Mock Collateral Name';
+        // Use the mockImplementation or mockResolvedValue to mock the function
         txEvent = new TestTransactionEvent()
 
         txEvent.setBlock(0)
@@ -71,5 +84,6 @@ describe("Compound test suite", () => {
 
 
         const findings = await handleTransaction(txEvent);
+        console.log(findings);
     })
 })
