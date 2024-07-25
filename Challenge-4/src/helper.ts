@@ -6,12 +6,13 @@ export async function getCollateralAsset(assetToken: string, abi: string[], prov
     let infoArray: {[name: string]: string} = {};
     let infoObject: any;
     let index = 0; // Start from 0, increment before fetching next
+    await assetInfo.getAssetInfo(index); // Check if index 0 exists
     while (true) {
         try {
-            infoObject = await assetInfo.callStatic.getAssetInfo(index, {blockTag: blockNumber});
+            infoObject = await assetInfo.getAssetInfo(index);
             const collateralName ="Collateral Asset - " +  await getCollateralName(provider, infoObject.asset, blockNumber);
             
-            infoArray[collateralName] = infoObject.asset;
+            infoArray[collateralName] = infoObject[0].asset;
             index++; // Increment after successful fetch
         } catch (error) {
             console.log("Done");
@@ -22,7 +23,7 @@ export async function getCollateralAsset(assetToken: string, abi: string[], prov
     return infoArray;
 }
 
-export async function getCollateralName(provider: ethers.providers.Provider, tokenAddress: string, blockNumber: number): Promise<string> { 
+async function getCollateralName(provider: ethers.providers.Provider, tokenAddress: string, blockNumber: number): Promise<string> { 
     const erc20Abi = ["function name() view returns (string)"];
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
    

@@ -3,7 +3,7 @@ import {CONFIGURATOR_PROXY, ASSET_INFO, RESERVES, LIQUIDATE_CF, BORROW_CF, SET_G
 import { createFinding } from "./findings";
 import { getCollateralAsset } from "./helper";
 
-export function provideHandleGovernanceTransaction(assetToken: string, configuratorProxyAddress: string, provider: ethers.providers.Provider): HandleTransaction {
+export function provideHandleGovernanceTransaction(assetToken: string, configuratorProxyAddress: string, provider: ethers.providers.Provider, assetAbi: string[]): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent){
     const finding: Finding[] = [];
 
@@ -50,7 +50,7 @@ export function provideHandleGovernanceTransaction(assetToken: string, configura
 
 
 
-  const obj = await getCollateralAsset("0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840", ASSET_INFO, provider, tx.blockNumber);
+  const obj = await getCollateralAsset(assetToken, assetAbi, provider, tx.blockNumber);
 
 
   const infoObject = obj;
@@ -65,5 +65,5 @@ export function provideHandleGovernanceTransaction(assetToken: string, configura
 }
 
 export default {
-  handleTransaction: provideHandleGovernanceTransaction(USDC_TOKEN, CONFIGURATOR_PROXY, getEthersProvider() as any),
+  handleTransaction: provideHandleGovernanceTransaction(USDC_TOKEN, CONFIGURATOR_PROXY, getEthersProvider(), ASSET_INFO),
 };

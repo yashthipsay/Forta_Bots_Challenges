@@ -5,9 +5,9 @@ import { ASSET_INFO, CONFIGURATOR_PROXY, USDC_TOKEN } from './constants';
 import { createAddress } from 'forta-agent-tools';
 import * as helpers from './helper';
 
-jest.mock('./helper');
+// jest.mock('./helper');
 
-const mockedGetCollateralAsset = helpers.getCollateralAsset as jest.MockedFn<typeof helpers.getCollateralAsset>;
+// const mockedGetCollateralAsset = helpers.getCollateralAsset as jest.MockedFn<typeof helpers.getCollateralAsset>;
 
 let handleTransaction: HandleTransaction;
 let Iface: ethers.utils.Interface = new ethers.utils.Interface(ASSET_INFO);
@@ -44,6 +44,7 @@ describe("Compound test suite", () => {
     // }
     let mockProvider: MockEthersProvider;
   let provider: ethers.providers.Provider;
+  const mockAssetTokenAddress = createAddress("0x10957")
     beforeAll(() => {
     })
 
@@ -51,18 +52,17 @@ describe("Compound test suite", () => {
         
         mockProvider = new MockEthersProvider() as any;
     provider = mockProvider as unknown as ethers.providers.Provider;
-    handleTransaction = provideHandleGovernanceTransaction(USDC_TOKEN, CONFIGURATOR_PROXY, provider);
-        mockedGetCollateralAsset.mockImplementation(async(assetToken: string, abi: string[], provider: ethers.providers.Provider, blockNumber: number) => {
-            return {
-                "Collateral Asset - Mock Collateral Name": createAddress("0x123")
-            };
-        })
-    })
+    handleTransaction = provideHandleGovernanceTransaction(mockAssetTokenAddress, CONFIGURATOR_PROXY, provider, ASSET_INFO);
+        // mockedGetCollateralAsset.mockImplementation(async(assetToken: string, abi: string[], provider: ethers.providers.Provider, blockNumber: number) => {
+        //     return {
+        //         "Collateral Asset - C1": createAddress("0x123"),
+        //         "Collateral Asset - C2": createAddress("0x234"),
+        //         "Collateral Asset - C3": createAddress("0x345"),
+        //         "Collateral Asset - C4": createAddress("0x456"),
+        //     };
+        // })
 
-    it("should return a finding", async() => {
-        jest.clearAllMocks();
-        mockProvider.setNetwork(1)
-        mockProvider.addCallTo(USDC_TOKEN, 0, Iface, "getAssetInfo", {
+        mockProvider.addCallTo(mockAssetTokenAddress, 0, Iface, "getAssetInfo", {
             inputs: [0],
             outputs: [0, createAddress("0x123"), createAddress("0x234"), 4, 12, 134, 1245, 1265 ]
         });
@@ -70,6 +70,12 @@ describe("Compound test suite", () => {
             inputs: [],
             outputs: ["Collateral-1"]
         });
+    })
+
+    it("should return a finding", async() => {
+        mockProvider.setNetwork(1)
+        
+      
 
         const mockValueForName = 'Mock Collateral Name';
         // Use the mockImplementation or mockResolvedValue to mock the function
