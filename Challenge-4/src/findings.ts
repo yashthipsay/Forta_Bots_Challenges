@@ -6,11 +6,7 @@ export const createFinding = (
     network: string,
     changedEvents: { [key: string]: any; }
 ): Finding => {
-    let infoString = {"Collateral Asset": {
-        assetData
-    }};
    
-    console.log(infoString);
     return Finding.fromObject({
         name: `Change of asset values due to governance proposal`,
         description: `The asset ${tokenAddress} has been modified by a governance proposal`,
