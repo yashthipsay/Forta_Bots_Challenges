@@ -1,7 +1,6 @@
 import {
   TestTransactionEvent,
   MockEthersProvider,
-
 } from "forta-agent-tools/lib/test";
 import { createAddress } from "forta-agent-tools";
 import { provideHandleGovernanceTransaction } from "./agent";
@@ -19,16 +18,31 @@ describe("Compound test suite", () => {
   let mockProvider: MockEthersProvider;
   let txEvent: TestTransactionEvent;
   const mockAssetTokenAddress = createAddress("0x10957");
-  const mockArgs = [createAddress("0x1421"), createAddress("0x123"), createAddress("0x234")];
+  const mockArgs = [
+    createAddress("0x1421"),
+    createAddress("0x123"),
+    createAddress("0x234"),
+  ];
   const Iface = new ethers.utils.Interface(ASSET_INFO);
-  const getCollateralName = new ethers.utils.Interface(["function name() view returns (string)"]);
+  const getCollateralName = new ethers.utils.Interface([
+    "function name() view returns (string)",
+  ]);
 
   const setupMockProvider = (collateralAddresses: string[]) => {
     mockProvider.setNetwork(1);
     collateralAddresses.forEach((address, index) => {
       mockProvider.addCallTo(mockAssetTokenAddress, 0, Iface, "getAssetInfo", {
         inputs: [index],
-        outputs: [index, address, createAddress("0x234"), 4, 12, 134, 1245, 1265],
+        outputs: [
+          index,
+          address,
+          createAddress("0x234"),
+          4,
+          12,
+          134,
+          1245,
+          1265,
+        ],
       });
       mockProvider.addCallTo(address, 0, getCollateralName, "name", {
         inputs: [],
@@ -104,10 +118,11 @@ describe("Compound test suite", () => {
 
   it("should return 0 findings for event other than proposal change", async () => {
     mockProvider.setNetwork(1);
-    txEvent.addEventLog("event mockEvent(address value1, uint8 value2)", CONFIGURATOR_PROXY, [
-      createAddress("0x9467"),
-      2,
-    ]);
+    txEvent.addEventLog(
+      "event mockEvent(address value1, uint8 value2)",
+      CONFIGURATOR_PROXY,
+      [createAddress("0x9467"), 2],
+    );
 
     const findings = await handleTransaction(txEvent);
     expect(findings.length).toStrictEqual(0);

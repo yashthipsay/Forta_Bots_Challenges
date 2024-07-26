@@ -1,8 +1,9 @@
 import { ethers } from "forta-agent";
-import { USDC_TOKEN } from "./constants";
 import { LRUCache } from "lru-cache";
 
 let cache = new LRUCache<string, { [name: string]: string }>({ max: 1000 });
+
+// Additional property for metadata field i.e. collateral values for the asset, that you can either liquidate or borrow
 export async function getCollateralAsset(
   assetToken: string,
   abi: string[],
@@ -37,6 +38,7 @@ export async function getCollateralAsset(
   return infoArray;
 }
 
+// Fetching names of the collteral assets for specifying in metadata
 async function getCollateralName(
   provider: ethers.providers.Provider,
   tokenAddress: string,
