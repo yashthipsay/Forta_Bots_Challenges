@@ -29,11 +29,14 @@
     "enable": "forta-agent enable",
     "keyfile": "forta-agent keyfile",
     "stake": "forta-agent stake",
-    "test": "jest"
+    "test": "jest",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "dependencies": {
     "forta-agent": "^0.1.48",
-    "forta-agent-tools": "^3.2.12"
+    "forta-agent-tools": "^3.2.12",
+    "lru-cache": "^11.0.0",
+    "prettier": "^3.3.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.10",
