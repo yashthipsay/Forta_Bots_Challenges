@@ -46,10 +46,10 @@
              4. Exceeding Kink: Utilization percentage reaches or exceeds 85%.
                  - Alert: A specific alert for when the utilization crosses the kink, indicating a significant change in the slope of borrow and supply rates due to high demand for liquidity. This scenario requires immediate attention as it may affect the liquidity pool's stability.
 
-        - The bot will continuously monitor transactions and events related to the USDC liquidity pool on the Scroll network to calculate the current utilization percentage. It will use this data to determine the current range and issue findings or alerts accordingly.
+        - The bot will continuously monitor transactions and events related to the USDC liquidity pool on the Ethereum and Polygon network to calculate the current utilization percentage. It will use this data to determine the current range and issue findings or alerts accordingly.
 
         - Benefits:
-             - Provides real-time insights into the demand for USDC borrowing on the Scroll network, helping liquidity providers and borrowers make informed decisions.
+             - Provides real-time insights into the demand for USDC borrowing on the Ethereum and Polygon network, helping liquidity providers and borrowers make informed decisions.
              - Alerts users to critical changes in market dynamics, particularly when utilization rates approach or exceed the kink, allowing for timely responses to optimize returns or mitigate risks.
 
         - This bot is an essential tool for stakeholders in the USDC market on the Scroll network, offering valuable data on market conditions and alerting to significant changes that could impact liquidity and rates.
@@ -75,6 +75,8 @@
         - Define the utilization ranges and corresponding actions for each range.
         - Set up alerts for utilization exceeding the optimal kink and provide detailed insights on the utilization slope.
         - Continuously monitor the utilization percentage and trigger alerts based on predefined thresholds.
+        - The main property to be monitored here is the `getUtilization()` percentage. The formula for getUtilization is `totalBorrow + (FACTOR_SCALE/totalSupply)`. The `FACTOR_SCALE` is a constant value of 1e18.
+        - The range of values where slope is low i.e. `uint public override immutable supplyPerSecondInterestRateSlopeLow` will be divided into 3 parts monitoring the utilization of each transaction, and then returning the mean utilization per block. Then a finding will be generated perblock denoting what range the utilization is in, and whether it is favourable to lend or borrow.
         - Develop a user-friendly interface to display utilization data, findings, and alerts for stakeholders.
         - Conduct thorough testing to validate the bot's functionality and ensure accurate utilization monitoring and alerting.
      
