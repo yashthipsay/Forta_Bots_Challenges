@@ -36,7 +36,7 @@ export function provideHandleBlock(
         helperInstance.getL1Balance(OPT_ESCROW_ADDRESS, blockEvent.blockNumber),
         helperInstance.getL1Balance(ABT_ESCROW_ADDRESS, blockEvent.blockNumber),
       ]);
-      if (prevOptBalance !== optBalance || prevAbtBalance !== abtBalance || !prevOptBalance || !prevAbtBalance) {
+      if (prevOptBalance !== optBalance || prevAbtBalance !== abtBalance) {
         prevOptBalance = optBalance;
         prevAbtBalance = abtBalance;
         findings.push(createL1Finding(optBalance, abtBalance));

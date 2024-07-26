@@ -57,7 +57,7 @@ export default class Helper {
 
   public async getL1Alerts(chaindId: number): Promise<AlertsResponse> {
     return await getAlerts({
-      alertId: "L2-SUPPLY",
+      alertId: "L1-ESCROW",
       chainId: chaindId,
     });
   }
