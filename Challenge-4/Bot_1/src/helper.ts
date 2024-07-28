@@ -34,6 +34,7 @@ export async function getCollateralAsset(
       break; // Exit loop on error
     }
   }
+
   cache.set(key, infoArray);
   return infoArray;
 }

@@ -12,6 +12,7 @@ import {
   HandleTransaction,
 } from "forta-agent";
 import { ASSET_INFO, CONFIGURATOR_PROXY } from "./constants";
+import * as networkManager from "./networkManager";
 
 describe("Compound test suite", () => {
   let handleTransaction: HandleTransaction;
@@ -55,13 +56,17 @@ describe("Compound test suite", () => {
     mockProvider = new MockEthersProvider() as any;
     const provider = mockProvider as unknown as ethers.providers.Provider;
     handleTransaction = provideHandleGovernanceTransaction(
-      mockAssetTokenAddress,
-      CONFIGURATOR_PROXY,
       provider,
       ASSET_INFO,
     );
     txEvent = new TestTransactionEvent().setBlock(0);
+    jest.spyOn(networkManager, 'getAddress').mockResolvedValue(mockAssetTokenAddress);
+    jest.spyOn(networkManager, 'getConfigurator').mockResolvedValue(CONFIGURATOR_PROXY);
   });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  })
 
   it("should return single finding for single event occurence", async () => {
     const collateralAddresses = [
@@ -182,6 +187,18 @@ describe("Compound test suite", () => {
         Old_value: "100",
         New_value: "200",
       },
+      SUPPLY_KINK: {
+        Old_value: "100",
+        New_value: "250",
+      },
+      BORROW_CF: {
+        Old_value: "100",
+        New_value: "200",
+      },
+      LIQUIDATE_CF: {
+        Old_value: "100",
+        New_value: "200",
+      },
     };
 
     const metadata = {
@@ -227,6 +244,22 @@ describe("Compound test suite", () => {
       CONFIGURATOR_PROXY,
       [mockArgs[1], 100, 200],
     );
+    txEvent.addEventLog(
+      "event SetSupplyKink(address indexed cometProxy,uint64 oldKink, uint64 newKink)",
+      CONFIGURATOR_PROXY,
+      [mockArgs[1], 100, 250],
+
+    )
+    txEvent.addEventLog(
+      "event UpdateAssetBorrowCollateralFactor(address indexed cometProxy, address indexed asset, uint64 oldBorrowCF, uint64 newBorrowCF)",
+      CONFIGURATOR_PROXY,
+      [mockArgs[1], createAddress("0x123"), 100, 200],
+    )
+    txEvent.addEventLog(
+      "event UpdateAssetLiquidateCollateralFactor(address indexed cometProxy, address indexed asset, uint64 oldLiquidateCF, uint64 newLiquidateCF)",
+      CONFIGURATOR_PROXY,
+      [mockArgs[1], createAddress("0x123"), 100, 200],
+    )
     const findings = await handleTransaction(txEvent);
     expect(findings).toEqual([
       Finding.fromObject({

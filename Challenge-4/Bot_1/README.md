@@ -1,13 +1,13 @@
-# Large Tether Transfer Agent
+# COMPOUND GOVERNANCE MONITORING BOT
 
 ## Description
 
-This agent detects transactions with large Tether transfers
+The bot monitors change of important events by COMP token holders on Ethereum and Polygon network
 
 ## Supported Chains
 
 - Ethereum
-- List any other chains this agent can support e.g. BSC
+- Polygon
 
 ## Alerts
 

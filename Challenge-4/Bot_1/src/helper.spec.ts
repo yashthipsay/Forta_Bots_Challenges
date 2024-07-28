@@ -19,8 +19,6 @@ describe("Helper test suite", () => {
     mockProvider = new MockEthersProvider() as any;
     provider = mockProvider as unknown as ethers.providers.Provider;
     handleTransaction = provideHandleGovernanceTransaction(
-      mockAssetTokenAddress,
-      CONFIGURATOR_PROXY,
       provider,
       ASSET_INFO,
     );
