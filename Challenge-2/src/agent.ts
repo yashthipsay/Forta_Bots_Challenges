@@ -1,42 +1,77 @@
-import { Finding, HandleTransaction, TransactionEvent, getEthersProvider, ethers } from "forta-agent";
-import { createFinding } from "./finding";
-import { UNISWAP_PAIR_ABI, SWAP_EVENT, UNISWAP_FACTORY_ADDRESS, GET_POOL_ABI } from "./utils";
-import { getUniswapPoolValues, getUniswapCreate2Address } from "./retrieval";
+import {
+  Finding,
+  HandleTransaction,
+  TransactionEvent,
+  FindingSeverity,
+  FindingType,
+  getEthersProvider,
+  ethers,
+} from "forta-agent";
+import { UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, SWAP_EVENT } from "./constants";
+import Helper from "./helper";
 
-export function provideSwapHandler(
-  provider: ethers.providers.Provider,
-  SWAP_EVENT: string[],
-  UNISWAP_PAIR_ABI: string[],
+let helper: Helper;
+// Function to provide a handler for swap events
+
+export function provideInitialize(provider: ethers.providers.Provider) {
+  helper = new Helper();
+}
+
+export function provideHandleTransaction(
+  uniswapFactoryAddress: string,
+  initcode: string,
+  provider: ethers.providers.Provider
 ): HandleTransaction {
-  return async (txEvent: TransactionEvent): Promise<Finding[]> => {
+  return async function handleTransaction(txEvent: TransactionEvent) {
     const findings: Finding[] = [];
 
-    // Get the factory contract to use later when we call getPool func to verify pool address
-    const factoryContract = new ethers.Contract(UNISWAP_FACTORY_ADDRESS, GET_POOL_ABI, provider);
-    const bn = txEvent.blockNumber;
-
-    // Filter out any swap logs from the blockchain that match our SWAP_EVENT
+    // Filter swap events from the transaction
     const swapEvents = txEvent.filterLog(SWAP_EVENT);
-    for (const swapLog of swapEvents) {
-      try {
-        // Retrieve the pool values for the swap log address
-        const poolVal = await getUniswapPoolValues(swapLog.address, UNISWAP_PAIR_ABI, provider, bn);
 
-        // Get the pool address using the pool values and factory contract
-        const poolAddress = getUniswapCreate2Address(poolVal, factoryContract);
+    // Process each swap event asynchronously
+    await Promise.all(
+      swapEvents.map(async (event) => {
+        const pairAddress = event.address;
+        const params = event.args;
+        // Validate the Uniswap pair address
 
-        // Check if the pool address matches the swap log address
-        if (poolAddress.toLowerCase() === swapLog.address.toLowerCase()) {
-          findings.push(createFinding(poolVal, poolAddress));
+        const [isValid, token0Address, token1Address, fee] = await helper.isValidUniswapPair(
+          uniswapFactoryAddress,
+          pairAddress,
+          initcode,
+          provider,
+          txEvent.blockNumber
+        );
+        if (isValid) {
+          // If the pair address is valid, create a finding
+          findings.push(
+            Finding.fromObject({
+              name: "Uniswap V3 Swap Detector",
+              description: "This Bot detects the Swaps executed on Uniswap V3",
+              alertId: "NETHERMIND-1",
+              severity: FindingSeverity.Info,
+              protocol: "UniswapV3",
+              type: FindingType.Info,
+              metadata: {
+                token0: token0Address,
+                token1: token1Address,
+                fee: fee.toString(),
+                amount1: params[3].toString(),
+                amount0: params[2].toString(),
+                severity: FindingSeverity.Info.toString(),
+                type: FindingType.Info.toString(),
+              },
+            })
+          );
         }
-      } catch {
-        return findings;
-      }
-    }
+      })
+    );
+
     return findings;
   };
 }
 
 export default {
-  handleTransaction: provideSwapHandler(getEthersProvider(), SWAP_EVENT, UNISWAP_PAIR_ABI),
+  initialize: provideInitialize(getEthersProvider()),
+  handleTransaction: provideHandleTransaction(UNISWAP_FACTORY_ADDRESS, COMPUTED_INIT_CODE_HASH, getEthersProvider()),
 };
