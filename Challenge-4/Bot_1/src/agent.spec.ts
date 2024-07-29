@@ -60,13 +60,17 @@ describe("Compound test suite", () => {
       ASSET_INFO,
     );
     txEvent = new TestTransactionEvent().setBlock(0);
-    jest.spyOn(networkManager, 'getAddress').mockResolvedValue(mockAssetTokenAddress);
-    jest.spyOn(networkManager, 'getConfigurator').mockResolvedValue(CONFIGURATOR_PROXY);
+    jest
+      .spyOn(networkManager, "getAddress")
+      .mockResolvedValue(mockAssetTokenAddress);
+    jest
+      .spyOn(networkManager, "getConfigurator")
+      .mockResolvedValue(CONFIGURATOR_PROXY);
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-  })
+  });
 
   it("should return single finding for single event occurence", async () => {
     const collateralAddresses = [
@@ -248,18 +252,17 @@ describe("Compound test suite", () => {
       "event SetSupplyKink(address indexed cometProxy,uint64 oldKink, uint64 newKink)",
       CONFIGURATOR_PROXY,
       [mockArgs[1], 100, 250],
-
-    )
+    );
     txEvent.addEventLog(
       "event UpdateAssetBorrowCollateralFactor(address indexed cometProxy, address indexed asset, uint64 oldBorrowCF, uint64 newBorrowCF)",
       CONFIGURATOR_PROXY,
       [mockArgs[1], createAddress("0x123"), 100, 200],
-    )
+    );
     txEvent.addEventLog(
       "event UpdateAssetLiquidateCollateralFactor(address indexed cometProxy, address indexed asset, uint64 oldLiquidateCF, uint64 newLiquidateCF)",
       CONFIGURATOR_PROXY,
       [mockArgs[1], createAddress("0x123"), 100, 200],
-    )
+    );
     const findings = await handleTransaction(txEvent);
     expect(findings).toEqual([
       Finding.fromObject({

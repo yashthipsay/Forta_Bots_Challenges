@@ -2,11 +2,12 @@ export const CONFIGURATOR = "0xcFC1fA6b7ca982176529899D99af6473aD80DF4F";
 
 export const CONFIGURATOR_PROXY = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
 
-export const CONFIGURATOR_PROXY_ARB = "0xb21b06D71c75973babdE35b49fFDAc3F82Ad3775"
+export const CONFIGURATOR_PROXY_ARB =
+  "0xb21b06D71c75973babdE35b49fFDAc3F82Ad3775";
 
 export const USDC_TOKEN_ETH = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
 
-export const USDC_TOKEN_ARB = "0x9c4ec768c28520B50860ea7a15bd7213a9fF58bf"
+export const USDC_TOKEN_ARB = "0x9c4ec768c28520B50860ea7a15bd7213a9fF58bf";
 
 export const COMET_FACTORY = "0xa7F7De6cCad4D83d81676717053883337aC2c1b4";
 
@@ -34,7 +35,6 @@ export const LIQUIDATE_CF =
 export const ASSET_INFO = [
   `function getAssetInfo(uint8 i) public view returns (uint8 offset, address asset, address priceFeed, uint64 scale, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)`,
 ];
-
 
 export const CONFIGURATION_ABI = [
   "function getConfiguration(address cometProxy) external view returns (address governor, address pauseGuardian, address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, (address asset, address priceFeed, uint8 decimals, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)[] assetConfigs)",

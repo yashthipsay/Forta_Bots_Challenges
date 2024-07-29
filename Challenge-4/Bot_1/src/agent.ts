@@ -25,7 +25,6 @@ export function provideHandleGovernanceTransaction(
   assetAbi: string[],
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
-
     const finding: Finding[] = [];
     const network = await provider.getNetwork();
     let configuratorProxy = await getConfigurator(network.chainId);
@@ -40,30 +39,27 @@ export function provideHandleGovernanceTransaction(
       BORROW_CF: tx.filterLog(BORROW_CF, configuratorProxy),
       LIQUIDATE_CF: tx.filterLog(LIQUIDATE_CF, configuratorProxy),
     };
-    console.log(eventFilterMapping.BORROW_CF);
     const assetToken = await getAddress(provider);
     const changedEvents: { [key: string]: any } = {};
 
+    // Fetch old value and new value of the changed event. For some events, that index value differs, hence the logic
     Object.entries(eventFilterMapping).forEach(([key, value]) => {
-      console.log(key)
       if (Array.isArray(value) && value.length > 0) {
-        if(key != 'LIQUIDATE_CF' && key != 'BORROW_CF'){
-        changedEvents[key] = {
-          Old_value: value[0].args[1].toString(),
-          New_value: value[0].args[2].toString(),
-        }
-       
+        if (key != "LIQUIDATE_CF" && key != "BORROW_CF") {
+          changedEvents[key] = {
+            Old_value: value[0].args[1].toString(),
+            New_value: value[0].args[2].toString(),
+          };
         } else {
           changedEvents[key] = {
             Old_value: value[0].args[2].toString(),
             New_value: value[0].args[3].toString(),
-          }
+          };
         }
       }
     });
 
-    console.log(changedEvents);
-
+    // Additional feature - Fetch collateral asset for the most transacted token in the pool i.e. USDC
     const obj = await getCollateralAsset(
       assetToken,
       assetAbi,
@@ -73,6 +69,7 @@ export function provideHandleGovernanceTransaction(
 
     const infoObject = obj;
 
+    // Create findind only if there is a change of events
     if (Object.keys(changedEvents).length > 0) {
       finding.push(
         createFinding(
