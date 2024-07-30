@@ -1,4 +1,4 @@
-# COMPOUND GOVERNANCE MONITORING BOT
+# Compound Governance Monitoring Bot
 
 ## Description
 
@@ -31,4 +31,4 @@ Describe each of the type of alerts fired by this agent
 The bot behaviour can be verified with the following transactions:
 
 - [0x6c027d5d6b1ca59ebd3bfbc6128a090ed4bd2ed23453b8656daf2bbe9a6d8594](https://etherscan.io/tx/0x6c027d5d6b1ca59ebd3bfbc6128a090ed4bd2ed23453b8656daf2bbe9a6d8594) (for Ethereum Network), or [17375147](https://etherscan.io/block/17375147): block in which the transaction was included.
-- [0x612b126dd0efdf62b43f12f9dfd3d10adb1c281c8edaba9b1ea2869a480aa060](https://arbiscan.io/tx/0x612b126dd0efdf62b43f12f9dfd3d10adb1c281c8edaba9b1ea2869a480aa060) (forArbitrum network), or [163230017](https://arbiscan.io/block/163230017): block in which the transaction was included.
+- [0x612b126dd0efdf62b43f12f9dfd3d10adb1c281c8edaba9b1ea2869a480aa060](https://arbiscan.io/tx/0x612b126dd0efdf62b43f12f9dfd3d10adb1c281c8edaba9b1ea2869a480aa060) (for Arbitrum network), or [163230017](https://arbiscan.io/block/163230017): block in which the transaction was included.

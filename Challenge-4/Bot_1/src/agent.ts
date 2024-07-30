@@ -20,14 +20,20 @@ import { createFinding } from "./findings";
 import { getCollateralAsset } from "./helper";
 import { data, getAddress, getConfigurator } from "./networkManager";
 
+let configuratorProxy: string | undefined;
+export function provideInitialize(provider: ethers.providers.Provider){
+  return async function initialize() {
+    const network = await provider.getNetwork();
+    configuratorProxy = await getConfigurator(network.chainId);
+  }
+}
+
 export function provideHandleGovernanceTransaction(
   provider: ethers.providers.Provider,
   assetAbi: string[],
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
-    const network = await provider.getNetwork();
-    let configuratorProxy = await getConfigurator(network.chainId);
     const eventFilterMapping: {
       [key: string]: ReturnType<typeof tx.filterLog>;
     } = {
@@ -86,6 +92,7 @@ export function provideHandleGovernanceTransaction(
 }
 
 export default {
+  initialize: provideInitialize(getEthersProvider()),
   handleTransaction: provideHandleGovernanceTransaction(
     getEthersProvider() as any,
     ASSET_INFO,
