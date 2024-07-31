@@ -18,6 +18,7 @@ Describe each of the type of alerts fired by this agent
   - Severity is always set to `Info` as it detects changes made to the protocol which do not involve any security risk.
   - Type is always set to `Info`
   - Metadata fields: 
+    - `changedEvents`: List of events that are changed in the proposal:
       - `SUPPLY_KINK`: Old and new values only if Supply Kink is changed
       - `BORROW_KINK`: Old and new values only if Borrow Kink is changed
       - `SET_GOVERNOR`: Old and new values only if Governor is changed

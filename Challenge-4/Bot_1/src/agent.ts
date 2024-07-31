@@ -16,7 +16,6 @@ import {
   SUPPLY_KINK,
   BORROW_KINK,
   SUPPLY_PYIR,
-  eventInterface,
   USDC_TOKEN_ETH,
   USDC_TOKEN_ARB,
 } from "./constants";
@@ -91,15 +90,13 @@ export function provideHandleGovernanceTransaction(
     });
 
     // Additional feature - Fetch collateral asset for the most transacted token in the pool i.e. USDC
-    const obj = await getCollateralAsset(
+    const infoObject = await getCollateralAsset(
       assetToken,
       assetAbi,
       provider,
       tx.blockNumber,
     );
-
-    const infoObject = obj;
-
+    
     // Create findind only if there is a change of events
     if (Object.keys(changedEvents).length > 0) {
       finding.push(

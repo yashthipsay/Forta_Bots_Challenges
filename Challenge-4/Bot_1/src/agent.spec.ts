@@ -14,7 +14,7 @@ import {
 import { CONFIGURATOR_PROXY } from "./constants";
 import * as helper from "./helper";
 
-describe("Compound test suite", () => {
+describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   let handleTransaction: HandleTransaction;
   let mockProvider: MockEthersProvider;
   let txEvent: TestTransactionEvent;
@@ -59,9 +59,8 @@ describe("Compound test suite", () => {
 
   beforeEach(() => {
     mockProvider = new MockEthersProvider() as any;
-    const provider = mockProvider as unknown as ethers.providers.Provider;
     handleTransaction = provideHandleGovernanceTransaction(
-      provider,
+      mockProvider as unknown as ethers.providers.Provider,
       assetInfo,
     );
     txEvent = new TestTransactionEvent().setBlock(0);
@@ -96,13 +95,13 @@ describe("Compound test suite", () => {
     };
     const metadata = {
       "Collateral Asset - Collateral-1":
-        "0x0000000000000000000000000000000000001247",
+        `${createAddress("0x1247")}`,
       "Collateral Asset - Collateral-2":
-        "0x0000000000000000000000000000000000012567",
+        `${createAddress("0x12567")}`,
       "Collateral Asset - Collateral-3":
-        "0x0000000000000000000000000000000000001289",
+        `${createAddress("0x1289")}`,
       "Collateral Asset - Collateral-4":
-        "0x0000000000000000000000000000000000001290",
+        `${createAddress("0x1290")}`,
     };
 
     const findings = await handleTransaction(txEvent);
@@ -161,13 +160,13 @@ describe("Compound test suite", () => {
   it("should return a finding for a governance event out of multiple non-governance events", async () => {
     const metadata = {
       "Collateral Asset - Collateral-1":
-        "0x0000000000000000000000000000000000001247",
+        `${createAddress("0x1247")}`,
       "Collateral Asset - Collateral-2":
-        "0x0000000000000000000000000000000000012567",
+        `${createAddress("0x12567")}`,
       "Collateral Asset - Collateral-3":
-        "0x0000000000000000000000000000000000001289",
+        `${createAddress("0x1289")}`,
       "Collateral Asset - Collateral-4":
-        "0x0000000000000000000000000000000000001290",
+        `${createAddress("0x1290")}`,
     };
 
     const metadata1: { [key: string]: any } = {
@@ -238,13 +237,13 @@ describe("Compound test suite", () => {
 
     const metadata = {
       "Collateral Asset - Collateral-1":
-        "0x0000000000000000000000000000000000001247",
+        `${createAddress("0x1247")}`,
       "Collateral Asset - Collateral-2":
-        "0x0000000000000000000000000000000000012567",
+        `${createAddress("0x12567")}`,
       "Collateral Asset - Collateral-3":
-        "0x0000000000000000000000000000000000001289",
+        `${createAddress("0x1289")}`,
       "Collateral Asset - Collateral-4":
-        "0x0000000000000000000000000000000000001290",
+        `${createAddress("0x1290")}`,
     };
 
     const collateralAddresses = [
