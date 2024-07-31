@@ -1,6 +1,7 @@
 import {
   Finding,
   HandleTransaction,
+  LogDescription,
   TransactionEvent,
   ethers,
   getEthersProvider,
@@ -15,6 +16,8 @@ import {
   SUPPLY_KINK,
   BORROW_KINK,
   SUPPLY_PYIR,
+  eventInterface,
+  USDC_TOKEN_ETH
 } from "./constants";
 import { createFinding } from "./findings";
 import { getCollateralAsset } from "./helper";
@@ -34,36 +37,31 @@ export function provideHandleGovernanceTransaction(
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
-    const eventFilterMapping: {
-      [key: string]: ReturnType<typeof tx.filterLog>;
-    } = {
-      BORROW_KINK: tx.filterLog(BORROW_KINK, configuratorProxy),
-      SUPPLY_KINK: tx.filterLog(SUPPLY_KINK, configuratorProxy),
-      SET_GOVERNOR: tx.filterLog(SET_GOVERNOR, configuratorProxy),
-      BORROW_PYIR: tx.filterLog(BORROW_PYIR, configuratorProxy),
-      SUPPLY_PYIR: tx.filterLog(SUPPLY_PYIR, configuratorProxy),
-      BORROW_CF: tx.filterLog(BORROW_CF, configuratorProxy),
-      LIQUIDATE_CF: tx.filterLog(LIQUIDATE_CF, configuratorProxy),
-    };
-    const assetToken = await getAddress(provider);
-    const changedEvents: { [key: string]: any } = {};
+   
 
-    // Fetch old value and new value of the changed event. For some events, that index value differs, hence the logic
-    Object.entries(eventFilterMapping).forEach(([key, value]) => {
-      if (Array.isArray(value) && value.length > 0) {
-        if (key != "LIQUIDATE_CF" && key != "BORROW_CF") {
-          changedEvents[key] = {
-            Old_value: value[0].args[1].toString(),
-            New_value: value[0].args[2].toString(),
-          };
-        } else {
-          changedEvents[key] = {
-            Old_value: value[0].args[2].toString(),
-            New_value: value[0].args[3].toString(),
-          };
-        }
+   const result = tx.filterLog([BORROW_KINK, SUPPLY_KINK, SET_GOVERNOR, BORROW_PYIR, SUPPLY_PYIR, BORROW_CF, LIQUIDATE_CF], configuratorProxy)
+   
+   const assetToken = await getAddress(provider);
+   const changedEvents: { [key: string]: any } = {};
+   result.forEach((log) => {
+    const name = log.name
+    if(name != "UpdateAssetBorrowCollateralFactor" && name != "UpdateAssetLiquidateCollateralFactor"){
+      changedEvents[name] = {
+        Old_value: log.args[1].toString(),
+        New_value: log.args[2].toString(),
       }
-    });
+
+    }
+    else{
+      changedEvents[name] = {
+        Old_value: log.args[2].toString(),
+        New_value: log.args[3].toString(),
+      }
+    }
+   })
+
+   
+
 
     // Additional feature - Fetch collateral asset for the most transacted token in the pool i.e. USDC
     const obj = await getCollateralAsset(

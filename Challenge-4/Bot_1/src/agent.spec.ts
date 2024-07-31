@@ -88,7 +88,7 @@ describe("Compound test suite", () => {
     );
 
     const metadata1: { [key: string]: any } = {
-      SET_GOVERNOR: {
+      SetGovernor: {
         Old_value: createAddress("0x123"),
         New_value: createAddress("0x234"),
       },
@@ -146,7 +146,7 @@ describe("Compound test suite", () => {
     ];
 
     nonGovEvents.forEach((eventSignature) => {
-      txEvent.addEventLog(eventSignature, createAddress("0xABCDEF"), [
+      txEvent.addEventLog(eventSignature, CONFIGURATOR_PROXY, [
         createAddress("0x12345"),
         createAddress("0x67890"),
         1000,
@@ -157,7 +157,26 @@ describe("Compound test suite", () => {
     expect(findings.length).toStrictEqual(0);
   });
 
-  it("should a finding for a governance event out of multiple non-governance events", async () => {
+  it("should return a finding for a governance event out of multiple non-governance events", async () => {
+    const metadata = {
+      "Collateral Asset - Collateral-1":
+        "0x0000000000000000000000000000000000001247",
+      "Collateral Asset - Collateral-2":
+        "0x0000000000000000000000000000000000012567",
+      "Collateral Asset - Collateral-3":
+        "0x0000000000000000000000000000000000001289",
+      "Collateral Asset - Collateral-4":
+        "0x0000000000000000000000000000000000001290",
+    };
+
+    const metadata1: { [key: string]: any } = {
+      SetGovernor: {
+        Old_value: createAddress("0x123"),
+        New_value: createAddress("0x234"),
+      },
+     
+      
+    };
     mockProvider.setNetwork(1);
     const nonGovEvents = [
       "event Transfer(address indexed from, address indexed to, uint256 value)",
@@ -165,7 +184,7 @@ describe("Compound test suite", () => {
       "event Deposit(address indexed user, address reciepient, uint256 amount)",
     ];
     nonGovEvents.forEach((eventSignature) => {
-      txEvent.addEventLog(eventSignature, createAddress("0xABCDEF"), [
+      txEvent.addEventLog(eventSignature, CONFIGURATOR_PROXY, [
         createAddress("0x12345"),
         createAddress("0x67890"),
         1000,
@@ -178,31 +197,45 @@ describe("Compound test suite", () => {
       [...mockArgs],
     );
     const findings = await handleTransaction(txEvent);
-    expect(findings.length).toStrictEqual(1);
+    expect(findings).toEqual([
+      Finding.fromObject({
+        name: `Change of asset values due to governance proposal`,
+        description: `The asset ${mockAssetTokenAddress} has been modified by a governance proposal`,
+        alertId: "GOV-1",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: txEvent.network.toString(),
+        metadata: {
+          ...metadata1,
+          ...metadata,
+        },
+      }),
+    ]);
   });
 
   it("should return multiple findings for multiple valid governance events out of multiple invalid and valid governance events", async () => {
     const metadata1: { [key: string]: any } = {
-      SET_GOVERNOR: {
+      SetGovernor: {
         Old_value: createAddress("0x123"),
         New_value: createAddress("0x234"),
       },
-      BORROW_KINK: {
+      UpdateAssetBorrowCollateralFactor: {
         Old_value: "100",
         New_value: "200",
       },
-      SUPPLY_KINK: {
+      UpdateAssetLiquidateCollateralFactor: {
+        Old_value: "100",
+        New_value: "200",
+      },
+      SetBorrowKink: {
+        Old_value: "100",
+        New_value: "200",
+      },
+      SetSupplyKink: {
         Old_value: "100",
         New_value: "250",
       },
-      BORROW_CF: {
-        Old_value: "100",
-        New_value: "200",
-      },
-      LIQUIDATE_CF: {
-        Old_value: "100",
-        New_value: "200",
-      },
+      
     };
 
     const metadata = {

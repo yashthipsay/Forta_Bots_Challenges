@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "Compound Governance Change detection bot",
   "longDescription": "This bot detects changes in Compound Governance proposals to help users stay informed about the latest governance changes.",
-  "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges",
+  "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges/Challenge-4/Bot_1",
   "licenseUrl": "https://github.com/forta-network/forta-bot-sdk/blob/master/starter-project/LICENSE.md",
   "promoUrl": "https://forta.org",
   "chainIds": [
