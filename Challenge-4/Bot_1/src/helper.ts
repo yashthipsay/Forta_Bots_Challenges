@@ -1,5 +1,7 @@
-import { ethers } from "forta-agent";
+import { ethers, Network } from "forta-agent";
+import { NetworkManager } from "forta-agent-tools";
 import { LRUCache } from "lru-cache";
+import { CONFIGURATOR_PROXY, CONFIGURATOR_PROXY_ARB } from "./constants";
 
 let cache = new LRUCache<string, { [name: string]: string }>({ max: 1000 });
 
@@ -51,3 +53,15 @@ async function getCollateralName(
   const tokenName = await tokenContract.name({ blockTag: blockNumber });
   return tokenName;
 }
+
+export const getAddress = async (networkManager: any) => {
+  return networkManager.get("address");
+};
+
+export const getConfigurator = async (chainId: number) => {
+  if (chainId == 1) {
+    return CONFIGURATOR_PROXY;
+  } else if (chainId == 42161) {
+    return CONFIGURATOR_PROXY_ARB;
+  }
+};

@@ -12,7 +12,7 @@ import {
   HandleTransaction,
 } from "forta-agent";
 import { ASSET_INFO, CONFIGURATOR_PROXY } from "./constants";
-import * as networkManager from "./networkManager";
+import * as helper from "./helper";
 
 describe("Compound test suite", () => {
   let handleTransaction: HandleTransaction;
@@ -60,12 +60,8 @@ describe("Compound test suite", () => {
       ASSET_INFO,
     );
     txEvent = new TestTransactionEvent().setBlock(0);
-    jest
-      .spyOn(networkManager, "getAddress")
-      .mockResolvedValue(mockAssetTokenAddress);
-    jest
-      .spyOn(networkManager, "getConfigurator")
-      .mockResolvedValue(CONFIGURATOR_PROXY);
+    jest.spyOn(helper, "getAddress").mockResolvedValue(mockAssetTokenAddress);
+    jest.spyOn(helper, "getConfigurator").mockResolvedValue(CONFIGURATOR_PROXY);
   });
 
   afterEach(() => {
@@ -174,8 +170,6 @@ describe("Compound test suite", () => {
         Old_value: createAddress("0x123"),
         New_value: createAddress("0x234"),
       },
-     
-      
     };
     mockProvider.setNetwork(1);
     const nonGovEvents = [
@@ -235,7 +229,6 @@ describe("Compound test suite", () => {
         Old_value: "100",
         New_value: "250",
       },
-      
     };
 
     const metadata = {

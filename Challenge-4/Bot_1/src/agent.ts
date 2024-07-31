@@ -17,18 +17,37 @@ import {
   BORROW_KINK,
   SUPPLY_PYIR,
   eventInterface,
-  USDC_TOKEN_ETH
+  USDC_TOKEN_ETH,
+  USDC_TOKEN_ARB,
 } from "./constants";
 import { createFinding } from "./findings";
-import { getCollateralAsset } from "./helper";
-import { data, getAddress, getConfigurator } from "./networkManager";
+import { getCollateralAsset, getAddress, getConfigurator } from "./helper";
+import { NetworkManager } from "forta-agent-tools";
 
 let configuratorProxy: string | undefined;
-export function provideInitialize(provider: ethers.providers.Provider){
+let networkManager: any;
+interface NetworkData {
+  address: string;
+  num: number;
+}
+const data: Record<number, NetworkData> = {
+  1: {
+    address: USDC_TOKEN_ETH,
+    num: 1,
+  },
+  42161: {
+    address: USDC_TOKEN_ARB,
+    num: 2,
+  },
+};
+
+export function provideInitialize(provider: ethers.providers.Provider) {
   return async function initialize() {
     const network = await provider.getNetwork();
     configuratorProxy = await getConfigurator(network.chainId);
-  }
+    networkManager = new NetworkManager(data);
+    await networkManager.init(provider);
+  };
 }
 
 export function provideHandleGovernanceTransaction(
@@ -37,31 +56,39 @@ export function provideHandleGovernanceTransaction(
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
-   
 
-   const result = tx.filterLog([BORROW_KINK, SUPPLY_KINK, SET_GOVERNOR, BORROW_PYIR, SUPPLY_PYIR, BORROW_CF, LIQUIDATE_CF], configuratorProxy)
-   
-   const assetToken = await getAddress(provider);
-   const changedEvents: { [key: string]: any } = {};
-   result.forEach((log) => {
-    const name = log.name
-    if(name != "UpdateAssetBorrowCollateralFactor" && name != "UpdateAssetLiquidateCollateralFactor"){
-      changedEvents[name] = {
-        Old_value: log.args[1].toString(),
-        New_value: log.args[2].toString(),
+    const result = tx.filterLog(
+      [
+        BORROW_KINK,
+        SUPPLY_KINK,
+        SET_GOVERNOR,
+        BORROW_PYIR,
+        SUPPLY_PYIR,
+        BORROW_CF,
+        LIQUIDATE_CF,
+      ],
+      configuratorProxy,
+    );
+
+    const assetToken = await getAddress(networkManager);
+    const changedEvents: { [key: string]: any } = {};
+    result.forEach((log) => {
+      const name = log.name;
+      if (
+        name != "UpdateAssetBorrowCollateralFactor" &&
+        name != "UpdateAssetLiquidateCollateralFactor"
+      ) {
+        changedEvents[name] = {
+          Old_value: log.args[1].toString(),
+          New_value: log.args[2].toString(),
+        };
+      } else {
+        changedEvents[name] = {
+          Old_value: log.args[2].toString(),
+          New_value: log.args[3].toString(),
+        };
       }
-
-    }
-    else{
-      changedEvents[name] = {
-        Old_value: log.args[2].toString(),
-        New_value: log.args[3].toString(),
-      }
-    }
-   })
-
-   
-
+    });
 
     // Additional feature - Fetch collateral asset for the most transacted token in the pool i.e. USDC
     const obj = await getCollateralAsset(

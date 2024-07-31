@@ -1,5 +1,5 @@
 import { ethers } from "forta-agent";
-import { Interface } from 'ethers/lib/utils';
+import { Interface } from "ethers/lib/utils";
 
 export const CONFIGURATOR = "0xcFC1fA6b7ca982176529899D99af6473aD80DF4F";
 
@@ -39,8 +39,6 @@ export const ASSET_INFO = [
   `function getAssetInfo(uint8 i) public view returns (uint8 offset, address asset, address priceFeed, uint64 scale, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)`,
 ];
 
-
-
 export const eventInterface = new Interface([
   BORROW_KINK,
   SUPPLY_KINK,
@@ -49,5 +47,4 @@ export const eventInterface = new Interface([
   SUPPLY_PYIR,
   BORROW_CF,
   LIQUIDATE_CF,
-]); 
-
+]);
