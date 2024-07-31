@@ -55,7 +55,7 @@ async function getCollateralName(
 }
 
 export const getAddress = async (networkManager: any) => {
-  return networkManager.get("address");
+  return networkManager.get("usdc");
 };
 
 export const getConfigurator = async (chainId: number) => {

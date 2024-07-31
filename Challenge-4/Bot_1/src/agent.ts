@@ -27,17 +27,17 @@ import { NetworkManager } from "forta-agent-tools";
 let configuratorProxy: string | undefined;
 let networkManager: any;
 interface NetworkData {
-  address: string;
-  num: number;
+  usdc: string;
+  configurationproxy: number;
 }
 const data: Record<number, NetworkData> = {
   1: {
-    address: USDC_TOKEN_ETH,
-    num: 1,
+    usdc: USDC_TOKEN_ETH,
+    configurationproxy: 1,
   },
   42161: {
-    address: USDC_TOKEN_ARB,
-    num: 2,
+    usdc: USDC_TOKEN_ARB,
+    configurationproxy: 2,
   },
 };
 

@@ -11,7 +11,7 @@ import {
   FindingType,
   HandleTransaction,
 } from "forta-agent";
-import { ASSET_INFO, CONFIGURATOR_PROXY } from "./constants";
+import { CONFIGURATOR_PROXY } from "./constants";
 import * as helper from "./helper";
 
 describe("Compound test suite", () => {
@@ -24,10 +24,15 @@ describe("Compound test suite", () => {
     createAddress("0x123"),
     createAddress("0x234"),
   ];
-  const Iface = new ethers.utils.Interface(ASSET_INFO);
+  const assetInfo = [
+    `function getAssetInfo(uint8 i) public view returns (uint8 offset, address asset, address priceFeed, uint64 scale, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)`,
+  ];
+  const Iface = new ethers.utils.Interface(assetInfo);
   const getCollateralName = new ethers.utils.Interface([
     "function name() view returns (string)",
   ]);
+  const mockConfigurator = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3"
+ 
 
   const setupMockProvider = (collateralAddresses: string[]) => {
     mockProvider.setNetwork(1);
@@ -57,11 +62,11 @@ describe("Compound test suite", () => {
     const provider = mockProvider as unknown as ethers.providers.Provider;
     handleTransaction = provideHandleGovernanceTransaction(
       provider,
-      ASSET_INFO,
+      assetInfo,
     );
     txEvent = new TestTransactionEvent().setBlock(0);
     jest.spyOn(helper, "getAddress").mockResolvedValue(mockAssetTokenAddress);
-    jest.spyOn(helper, "getConfigurator").mockResolvedValue(CONFIGURATOR_PROXY);
+    jest.spyOn(helper, "getConfigurator").mockResolvedValue(mockConfigurator);
   });
 
   afterEach(() => {
@@ -79,7 +84,7 @@ describe("Compound test suite", () => {
 
     txEvent.addEventLog(
       "event SetGovernor(address indexed cometProxy, address indexed oldGovernor, address indexed newGovernor)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [...mockArgs],
     );
 
@@ -125,7 +130,7 @@ describe("Compound test suite", () => {
     mockProvider.setNetwork(1);
     txEvent.addEventLog(
       "event mockEvent(address value1, uint8 value2)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [createAddress("0x9467"), 2],
     );
 
@@ -178,7 +183,7 @@ describe("Compound test suite", () => {
       "event Deposit(address indexed user, address reciepient, uint256 amount)",
     ];
     nonGovEvents.forEach((eventSignature) => {
-      txEvent.addEventLog(eventSignature, CONFIGURATOR_PROXY, [
+      txEvent.addEventLog(eventSignature, mockConfigurator, [
         createAddress("0x12345"),
         createAddress("0x67890"),
         1000,
@@ -187,7 +192,7 @@ describe("Compound test suite", () => {
 
     txEvent.addEventLog(
       "event SetGovernor(address indexed cometProxy, address indexed oldGovernor, address indexed newGovernor)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [...mockArgs],
     );
     const findings = await handleTransaction(txEvent);
@@ -266,27 +271,27 @@ describe("Compound test suite", () => {
 
     txEvent.addEventLog(
       "event SetGovernor(address indexed cometProxy, address indexed oldGovernor, address indexed newGovernor)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [...mockArgs],
     );
     txEvent.addEventLog(
       "event SetBorrowKink(address indexed cometProxy,uint64 oldKink, uint64 newKink)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [mockArgs[1], 100, 200],
     );
     txEvent.addEventLog(
       "event SetSupplyKink(address indexed cometProxy,uint64 oldKink, uint64 newKink)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [mockArgs[1], 100, 250],
     );
     txEvent.addEventLog(
       "event UpdateAssetBorrowCollateralFactor(address indexed cometProxy, address indexed asset, uint64 oldBorrowCF, uint64 newBorrowCF)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [mockArgs[1], createAddress("0x123"), 100, 200],
     );
     txEvent.addEventLog(
       "event UpdateAssetLiquidateCollateralFactor(address indexed cometProxy, address indexed asset, uint64 oldLiquidateCF, uint64 newLiquidateCF)",
-      CONFIGURATOR_PROXY,
+      mockConfigurator,
       [mockArgs[1], createAddress("0x123"), 100, 200],
     );
     const findings = await handleTransaction(txEvent);
