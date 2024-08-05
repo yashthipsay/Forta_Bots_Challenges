@@ -1,6 +1,5 @@
 import { HandleTransaction, TransactionEvent, ethers, Finding, getEthersProvider, FindingSeverity } from 'forta-agent';
 import { BORROW_RATE, COMET_FACTORY, CONFIGURATION_ABI, CONFIGURATOR, CONFIGURATOR_PROXY, SUPPLY, SUPPLY_RATE, TOKEN_ADDRESSES, USDC_TOKEN_ETH, UTILIZATION, WITHDRAW } from './constants';
-import { abi } from './configAbi';
 import { getAddress, getBorrowAPR, gettConfiguration, getConfigurator, getSupplyAPR, getUtilization } from './helper';
 import CONFIG, { NetworkData } from './agent.config';
 import { NetworkManager } from 'forta-agent-tools';
@@ -32,7 +31,7 @@ export function provideUtilization(provider: ethers.providers.Provider): HandleT
 
     configuratorProxy = await getConfigurator(network.chainId);
 
-    const configuration = await gettConfiguration(USDC_TOKEN_ETH, abi, provider, tokenAddress, tx.blockNumber);
+    const configuration = await gettConfiguration(USDC_TOKEN_ETH, provider, tokenAddress, tx.blockNumber);
     console.log(configuration);
     // .borrowPerYearInterestSlopeLow
     const utilization = await getUtilization(tokenAddress, UTILIZATION, provider, tx.blockNumber);  

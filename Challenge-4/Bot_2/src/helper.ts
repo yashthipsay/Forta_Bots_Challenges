@@ -19,7 +19,7 @@ export const getConfigurator = async (chainId: number) => {
   }
 
   
-export async function gettConfiguration(configuratorProxy: string | undefined, abi: any, provider: ethers.providers.Provider, tokenAddress: string, blockNumber: number): Promise<any> {
+export async function gettConfiguration(configuratorProxy: string | undefined, provider: ethers.providers.Provider, tokenAddress: string, blockNumber: number): Promise<any> {
   try{
   const configuration = new ethers.Contract(CONFIGURATOR_PROXY, CONFIGURATION_ABI, provider);
   return await configuration.callStatic.getConfiguration(configuratorProxy, {blockTag: blockNumber});
