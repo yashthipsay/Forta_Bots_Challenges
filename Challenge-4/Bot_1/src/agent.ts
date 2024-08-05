@@ -1,35 +1,28 @@
 import {
   Finding,
   HandleTransaction,
-  LogDescription,
   TransactionEvent,
   ethers,
   getEthersProvider,
 } from "forta-agent";
 import {
-  CONFIGURATOR_PROXY,
   ASSET_INFO,
-  LIQUIDATE_CF,
-  BORROW_CF,
-  SET_GOVERNOR,
-  BORROW_PYIR,
-  SUPPLY_KINK,
-  BORROW_KINK,
-  SUPPLY_PYIR,
   USDC_TOKEN_ETH,
   USDC_TOKEN_ARB,
+  RESULTS_ARRAY,
 } from "./constants";
 import { createFinding } from "./findings";
-import { getCollateralAsset, getAddress, getConfigurator } from "./helper";
+import Helper from "./helper";
 import { NetworkManager } from "forta-agent-tools";
 
 let configuratorProxy: string | undefined;
 let networkManager: any;
+let network: ethers.providers.Network;
 interface NetworkData {
   usdc: string;
   configurationproxy: number;
 }
-const data: Record<number, NetworkData> = {
+const networkData: Record<number, NetworkData> = {
   1: {
     usdc: USDC_TOKEN_ETH,
     configurationproxy: 1,
@@ -42,9 +35,8 @@ const data: Record<number, NetworkData> = {
 
 export function provideInitialize(provider: ethers.providers.Provider) {
   return async function initialize() {
-    const network = await provider.getNetwork();
-    configuratorProxy = await getConfigurator(network.chainId);
-    networkManager = new NetworkManager(data);
+    network = await provider.getNetwork();
+    networkManager = new NetworkManager(networkData);
     await networkManager.init(provider);
   };
 }
@@ -55,34 +47,25 @@ export function provideHandleGovernanceTransaction(
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
+    const helper = new Helper(provider);
+    configuratorProxy = await helper.getConfigurator(network.chainId);
 
-    const result = tx.filterLog(
-      [
-        BORROW_KINK,
-        SUPPLY_KINK,
-        SET_GOVERNOR,
-        BORROW_PYIR,
-        SUPPLY_PYIR,
-        BORROW_CF,
-        LIQUIDATE_CF,
-      ],
-      configuratorProxy,
-    );
+    const logs = tx.filterLog(RESULTS_ARRAY, configuratorProxy);
 
-    const assetToken = await getAddress(networkManager);
-    const changedEvents: { [key: string]: any } = {};
-    result.forEach((log) => {
+    const usdc = networkManager.get("usdc");
+    const changedValues: { [key: string]: any } = {};
+    logs.forEach((log) => {
       const name = log.name;
       if (
         name != "UpdateAssetBorrowCollateralFactor" &&
         name != "UpdateAssetLiquidateCollateralFactor"
       ) {
-        changedEvents[name] = {
+        changedValues[name] = {
           Old_value: log.args[1].toString(),
           New_value: log.args[2].toString(),
         };
       } else {
-        changedEvents[name] = {
+        changedValues[name] = {
           Old_value: log.args[2].toString(),
           New_value: log.args[3].toString(),
         };
@@ -90,21 +73,19 @@ export function provideHandleGovernanceTransaction(
     });
 
     // Additional feature - Fetch collateral asset for the most transacted token in the pool i.e. USDC
-    const infoObject = await getCollateralAsset(
-      assetToken,
+    const collateralAssets = await helper.getCollateralAssets(
+      usdc,
       assetAbi,
-      provider,
       tx.blockNumber,
     );
-    
+
     // Create findind only if there is a change of events
-    if (Object.keys(changedEvents).length > 0) {
+    if (Object.keys(changedValues).length > 0) {
       finding.push(
         createFinding(
-          assetToken,
-          infoObject,
-          tx.network.toString(),
-          changedEvents,
+          usdc,
+          collateralAssets,
+          changedValues,
         ),
       );
     }

@@ -3,7 +3,6 @@ import { Finding, FindingSeverity, FindingType } from "forta-agent";
 export const createFinding = (
   tokenAddress: string,
   assetData: { [name: string]: string },
-  network: string,
   changedEvents: { [key: string]: any },
 ): Finding => {
   return Finding.fromObject({
@@ -12,7 +11,7 @@ export const createFinding = (
     alertId: "GOV-1",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
-    protocol: network,
+    protocol: "Compound",
     metadata: {
       ...changedEvents,
       ...assetData,

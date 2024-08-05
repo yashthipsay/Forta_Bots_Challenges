@@ -3,7 +3,7 @@ import {
   MockEthersProvider,
 } from "forta-agent-tools/lib/test";
 import { createAddress } from "forta-agent-tools";
-import { provideHandleGovernanceTransaction } from "./agent";
+import { provideHandleGovernanceTransaction, provideInitialize } from "./agent";
 import {
   ethers,
   Finding,
@@ -12,13 +12,16 @@ import {
   HandleTransaction,
 } from "forta-agent";
 import { CONFIGURATOR_PROXY } from "./constants";
-import * as helper from "./helper";
+import Helper from "./helper";
 
 describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   let handleTransaction: HandleTransaction;
   let mockProvider: MockEthersProvider;
   let txEvent: TestTransactionEvent;
-  const mockAssetTokenAddress = createAddress("0x10957");
+  let helper: Helper;
+  let initialize: any;
+
+  const mockAssetTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
   const mockArgs = [
     createAddress("0x1421"),
     createAddress("0x123"),
@@ -31,12 +34,12 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   const getCollateralName = new ethers.utils.Interface([
     "function name() view returns (string)",
   ]);
-  const mockConfigurator = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3"
- 
+  const mockConfigurator = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
 
   const setupMockProvider = (collateralAddresses: string[]) => {
     mockProvider.setNetwork(1);
     collateralAddresses.forEach((address, index) => {
+      mockProvider.setNetwork(1);
       mockProvider.addCallTo(mockAssetTokenAddress, 0, Iface, "getAssetInfo", {
         inputs: [index],
         outputs: [
@@ -59,12 +62,17 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
 
   beforeEach(() => {
     mockProvider = new MockEthersProvider() as any;
+    mockProvider.setNetwork(1);
+    initialize = provideInitialize(
+      mockProvider as unknown as ethers.providers.Provider,
+    );
+
     handleTransaction = provideHandleGovernanceTransaction(
       mockProvider as unknown as ethers.providers.Provider,
       assetInfo,
     );
+    helper = new Helper(mockProvider as unknown as ethers.providers.Provider);
     txEvent = new TestTransactionEvent().setBlock(0);
-    jest.spyOn(helper, "getAddress").mockResolvedValue(mockAssetTokenAddress);
     jest.spyOn(helper, "getConfigurator").mockResolvedValue(mockConfigurator);
   });
 
@@ -79,6 +87,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       createAddress("0x1289"),
       createAddress("0x1290"),
     ];
+    await initialize();
     setupMockProvider(collateralAddresses);
 
     txEvent.addEventLog(
@@ -94,14 +103,10 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       },
     };
     const metadata = {
-      "Collateral Asset - Collateral-1":
-        `${createAddress("0x1247")}`,
-      "Collateral Asset - Collateral-2":
-        `${createAddress("0x12567")}`,
-      "Collateral Asset - Collateral-3":
-        `${createAddress("0x1289")}`,
-      "Collateral Asset - Collateral-4":
-        `${createAddress("0x1290")}`,
+      "Collateral Asset - Collateral-1": `${createAddress("0x1247")}`,
+      "Collateral Asset - Collateral-2": `${createAddress("0x12567")}`,
+      "Collateral Asset - Collateral-3": `${createAddress("0x1289")}`,
+      "Collateral Asset - Collateral-4": `${createAddress("0x1290")}`,
     };
 
     const findings = await handleTransaction(txEvent);
@@ -113,16 +118,13 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
         alertId: "GOV-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
-        protocol: txEvent.network.toString(),
+        protocol: "Compound",
         metadata: {
           ...metadata1,
           ...metadata,
         },
       }),
     ]);
-
-    mockProvider.clear();
-    expect(findings.length).toStrictEqual(1);
   });
 
   it("should return 0 findings for event other than proposal change", async () => {
@@ -139,6 +141,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
 
   it("should return 0 findings for multiple non-governance events", async () => {
     mockProvider.setNetwork(1);
+    await initialize();
     const nonGovEvents = [
       "event Transfer(address indexed from, address indexed to, uint256 value)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -158,15 +161,19 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   });
 
   it("should return a finding for a governance event out of multiple non-governance events", async () => {
+    const collateralAddresses = [
+      createAddress("0x1247"),
+      createAddress("0x12567"),
+      createAddress("0x1289"),
+      createAddress("0x1290"),
+    ];
+    await initialize();
+    setupMockProvider(collateralAddresses);
     const metadata = {
-      "Collateral Asset - Collateral-1":
-        `${createAddress("0x1247")}`,
-      "Collateral Asset - Collateral-2":
-        `${createAddress("0x12567")}`,
-      "Collateral Asset - Collateral-3":
-        `${createAddress("0x1289")}`,
-      "Collateral Asset - Collateral-4":
-        `${createAddress("0x1290")}`,
+      "Collateral Asset - Collateral-1": `${createAddress("0x1247")}`,
+      "Collateral Asset - Collateral-2": `${createAddress("0x12567")}`,
+      "Collateral Asset - Collateral-3": `${createAddress("0x1289")}`,
+      "Collateral Asset - Collateral-4": `${createAddress("0x1290")}`,
     };
 
     const metadata1: { [key: string]: any } = {
@@ -202,7 +209,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
         alertId: "GOV-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
-        protocol: txEvent.network.toString(),
+        protocol: "Compound",
         metadata: {
           ...metadata1,
           ...metadata,
@@ -236,14 +243,10 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     };
 
     const metadata = {
-      "Collateral Asset - Collateral-1":
-        `${createAddress("0x1247")}`,
-      "Collateral Asset - Collateral-2":
-        `${createAddress("0x12567")}`,
-      "Collateral Asset - Collateral-3":
-        `${createAddress("0x1289")}`,
-      "Collateral Asset - Collateral-4":
-        `${createAddress("0x1290")}`,
+      "Collateral Asset - Collateral-1": `${createAddress("0x1247")}`,
+      "Collateral Asset - Collateral-2": `${createAddress("0x12567")}`,
+      "Collateral Asset - Collateral-3": `${createAddress("0x1289")}`,
+      "Collateral Asset - Collateral-4": `${createAddress("0x1290")}`,
     };
 
     const collateralAddresses = [
@@ -301,14 +304,12 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
         alertId: "GOV-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
-        protocol: txEvent.network.toString(),
+        protocol: "Compound",
         metadata: {
           ...metadata1,
           ...metadata,
         },
       }),
     ]);
-    mockProvider.clear();
-    expect(findings.length).toStrictEqual(1);
   });
 });

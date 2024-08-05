@@ -1,9 +1,9 @@
 import { ethers, HandleTransaction } from "forta-agent";
 import { createAddress } from "forta-agent-tools";
 import { MockEthersProvider } from "forta-agent-tools/lib/test";
-import { provideHandleGovernanceTransaction } from "./agent";
+import { provideHandleGovernanceTransaction, provideInitialize } from "./agent";
 import { ASSET_INFO, CONFIGURATOR_PROXY } from "./constants";
-import { getCollateralAsset } from "./helper";
+import Helper from "./helper";
 
 let handleTransaction: HandleTransaction;
 describe("Helper test suite", () => {
@@ -13,15 +13,14 @@ describe("Helper test suite", () => {
   let getCollateralName = new ethers.utils.Interface([
     "function name() view returns (string)",
   ]);
+  let helper: Helper;
 
   const mockAssetTokenAddress = createAddress("0x10957");
   beforeEach(() => {
     mockProvider = new MockEthersProvider() as any;
     provider = mockProvider as unknown as ethers.providers.Provider;
-    handleTransaction = provideHandleGovernanceTransaction(
-      provider,
-      ASSET_INFO,
-    );
+
+    helper = new Helper(provider);
   });
   it("should return correct assetInformation for a token", async () => {
     let collateralAddresses = [
@@ -53,10 +52,9 @@ describe("Helper test suite", () => {
       });
     });
 
-    const asset = await getCollateralAsset(
+    const asset = await helper.getCollateralAssets(
       mockAssetTokenAddress,
       ASSET_INFO,
-      mockProvider as any,
       0,
     );
     expect(asset).toEqual({
