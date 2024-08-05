@@ -1,17 +1,18 @@
 import { HandleTransaction, TransactionEvent, ethers, Finding, getEthersProvider, FindingSeverity } from 'forta-agent';
 import { BORROW_RATE, COMET_FACTORY, CONFIGURATION_ABI, CONFIGURATOR, CONFIGURATOR_PROXY, SUPPLY, SUPPLY_RATE, TOKEN_ADDRESSES, USDC_TOKEN_ETH, UTILIZATION, WITHDRAW } from './constants';
-import { getAddress, getBorrowAPR, gettConfiguration, getConfigurator, getSupplyAPR, getUtilization } from './helper';
+import Helper from './helper';
 import CONFIG, { NetworkData } from './agent.config';
 import { NetworkManager } from 'forta-agent-tools';
 import { supplyFinding, borrowFinding } from './findings';
 
 let configuratorProxy: string | undefined;
 let tokenAddress: string;
+let helper: Helper;
 const networkManager = new NetworkManager<NetworkData>(CONFIG)
 export function provideInitialize(provider: ethers.providers.Provider) {
   return async function initialize() {
     await networkManager.init(provider);
-
+    helper = new Helper(provider);
   }
 }
 
@@ -20,7 +21,7 @@ export function provideUtilization(provider: ethers.providers.Provider): HandleT
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
     const secondsPerYear = 31536000;
-    tokenAddress = await getAddress(networkManager);
+    tokenAddress = await helper.getAddress(networkManager);
 
     const withdraw = tx.filterFunction(WITHDRAW, tokenAddress);
     // console.log(withdraw);
@@ -29,19 +30,19 @@ export function provideUtilization(provider: ethers.providers.Provider): HandleT
     // console.log(supply);
     const network = await provider.getNetwork();
 
-    configuratorProxy = await getConfigurator(network.chainId);
+    configuratorProxy = await helper.getConfigurator(network.chainId);
 
-    const configuration = await gettConfiguration(USDC_TOKEN_ETH, provider, tokenAddress, tx.blockNumber);
+    const configuration = await helper.gettConfiguration(USDC_TOKEN_ETH, tokenAddress, tx.blockNumber);
     console.log(configuration);
     // .borrowPerYearInterestSlopeLow
-    const utilization = await getUtilization(tokenAddress, UTILIZATION, provider, tx.blockNumber);  
+    const utilization = await helper.getUtilization(tokenAddress, UTILIZATION, tx.blockNumber);  
     console.log(utilization.toString());
 
 
-     const supplyAPR = await getSupplyAPR(tokenAddress, SUPPLY_RATE, provider, utilization, tx.blockNumber);
+     const supplyAPR = await helper.getSupplyAPR(tokenAddress, SUPPLY_RATE, utilization, tx.blockNumber);
      console.log("Supply APR", supplyAPR);
 
-      const borrowAPR = await getBorrowAPR(tokenAddress, BORROW_RATE, provider, utilization, tx.blockNumber);
+      const borrowAPR = await helper.getBorrowAPR(tokenAddress, BORROW_RATE, utilization, tx.blockNumber);
       console.log("Borrow APR", borrowAPR);
     // console.log("Borrow Rate", getBorrowRate.toString()/1e18 * 100, "\n");
 
@@ -49,7 +50,7 @@ export function provideUtilization(provider: ethers.providers.Provider): HandleT
     const lowerLimit = configuration[9].mul(percentage).div(ethers.BigNumber.from(10).pow(18));
     console.log(lowerLimit.toString());
 
-    const upperPercentage = ethers.BigNumber.from(50).mul(ethers.BigNumber.from(10).pow(16)); // 90% = 0.90 = 90 * 10^(-2) = 90 * 10^(16-18)
+    const upperPercentage = ethers.BigNumber.from(90).mul(ethers.BigNumber.from(10).pow(16)); // 90% = 0.90 = 90 * 10^(-2) = 90 * 10^(16-18)
 const upperLimit = configuration[5].mul(upperPercentage).div(ethers.BigNumber.from(10).pow(18));
 console.log(upperLimit.toString());
 

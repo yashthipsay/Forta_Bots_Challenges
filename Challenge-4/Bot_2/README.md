@@ -21,6 +21,6 @@ Describe each of the type of alerts fired by this agent
 
 ## Test Data
 
-The agent behaviour can be verified with the following transactions:
 
-- 0x3a0f757030beec55c22cbc545dd8a844cbbb2e6019461769e1bc3f3a95d10826 (15,000 USDT)
+
+- 0xa5a55153fbee01788702d495ddb370d96baf2190c3890d3df77e51e48b9af74a
