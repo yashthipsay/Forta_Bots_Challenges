@@ -1,4 +1,4 @@
-import { CONFIGURATOR_PROXY, CONFIGURATOR_PROXY_ARB } from "./constants";
+import { CONFIGURATION_ABI, CONFIGURATOR_PROXY, CONFIGURATOR_PROXY_ARB } from "./constants";
 import { NetworkData } from './agent.config';
 import CONFIG from './agent.config';
 import { ethers } from "forta-agent";
@@ -21,7 +21,7 @@ export const getConfigurator = async (chainId: number) => {
   
 export async function gettConfiguration(configuratorProxy: string | undefined, abi: any, provider: ethers.providers.Provider, tokenAddress: string, blockNumber: number): Promise<any> {
   try{
-  const configuration = new ethers.Contract(CONFIGURATOR_PROXY, abi, provider);
+  const configuration = new ethers.Contract(CONFIGURATOR_PROXY, CONFIGURATION_ABI, provider);
   return await configuration.callStatic.getConfiguration(configuratorProxy, {blockTag: blockNumber});
   } catch (error) {
     console.log(error);

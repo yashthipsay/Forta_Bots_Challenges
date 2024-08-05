@@ -12,7 +12,7 @@ describe("Compound test suite for lending and borrowing", () => {
     let mockAssetTokenAddress = createAddress("0x345");
     let mockConfiguratorProxy = createAddress("0x123");
     const functions = [
-        `function getConfiguration(address cometProxy) external view returns (address governor, address pauseGuardian, address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, (address asset, address priceFeed, uint8 decimals, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)[] assetConfigs)`,
+        `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
         `function getUtilization() public view returns (uint)`,
         `function getSupplyRate(uint utilization) public view returns (uint64)`,
         `function getBorrowRate(uint utilization) public view returns (uint64)`
@@ -30,33 +30,39 @@ describe("Compound test suite for lending and borrowing", () => {
 
     let setupMockProvider = async() => {
         mockProvider.setNetwork(1)
+        
        mockProvider.addCallTo(CONFIGURATOR_PROXY, 0, Iface, "getConfiguration", {
             inputs: [USDC_TOKEN_ETH],
             outputs: [
-                createAddress("0x123"),
-                createAddress("0x123"),
-                createAddress("0x123"),
-                createAddress("0x123"),
-                createAddress("0x123"),
-                50,
-                100,
-                200,
-                300,
-                50,
-                100,
-                200,
-                300,
-                50,
-                100,
-                200,
-                300,
-                50,
-                100,
-                200,
-            
-                [
-                    [createAddress("0x123"), createAddress("0x123"), 18, 50, 100, 200, 300]
+            {
+                governor: createAddress("0x123"),
+                pauseGuardian: createAddress("0x123"),
+                baseToken: createAddress("0x123"),
+                baseTokenPriceFeed: createAddress("0x123"),
+                extensionDelegate: createAddress("0x123"),
+                supplyKink: 50,
+                supplyPerYearInterestRateSlopeLow: 100,
+                supplyPerYearInterestRateSlopeHigh: 200,
+                supplyPerYearInterestRateBase: 300,
+                borrowKink: 50,
+                borrowPerYearInterestRateSlopeLow: 100,
+                borrowPerYearInterestRateSlopeHigh: 200,
+                borrowPerYearInterestRateBase: 300,
+                storeFrontPriceFactor: 50,
+                trackingIndexScale: 50,
+                baseTrackingSupplySpeed: 50,
+                baseTrackingBorrowSpeed: 50,
+                baseMinForRewards: 50,
+                baseBorrowMin: 50,
+                targetReserves: 50,
+                assetConfigs: [
+                    {
+                        asset: createAddress("0x123"),
+                        decimals: 18,
+                        conversionFactor: 1
+                    }
                 ]
+            }
             ]
         })
         mockProvider.addCallTo(USDC_TOKEN_ETH, 0, Iface, "getUtilization", {
@@ -90,7 +96,7 @@ describe("Compound test suite for lending and borrowing", () => {
         // console.log(txEvent);
         const findings = await handleTransaction(txEvent)
         
-        // console.log(findings);
+        console.log(findings);
         // setupMockProvider();
         // console.log(mockProvider);
     })
