@@ -10,7 +10,7 @@ export const supplyFinding = (
   return Finding.fromObject({
     name: `Lender's incentivized to supply`,
     description: `The Supply APR is ${parseFloat(formattedSupplyAPR).toFixed(2)}, which is favourable for lenders, as the utlization rate is ${utilization}`,
-    alertId: "SUP-1",
+    alertId: "SUPPLY-1",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "Compound",
@@ -31,7 +31,7 @@ export const borrowFinding = (
   return Finding.fromObject({
     name: `Borrower's incentivized to borrow`,
     description: `The Borrow APR is ${formattedBorrowAPR}, which is favourable for borrowers, as the optimal utilization rate is ${utilization}`,
-    alertId: "BOR-1",
+    alertId: "BORROW-1",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "Compound",

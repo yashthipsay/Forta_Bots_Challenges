@@ -24,8 +24,8 @@ describe("Compound test suite for lending and borrowing", () => {
   let txEvent: TestTransactionEvent;
   let initialize: any;
   let helper: Helper;
-  let mockAssetTokenAddress = createAddress("0x345");
-  let mockConfiguratorProxy = createAddress("0x123");
+  let mockAssetTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
+  let mockConfiguratorProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
   const functions = [
     `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
     `function getUtilization() public view returns (uint)`,
@@ -54,15 +54,15 @@ describe("Compound test suite for lending and borrowing", () => {
     utilization: ethers.BigNumber,
   ) => {
     mockProvider.setNetwork(1);
-    mockProvider.addCallTo(CONFIGURATOR_PROXY, 0, Iface, "getConfiguration", {
+    mockProvider.addCallTo(mockConfiguratorProxy, 0, Iface, "getConfiguration", {
       inputs: [USDC_TOKEN_ETH],
       outputs: [
         {
           governor: createAddress("0x123"),
-          pauseGuardian: createAddress("0x123"),
-          baseToken: createAddress("0x123"),
-          baseTokenPriceFeed: createAddress("0x123"),
-          extensionDelegate: createAddress("0x123"),
+          pauseGuardian: createAddress("0x2375"),
+          baseToken: createAddress("0x98235"),
+          baseTokenPriceFeed: createAddress("0x1274"),
+          extensionDelegate: createAddress("0x5124"),
           supplyKink: supplyKink,
           supplyPerYearInterestRateSlopeLow: 60,
           supplyPerYearInterestRateSlopeHigh: 100,
@@ -80,7 +80,7 @@ describe("Compound test suite for lending and borrowing", () => {
           targetReserves: 50,
           assetConfigs: [
             {
-              asset: createAddress("0x123"),
+              asset: mockAssetTokenAddress,
               decimals: 18,
               conversionFactor: 1,
             },
@@ -124,7 +124,7 @@ describe("Compound test suite for lending and borrowing", () => {
       Finding.fromObject({
         name: `Lender's incentivized to supply`,
         description: `The Supply APR is 3.11, which is favourable for lenders, as the utlization rate is 86`,
-        alertId: "SUP-1",
+        alertId: "SUPPLY-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
         protocol: "Compound",
@@ -160,7 +160,7 @@ describe("Compound test suite for lending and borrowing", () => {
       Finding.fromObject({
         name: `Borrower's incentivized to borrow`,
         description: `The Borrow APR is 3.36, which is favourable for borrowers, as the optimal utilization rate is 30`,
-        alertId: "BOR-1",
+        alertId: "BORROW-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
         protocol: "Compound",
@@ -186,13 +186,13 @@ describe("Compound test suite for lending and borrowing", () => {
         function: provideInterface.getFunction("supply"),
         to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+        arguments: [mockAssetTokenAddress, 20],
       })
       .addTraces({
         function: provideInterface.getFunction("otherFunction"),
         to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [mockAssetTokenAddress, 10],
       });
 
     const findings = await handleTransaction(txEvent);
@@ -201,7 +201,7 @@ describe("Compound test suite for lending and borrowing", () => {
       Finding.fromObject({
         name: `Lender's incentivized to supply`,
         description: `The Supply APR is 3.11, which is favourable for lenders, as the utlization rate is 86`,
-        alertId: "SUP-1",
+        alertId: "SUPPLY-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
         protocol: "Compound",
@@ -279,7 +279,7 @@ describe("Compound test suite for lending and borrowing", () => {
       Finding.fromObject({
         name: `Borrower's incentivized to borrow`,
         description: `The Borrow APR is 3.36, which is favourable for borrowers, as the optimal utilization rate is 30`,
-        alertId: "BOR-1",
+        alertId: "BORROW-1",
         severity: FindingSeverity.Info,
         type: FindingType.Info,
         protocol: "Compound",

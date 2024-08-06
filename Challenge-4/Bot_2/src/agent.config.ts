@@ -1,5 +1,5 @@
 import { Network } from "forta-agent";
-import { USDC_TOKEN_ARB, USDC_TOKEN_ETH } from "./constants";
+import { USDC_TOKEN_POLYGON, USDC_TOKEN_ETH } from "./constants";
 
 export interface NetworkData {
   usdc: string;
@@ -14,7 +14,7 @@ const CONFIG: BotConfig = {
     configurationProxy: 1,
   },
   42161: {
-    usdc: USDC_TOKEN_ARB,
+    usdc: USDC_TOKEN_POLYGON,
     configurationProxy: 2,
   },
 };

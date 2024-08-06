@@ -1,7 +1,7 @@
 import {
   CONFIGURATION_ABI,
   CONFIGURATOR_PROXY,
-  CONFIGURATOR_PROXY_ARB,
+  CONFIGURATOR_PROXY_POLYGON,
 } from "./constants";
 import { ethers } from "forta-agent";
 
@@ -18,7 +18,7 @@ export default class Helper {
     if (chainId == 1) {
       return CONFIGURATOR_PROXY;
     } else if (chainId == 42161) {
-      return CONFIGURATOR_PROXY_ARB;
+      return CONFIGURATOR_PROXY_POLYGON;
     }
   }
 

@@ -1,6 +1,5 @@
 import { MockEthersProvider, TestTransactionEvent } from "forta-agent-tools/lib/test";
 import { ethers } from "forta-agent";
-import {Alert, AlertsResponse, Finding} from 'forta-agent'
 import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 
@@ -16,7 +15,6 @@ describe("Helper class test suite", () => {
     let mockProvider: MockEthersProvider;
     let Iface: ethers.utils.Interface = new ethers.utils.Interface(mockAbi);
     let helper: Helper;
-    let txEvent = new TestTransactionEvent();
     const mockTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3"
     let mockConfigProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
     beforeEach(() => {
