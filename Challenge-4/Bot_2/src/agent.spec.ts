@@ -8,19 +8,15 @@ import {
   FindingSeverity,
   FindingType,
   HandleTransaction,
-  TransactionEvent,
 } from "forta-agent";
 import { provideInitialize, provideUtilization } from "./agent";
 import { createAddress } from "forta-agent-tools";
 import {
-  BORROW_RATE,
   CONFIGURATOR_PROXY,
   SUPPLY,
-  SUPPLY_RATE,
   USDC_TOKEN_ETH,
   WITHDRAW,
 } from "./constants";
-import * as helper from "./helper";
 import Helper from "./helper";
 describe("Compound test suite for lending and borrowing", () => {
   let mockProvider = new MockEthersProvider();

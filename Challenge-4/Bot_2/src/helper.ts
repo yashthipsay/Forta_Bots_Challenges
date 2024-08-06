@@ -32,6 +32,7 @@ export default class Helper {
       CONFIGURATION_ABI,
       this.provider,
     );
+   
     return await configuration.callStatic.getConfiguration(configuratorProxy, {
       blockTag: blockNumber,
     });
