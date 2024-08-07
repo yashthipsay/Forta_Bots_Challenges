@@ -17,10 +17,11 @@ export default class Helper {
 
   public async gettConfiguration(
     tokenAddress: string ,
+    configuratorProxy: string,
     blockNumber: number,
   ): Promise<any> {
     const configuration = new ethers.Contract(
-      CONFIGURATOR_PROXY,
+      configuratorProxy,
       CONFIGURATION_ABI,
       this.provider,
     );

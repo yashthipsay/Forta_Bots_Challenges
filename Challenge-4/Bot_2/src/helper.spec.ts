@@ -24,7 +24,7 @@ describe("Helper class test suite", () => {
   it("should return correct configuration data", async () => {
     mockProvider.setNetwork(1);
     mockProvider.addCallTo(mockConfigProxy, 0, Iface, "getConfiguration", {
-      inputs: [mockConfigProxy],
+      inputs: [usdcTokenAddress],
       outputs: [
         {
           governor: createAddress("0x123"),
@@ -59,6 +59,7 @@ describe("Helper class test suite", () => {
     });
 
     const getConfig = await helper.gettConfiguration(
+      usdcTokenAddress,
       mockConfigProxy,
       0,
     );
