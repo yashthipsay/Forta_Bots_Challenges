@@ -71,7 +71,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     });
   };
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     mockProvider = new MockEthersProvider() as any;
     mockProvider.setNetwork(1);
     initialize = provideInitialize(
@@ -101,7 +101,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       createAddress("0x1289"),
       createAddress("0x1290"),
     ];
-    
+
     setupMockProvider(collateralAddresses);
 
     txEvent.addEventLog(
@@ -160,7 +160,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
 
   it("should return 0 findings for multiple non-governance events", async () => {
     mockProvider.setNetwork(1);
-    
+
     const nonGovEvents = [
       "event Transfer(address indexed from, address indexed to, uint256 value)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -180,8 +180,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   });
 
   it("should return a finding for a governance event out of multiple non-governance events", async () => {
-   
-    
     setupMockProvider(collateralAddresses);
     const metadata = {
       "Collateral Asset - Collateral-1": `${collateralAddresses[0]}`,
@@ -268,7 +266,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       "Collateral Asset - Collateral-4": `${collateralAddresses[3]}`,
     };
 
-    
     setupMockProvider(collateralAddresses);
 
     const nonGovEvents = [
