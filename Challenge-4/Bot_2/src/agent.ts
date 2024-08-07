@@ -51,7 +51,6 @@ export function provideHandleTransaction(
     // get configuration values from the configurator contract for USDC token
     const configuration = await helper.gettConfiguration(
       USDC_TOKEN_ETH,
-      tokenAddress,
       tx.blockNumber,
     );
 

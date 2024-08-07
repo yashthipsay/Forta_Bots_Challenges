@@ -14,7 +14,7 @@ describe("Helper class test suite", () => {
   let mockProvider: MockEthersProvider;
   let Iface: ethers.utils.Interface = new ethers.utils.Interface(mockAbi);
   let helper: Helper;
-  const mockTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
+  const usdcTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
   let mockConfigProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
   beforeEach(() => {
     mockProvider = new MockEthersProvider() as any;
@@ -49,7 +49,7 @@ describe("Helper class test suite", () => {
           targetReserves: ethers.BigNumber.from(50),
           assetConfigs: [
             {
-              asset: createAddress("0x123"),
+              asset: usdcTokenAddress,
               decimals: 18,
               conversionFactor: ethers.BigNumber.from(1),
             },
@@ -60,7 +60,6 @@ describe("Helper class test suite", () => {
 
     const getConfig = await helper.gettConfiguration(
       mockConfigProxy,
-      mockTokenAddress,
       0,
     );
     const expectedConfig = [
@@ -84,7 +83,7 @@ describe("Helper class test suite", () => {
       ethers.BigNumber.from(50).toString(),
       ethers.BigNumber.from(50).toString(),
       ethers.BigNumber.from(50).toString(),
-      [[createAddress("0x123"), 18, ethers.BigNumber.from(1)]],
+      [[usdcTokenAddress, 18, ethers.BigNumber.from(1)]],
     ];
 
     const getConfigStringified = getConfig.map((item: any) => {
@@ -102,12 +101,12 @@ describe("Helper class test suite", () => {
   });
 
   it("should return correct utilization data", async () => {
-    mockProvider.addCallTo(mockTokenAddress, 0, Iface, "getUtilization", {
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getUtilization", {
       inputs: [],
       outputs: [ethers.BigNumber.from(5000)],
     });
     const getUtilization = await helper.getUtilization(
-      mockTokenAddress,
+      usdcTokenAddress,
       "function getUtilization() public view returns (uint)",
       0,
     );
@@ -117,13 +116,13 @@ describe("Helper class test suite", () => {
   });
 
   it("should return correct supply APR", async () => {
-    mockProvider.addCallTo(mockTokenAddress, 0, Iface, "getSupplyRate", {
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getSupplyRate", {
       inputs: [ethers.BigNumber.from(5000)],
       outputs: [ethers.BigNumber.from(500000000)],
     });
 
     const getSupplyAPR = await helper.getSupplyAPR(
-      mockTokenAddress,
+      usdcTokenAddress,
       "function getSupplyRate(uint utilization) public view returns (uint64)",
       ethers.BigNumber.from(5000),
       0,
@@ -133,13 +132,13 @@ describe("Helper class test suite", () => {
   });
 
   it("should return correct borrow APR", async () => {
-    mockProvider.addCallTo(mockTokenAddress, 0, Iface, "getBorrowRate", {
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getBorrowRate", {
       inputs: [ethers.BigNumber.from(5000)],
       outputs: [ethers.BigNumber.from(500000000)],
     });
 
     const getBorrowAPR = await helper.getBorrowAPR(
-      mockTokenAddress,
+      usdcTokenAddress,
       "function getBorrowRate(uint utilization) public view returns (uint64)",
       ethers.BigNumber.from(5000),
       0,

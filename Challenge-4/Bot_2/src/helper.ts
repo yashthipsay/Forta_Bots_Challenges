@@ -16,8 +16,7 @@ export default class Helper {
   public secondsPerYear = 31536000;
 
   public async gettConfiguration(
-    configuratorProxy: string | undefined,
-    tokenAddress: string,
+    tokenAddress: string ,
     blockNumber: number,
   ): Promise<any> {
     const configuration = new ethers.Contract(
@@ -26,7 +25,7 @@ export default class Helper {
       this.provider,
     );
 
-    return await configuration.callStatic.getConfiguration(configuratorProxy, {
+    return await configuration.callStatic.getConfiguration(tokenAddress, {
       blockTag: blockNumber,
     });
   }

@@ -26,11 +26,7 @@ export const SUPPLY_RATE =
 export const BORROW_RATE =
   "function getBorrowRate(uint utilization) public view returns (uint64)";
 
-export const TOKEN_ADDRESSES: { [key: string]: string } = {
-  USDC: "0xc3d688B66703497DAA19211EEdff47f25384cdc3",
-  WETH: "0xA17581A9E3356d9A858b789D68B4d866e593aE94",
-  USDT: "0x3Afdc9BCA9213A35503b077a6072F3D0d5AB0840",
-};
+
 
 export const WITHDRAW = "function withdraw(address asset, uint amount)";
 export const SUPPLY = "function supply(address asset, uint amount)";
