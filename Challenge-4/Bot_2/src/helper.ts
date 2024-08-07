@@ -15,7 +15,7 @@ export default class Helper {
 
   public secondsPerYear = 31536000;
 
-  public async gettConfiguration(
+  public async getProtocolConfiguration(
     tokenAddress: string ,
     configuratorProxy: string,
     blockNumber: number,

@@ -58,7 +58,7 @@ describe("Helper class test suite", () => {
       ],
     });
 
-    const getConfig = await helper.gettConfiguration(
+    const getConfig = await helper.getProtocolConfiguration(
       usdcTokenAddress,
       mockConfigProxy,
       0,
