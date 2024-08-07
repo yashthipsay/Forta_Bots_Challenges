@@ -20,6 +20,7 @@ import { NetworkManager } from "forta-agent-tools";
 let configuratorProxy: string | undefined;
 let networkManager: NetworkManager<NetworkData>;
 let network: ethers.providers.Network;
+let helper: Helper;
 interface NetworkData {
   usdc: string;
   configurationproxy: string;
@@ -40,16 +41,16 @@ export function provideInitialize(provider: ethers.providers.Provider) {
     network = await provider.getNetwork();
     networkManager = new NetworkManager(networkData);
     await networkManager.init(provider);
+    helper = new Helper(provider);
   };
 }
 
-export function provideHandleGovernanceTransaction(
+export function provideHandleTransaction(
   provider: ethers.providers.Provider,
   assetAbi: string[],
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
-    const helper = new Helper(provider);
     configuratorProxy = await helper.getConfigurator(network.chainId);
 
     const usdc = networkManager.get("usdc");
@@ -90,7 +91,7 @@ export function provideHandleGovernanceTransaction(
 
 export default {
   initialize: provideInitialize(getEthersProvider()),
-  handleTransaction: provideHandleGovernanceTransaction(
+  handleTransaction: provideHandleTransaction(
     getEthersProvider() as any,
     ASSET_INFO,
   ),

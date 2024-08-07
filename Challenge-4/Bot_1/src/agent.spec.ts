@@ -3,7 +3,7 @@ import {
   MockEthersProvider,
 } from "forta-agent-tools/lib/test";
 import { createAddress } from "forta-agent-tools";
-import { provideHandleGovernanceTransaction, provideInitialize } from "./agent";
+import { provideHandleTransaction, provideInitialize } from "./agent";
 import {
   ethers,
   Finding,
@@ -78,7 +78,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       mockProvider as unknown as ethers.providers.Provider,
     );
 
-    handleTransaction = provideHandleGovernanceTransaction(
+    handleTransaction = provideHandleTransaction(
       mockProvider as unknown as ethers.providers.Provider,
       assetInfo,
     );
@@ -86,8 +86,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     helper = new Helper(mockProvider as unknown as ethers.providers.Provider);
 
     txEvent = new TestTransactionEvent().setBlock(0);
-
-    jest.spyOn(helper, "getConfigurator").mockResolvedValue(mockConfigurator);
 
     await initialize();
   });
@@ -264,10 +262,10 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     };
 
     const metadata = {
-      "Collateral Asset - Collateral-1": `${createAddress("0x1247")}`,
-      "Collateral Asset - Collateral-2": `${createAddress("0x12567")}`,
-      "Collateral Asset - Collateral-3": `${createAddress("0x1289")}`,
-      "Collateral Asset - Collateral-4": `${createAddress("0x1290")}`,
+      "Collateral Asset - Collateral-1": `${collateralAddresses[0]}`,
+      "Collateral Asset - Collateral-2": `${collateralAddresses[1]}`,
+      "Collateral Asset - Collateral-3": `${collateralAddresses[2]}`,
+      "Collateral Asset - Collateral-4": `${collateralAddresses[3]}`,
     };
 
     
