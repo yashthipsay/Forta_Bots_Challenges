@@ -4,6 +4,7 @@ import {
   ethers,
   Finding,
   getEthersProvider,
+  FindingSeverity,
 } from "forta-agent";
 import {
   BORROW_RATE,
@@ -14,9 +15,10 @@ import {
   WITHDRAW,
 } from "./constants";
 import Helper from "./helper";
-import CONFIG, { NetworkData } from "./agent.config";
+import CONFIG from "./agent.config";
+import { NetworkData } from "./types";
 import { NetworkManager } from "forta-agent-tools";
-import { supplyFinding, borrowFinding } from "./findings";
+import { supplyFinding, borrowFinding, alertSupplyFinding, alertBorrowFinding } from "./findings";
 
 let configuratorProxy: string | undefined;
 let tokenAddress: string;
@@ -84,6 +86,13 @@ export function provideUtilization(
       .div(ethers.BigNumber.from(10).pow(18));
 
     if (supply && supply.length > 0 && utilization.gt(upperLimit)) {
+      if(utilization.gt(configuration[5])){
+        helper.getCompoundAlerts(1, {function: "supply"});
+        finding.push(
+          alertSupplyFinding(supplyAPR.toString(), utilization.toString()),
+        )
+      }
+      else{
       for (let i = 0; i < supply.length; i++) {
         finding.push(
           supplyFinding(
@@ -93,7 +102,9 @@ export function provideUtilization(
           ),
         );
       }
+    }
     } else if (withdraw && withdraw.length > 0 && utilization.lt(lowerLimit)) {
+      
       for (let i = 0; i < withdraw.length; i++) {
         finding.push(
           borrowFinding(
@@ -103,6 +114,12 @@ export function provideUtilization(
           ),
         );
       }
+    }
+    else if (withdraw && withdraw.length > 0 && utilization.gt(configuration[9])){
+      helper.getCompoundAlerts(1, {function: "withdraw"})
+      finding.push(
+        alertBorrowFinding(borrowAPR.toString(), utilization.toString()),
+      )
     }
     return finding;
   };

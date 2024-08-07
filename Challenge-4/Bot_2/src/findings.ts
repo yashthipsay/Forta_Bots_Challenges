@@ -41,3 +41,37 @@ export const borrowFinding = (
     },
   });
 };
+
+export const alertSupplyFinding = (supplyAPR: string, utilizationRate: string): Finding => {
+  const utilization =  parseFloat(utilizationRate) / 1e16;
+  const formattedSupplyAPR = parseFloat(supplyAPR).toFixed(2);
+  return Finding.fromObject({
+    name: `Utilization is above the optimal value. APR for lenders are at the highest!`,
+    description: `The Supply APR is at the highest, and the Supply Interest Rate slope is higher, which is favourable for lenders`,
+    alertId: "SUPPLY-2",
+    severity: FindingSeverity.Info,
+    type: FindingType.Info,
+    protocol: "Compound",
+    metadata: {
+      SupplyRate: formattedSupplyAPR,
+      Utilization: `${utilization}`,
+    },
+
+    
+  })
+}
+
+export const alertBorrowFinding = (borrowAPR: string, utilization: string): Finding => {
+  return Finding.fromObject({
+    name: `Utilization is above the optimal value. APR for borrowers is not favourable!`,
+    description: `The Borrow APR is at the highest, and the Borrow Interest Rate slope is higher, which is unfavourable for borrowers`,
+    alertId: "BORROW-2",
+    severity: FindingSeverity.Info,
+    type: FindingType.Info,
+    protocol: "Compound",
+    metadata: {
+      borrowRate: borrowAPR,
+      utilization: utilization,
+    },
+  })
+}

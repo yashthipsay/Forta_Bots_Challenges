@@ -18,6 +18,12 @@ import {
   WITHDRAW,
 } from "./constants";
 import Helper from "./helper";
+import { getAlerts } from "forta-agent";
+jest.mock("forta-agent", () => ({
+  ...jest.requireActual("forta-agent"),
+  getAlerts: jest.fn(),
+}));
+
 describe("Compound test suite for lending and borrowing", () => {
   let mockProvider = new MockEthersProvider();
   let handleTransaction: HandleTransaction;
@@ -39,6 +45,22 @@ describe("Compound test suite for lending and borrowing", () => {
     WITHDRAW,
     OTHER_FUNCTION,
   ]);
+
+  const mockAlerts = (alertId: string, kink: any, utilization: any) => {
+    (getAlerts as jest.Mock).mockResolvedValue({
+      alerts: [
+        {
+          alertId: alertId,
+          hasAddress: jest.fn().mockReturnValue(false),
+          metadata: {
+            kink: kink,
+            utilization: utilization,
+          },
+        },
+      ],
+      pageInfo: {hasNextPage: false},
+    })
+  }
 
   beforeEach(() => {
     handleTransaction = provideUtilization(mockProvider as any);
@@ -362,4 +384,40 @@ describe("Compound test suite for lending and borrowing", () => {
 
     expect(findings).toHaveLength(0);
   });
+
+  it("should return finding if utilization is more that supply kink", async() => {
+    setupMockProvider(
+      ethers.BigNumber.from("860000000000000000"),
+      ethers.BigNumber.from("5000000000000000000"),
+      ethers.BigNumber.from("870000000000000000"),
+    );
+
+    mockProvider.setNetwork(1);
+    await initialize();
+    txEvent.addTraces({
+      function: provideInterface.getFunction("supply"),
+      to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+      from: createAddress("0x123"),
+      arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+    });
+
+    mockAlerts("SUPPLY-2", "860000000000000000", "870000000000000000");
+
+    const findings = await handleTransaction(txEvent);
+
+    expect(findings).toStrictEqual([
+      Finding.fromObject({
+        name: `Utilization is above the optimal value. APR for lenders are at the highest!`,
+        description: `The Supply APR is at the highest, and the Supply Interest Rate slope is higher, which is favourable for lenders`,
+        alertId: "SUPPLY-2",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "Compound",
+        metadata: {
+          SupplyRate: "3.11",
+          Utilization: "87",
+        },
+      }),
+    ]);
+  })
 });

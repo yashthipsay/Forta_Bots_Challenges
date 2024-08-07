@@ -3,7 +3,8 @@ import {
   CONFIGURATOR_PROXY,
   CONFIGURATOR_PROXY_POLYGON,
 } from "./constants";
-import { ethers } from "forta-agent";
+import { AlertsResponse, ethers, getAlerts } from "forta-agent";
+import { AlertType } from "./types";
 
 export default class Helper {
   private provider: ethers.providers.Provider;
@@ -38,7 +39,6 @@ export default class Helper {
     });
   }
 
-  // // .borrowPerYearInterestSlopeLow
 
   public async getUtilization(
     tokenAddress: string,
@@ -92,4 +92,22 @@ export default class Helper {
     const borrowAPR = (getBorrowRate / 1e18) * 100 * this.secondsPerYear;
     return borrowAPR;
   }
+
+public async getCompoundAlerts(chaindId: number, alertType: AlertType): Promise<AlertsResponse>{
+  let alertId: string;
+  if(alertType.function === "supply") {
+    alertId = "SUPPLY-2";
+  } else if (alertType.function === "borrow") {
+    alertId = "BORROW-2";
+  } else {
+    throw new Error(`Unknown function type: ${alertType.function}`);
 }
+
+  return await getAlerts({
+    alertId: alertId,
+    chainId: chaindId,
+  });
+}
+
+}
+

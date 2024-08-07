@@ -1,10 +1,8 @@
 import { Network } from "forta-agent";
 import { USDC_TOKEN_POLYGON, USDC_TOKEN_ETH } from "./constants";
+import { NetworkData } from "./types";
 
-export interface NetworkData {
-  usdc: string;
-  configurationProxy: number;
-}
+
 
 type BotConfig = Record<number, NetworkData>;
 
