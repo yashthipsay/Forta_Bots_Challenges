@@ -5,10 +5,10 @@ import {
 } from "./constants";
 import { AlertsResponse, ethers, getAlerts } from "forta-agent";
 import { AlertType } from "./types";
+import { LRUCache } from "lru-cache";
 
 export default class Helper {
   private provider: ethers.providers.Provider;
-
   constructor(provider: ethers.providers.Provider) {
     this.provider = provider;
   }
@@ -20,7 +20,7 @@ export default class Helper {
     configuratorProxy: string,
     blockNumber: number,
   ): Promise<any> {
-    const configuration = new ethers.Contract(
+      const configuration = new ethers.Contract(
       configuratorProxy,
       CONFIGURATION_ABI,
       this.provider,
