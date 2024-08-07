@@ -85,12 +85,4 @@ export default class Helper {
     this.collateralNamesCache.set(key, tokenName);
     return tokenName;
   }
-
-  public async getConfigurator(chainId: number) {
-    if (chainId == 1) {
-      return CONFIGURATOR_PROXY;
-    } else if (chainId == 42161) {
-      return CONFIGURATOR_PROXY_ARB;
-    }
-  }
 }

@@ -51,7 +51,7 @@ export function provideHandleTransaction(
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
-    configuratorProxy = await helper.getConfigurator(network.chainId);
+    configuratorProxy = networkManager.get("configurationproxy");
 
     const usdc = networkManager.get("usdc");
     const changedValues: { [key: string]: any } = {};
