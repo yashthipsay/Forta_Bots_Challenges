@@ -1,34 +1,49 @@
 import { ethers } from "forta-agent";
 import { LRUCache } from "lru-cache";
-import { CONFIGURATOR_PROXY, CONFIGURATOR_PROXY_ARB, ERC20_ABI } from "./constants";
+import {
+  CONFIGURATOR_PROXY,
+  CONFIGURATOR_PROXY_ARB,
+  ERC20_ABI,
+} from "./constants";
 
 export default class Helper {
   private provider: ethers.providers.Provider;
-  private cache: LRUCache<string, { [name: string]: string }>;
+  private collateralAssetsCache: LRUCache<string, { [name: string]: string }>;
+  private collateralNamesCache: LRUCache<string, string>;
 
   constructor(provider: ethers.providers.Provider) {
     this.provider = provider;
-    this.cache = new LRUCache<string, { [name: string]: string }>({
+    this.collateralAssetsCache = new LRUCache<
+      string,
+      { [name: string]: string }
+    >({
+      max: 1000,
+    });
+    this.collateralNamesCache = new LRUCache<string, string>({
       max: 1000,
     });
   }
 
   public async getCollateralAssets(
-    assetToken: string,
-    abi: string[],
+    usdcAddress: string,
+    usdcAbi: string[],
     blockNumber: number,
   ): Promise<{ [name: string]: string }> {
-    const assetContract = new ethers.Contract(assetToken, abi, this.provider);
-    const key = `${assetToken}-${blockNumber}`;
-    if (this.cache.has(key)) {
-      return this.cache.get(key) as { [name: string]: string };
+    const assetContract = new ethers.Contract(
+      usdcAddress,
+      usdcAbi,
+      this.provider,
+    );
+    const key = `${usdcAddress}`;
+    if (this.collateralAssetsCache.has(key)) {
+      return this.collateralAssetsCache.get(key) as { [name: string]: string };
     }
     let collateralAssets: { [name: string]: string } = {};
     let index = 0; // Start from 0, increment before fetching next
 
     while (true) {
       try {
-    let collateralAssetInfo: any;
+        let collateralAssetInfo: any;
 
         collateralAssetInfo = await assetContract.getAssetInfo(index, {
           blockTag: blockNumber,
@@ -36,15 +51,18 @@ export default class Helper {
 
         const collateralName =
           "Collateral Asset - " +
-          (await this.getCollateralName(collateralAssetInfo.asset, blockNumber));
-          collateralAssets[collateralName] = collateralAssetInfo.asset;
+          (await this.getCollateralName(
+            collateralAssetInfo.asset,
+            blockNumber,
+          ));
+        collateralAssets[collateralName] = collateralAssetInfo.asset;
         index++; // Increment after successful fetch
       } catch (error) {
         break; // Exit loop on error
       }
     }
 
-    this.cache.set(key, collateralAssets);
+    this.collateralAssetsCache.set(key, collateralAssets);
     return collateralAssets;
   }
 
@@ -52,7 +70,11 @@ export default class Helper {
   private async getCollateralName(
     tokenAddress: string,
     blockNumber: number,
-  ): Promise<string> {
+  ): Promise<string | undefined> {
+    const key = `${tokenAddress}`;
+    if (this.collateralNamesCache.has(key)) {
+      return this.collateralNamesCache.get(key);
+    }
     const tokenContract = new ethers.Contract(
       tokenAddress,
       ERC20_ABI,
@@ -60,6 +82,7 @@ export default class Helper {
     );
 
     const tokenName = await tokenContract.name({ blockTag: blockNumber });
+    this.collateralNamesCache.set(key, tokenName);
     return tokenName;
   }
 

@@ -11,7 +11,6 @@ import {
   FindingType,
   HandleTransaction,
 } from "forta-agent";
-import { CONFIGURATOR_PROXY } from "./constants";
 import Helper from "./helper";
 
 describe("Compound V3 Protocol Governance Monitoring test suite", () => {
@@ -21,7 +20,15 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   let helper: Helper;
   let initialize: any;
 
+  const collateralAddresses = [
+    createAddress("0x1247"),
+    createAddress("0x12567"),
+    createAddress("0x1289"),
+    createAddress("0x1290"),
+  ];
+
   const mockAssetTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
+  
   const mockArgs = [
     createAddress("0x1421"),
     createAddress("0x123"),
@@ -60,7 +67,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     });
   };
 
-  beforeEach(() => {
+  beforeEach(async() => {
     mockProvider = new MockEthersProvider() as any;
     mockProvider.setNetwork(1);
     initialize = provideInitialize(
@@ -74,6 +81,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     helper = new Helper(mockProvider as unknown as ethers.providers.Provider);
     txEvent = new TestTransactionEvent().setBlock(0);
     jest.spyOn(helper, "getConfigurator").mockResolvedValue(mockConfigurator);
+    await initialize();
   });
 
   afterEach(() => {
@@ -87,7 +95,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       createAddress("0x1289"),
       createAddress("0x1290"),
     ];
-    await initialize();
+    
     setupMockProvider(collateralAddresses);
 
     txEvent.addEventLog(
@@ -96,13 +104,13 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       [...mockArgs],
     );
 
-    const metadata1: { [key: string]: any } = {
+    const comparedNewAndOldValues: { [key: string]: any } = {
       SetGovernor: {
         Old_value: createAddress("0x123"),
         New_value: createAddress("0x234"),
       },
     };
-    const metadata = {
+    const mockAssetData = {
       "Collateral Asset - Collateral-1": `${createAddress("0x1247")}`,
       "Collateral Asset - Collateral-2": `${createAddress("0x12567")}`,
       "Collateral Asset - Collateral-3": `${createAddress("0x1289")}`,
@@ -120,8 +128,8 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
         type: FindingType.Info,
         protocol: "Compound",
         metadata: {
-          ...metadata1,
-          ...metadata,
+          ...comparedNewAndOldValues,
+          ...mockAssetData,
         },
       }),
     ]);
@@ -141,7 +149,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
 
   it("should return 0 findings for multiple non-governance events", async () => {
     mockProvider.setNetwork(1);
-    await initialize();
+    
     const nonGovEvents = [
       "event Transfer(address indexed from, address indexed to, uint256 value)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -149,7 +157,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     ];
 
     nonGovEvents.forEach((eventSignature) => {
-      txEvent.addEventLog(eventSignature, CONFIGURATOR_PROXY, [
+      txEvent.addEventLog(eventSignature, mockConfigurator, [
         createAddress("0x12345"),
         createAddress("0x67890"),
         1000,
@@ -161,13 +169,8 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   });
 
   it("should return a finding for a governance event out of multiple non-governance events", async () => {
-    const collateralAddresses = [
-      createAddress("0x1247"),
-      createAddress("0x12567"),
-      createAddress("0x1289"),
-      createAddress("0x1290"),
-    ];
-    await initialize();
+   
+    
     setupMockProvider(collateralAddresses);
     const metadata = {
       "Collateral Asset - Collateral-1": `${createAddress("0x1247")}`,
@@ -249,12 +252,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       "Collateral Asset - Collateral-4": `${createAddress("0x1290")}`,
     };
 
-    const collateralAddresses = [
-      createAddress("0x1247"),
-      createAddress("0x12567"),
-      createAddress("0x1289"),
-      createAddress("0x1290"),
-    ];
+    
     setupMockProvider(collateralAddresses);
 
     const nonGovEvents = [

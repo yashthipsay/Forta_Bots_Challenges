@@ -9,27 +9,29 @@ import {
   ASSET_INFO,
   USDC_TOKEN_ETH,
   USDC_TOKEN_ARB,
-  RESULTS_ARRAY,
+  EVENTS_ARRAY,
+  CONFIGURATOR_PROXY,
+  CONFIGURATOR_PROXY_ARB,
 } from "./constants";
 import { createFinding } from "./findings";
 import Helper from "./helper";
 import { NetworkManager } from "forta-agent-tools";
 
 let configuratorProxy: string | undefined;
-let networkManager: any;
+let networkManager: NetworkManager<NetworkData>;
 let network: ethers.providers.Network;
 interface NetworkData {
   usdc: string;
-  configurationproxy: number;
+  configurationproxy: string;
 }
 const networkData: Record<number, NetworkData> = {
   1: {
     usdc: USDC_TOKEN_ETH,
-    configurationproxy: 1,
+    configurationproxy: CONFIGURATOR_PROXY,
   },
   42161: {
     usdc: USDC_TOKEN_ARB,
-    configurationproxy: 2,
+    configurationproxy: CONFIGURATOR_PROXY_ARB,
   },
 };
 
@@ -50,11 +52,9 @@ export function provideHandleGovernanceTransaction(
     const helper = new Helper(provider);
     configuratorProxy = await helper.getConfigurator(network.chainId);
 
-    const logs = tx.filterLog(RESULTS_ARRAY, configuratorProxy);
-
     const usdc = networkManager.get("usdc");
     const changedValues: { [key: string]: any } = {};
-    logs.forEach((log) => {
+    tx.filterLog(EVENTS_ARRAY, configuratorProxy).forEach((log) => {
       const name = log.name;
       if (
         name != "UpdateAssetBorrowCollateralFactor" &&
@@ -81,13 +81,7 @@ export function provideHandleGovernanceTransaction(
 
     // Create findind only if there is a change of events
     if (Object.keys(changedValues).length > 0) {
-      finding.push(
-        createFinding(
-          usdc,
-          collateralAssets,
-          changedValues,
-        ),
-      );
+      finding.push(createFinding(usdc, collateralAssets, changedValues));
     }
 
     return finding;

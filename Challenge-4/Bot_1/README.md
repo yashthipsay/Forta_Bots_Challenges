@@ -26,11 +26,11 @@ Describe each of the type of alerts fired by this agent
       - `SUPPLY_PYIR`: Old and new values only if Supply Per Year Interest Rate is changed
       - `LIQUIDATE_CF`: Old and new values only if Asset Liquidate Collateral Factor is changed
       - `BORROW_CF`: Old and new values only if Asset Borrow Collateral Factor is changed
-    - Asset Data: Each token has a different Asset data. For example USDC token on Ethereum: `"Collateral Asset - Compound": "0xc00e94Cb662C3520282E6f5717214004A7f26888",
-    "Collateral Asset - Wrapped BTC": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-    "Collateral Asset - Wrapped Ether": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    "Collateral Asset - Uniswap": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-    "Collateral Asset - ChainLink Token": "0x514910771AF9Ca656af840dff83E8264EcF986CA"`
+    - - Asset Data: Each token has a different Asset data. For example USDC token on Ethereum:
+      - `"Collateral Asset - Compound": "0xc00e94Cb662C3520282E6f5717214004A7f26888"`,
+      - `"Collateral Asset - Wrapped BTC": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"`,
+      - `"Collateral Asset - Wrapped Ether": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"`,
+      - `"Collateral Asset - Uniswap": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"`
 
 
 ## Test Data

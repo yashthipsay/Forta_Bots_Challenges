@@ -36,7 +36,7 @@ export const ASSET_INFO = [
   `function getAssetInfo(uint8 i) public view returns (uint8 offset, address asset, address priceFeed, uint64 scale, uint64 borrowCollateralFactor, uint64 liquidateCollateralFactor, uint64 liquidationFactor, uint128 supplyCap)`,
 ];
 
-export const RESULTS_ARRAY = [
+export const EVENTS_ARRAY = [
   BORROW_KINK,
   SUPPLY_KINK,
   SET_GOVERNOR,
