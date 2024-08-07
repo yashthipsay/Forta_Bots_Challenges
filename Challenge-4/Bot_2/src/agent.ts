@@ -35,8 +35,7 @@ export function provideInitialize(provider: ethers.providers.Provider) {
   };
 }
 
-export function provideUtilization(
-  provider: ethers.providers.Provider,
+export function provideHandleTransaction(
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
@@ -49,17 +48,21 @@ export function provideUtilization(
 
     configuratorProxy = networkManager.get("configurationProxy");
 
+    // get configuration values from the configurator contract for USDC token
     const configuration = await helper.gettConfiguration(
       USDC_TOKEN_ETH,
       tokenAddress,
       tx.blockNumber,
     );
+
+    // get utilization for cUSDC token
     const utilization = await helper.getUtilization(
       tokenAddress,
       UTILIZATION,
       tx.blockNumber,
     );
 
+    // get annual percentage rate for supply
     const supplyAPR = await helper.getSupplyAPR(
       tokenAddress,
       SUPPLY_RATE,
@@ -67,6 +70,7 @@ export function provideUtilization(
       tx.blockNumber,
     );
 
+    // get annual percentage rate for borrow
     const borrowAPR = await helper.getBorrowAPR(
       tokenAddress,
       BORROW_RATE,
@@ -74,20 +78,23 @@ export function provideUtilization(
       tx.blockNumber,
     );
 
-    const percentage = ethers.BigNumber.from(30).mul(
+    // calculate lower limit for a withdraw transaction 
+    const lowerLimitByPercentage = ethers.BigNumber.from(30).mul(
       ethers.BigNumber.from(10).pow(16),
     );
     const lowerLimit = configuration[9]
-      .mul(percentage)
+      .mul(lowerLimitByPercentage)
       .div(ethers.BigNumber.from(10).pow(18));
 
-    const upperPercentage = ethers.BigNumber.from(90).mul(
+    // calculate upper limit for a supply transaction
+    const upperLimitByPercentage = ethers.BigNumber.from(90).mul(
       ethers.BigNumber.from(10).pow(16),
     ); // 90% = 0.90 = 90 * 10^(-2) = 90 * 10^(16-18)
     const upperLimit = configuration[5]
-      .mul(upperPercentage)
+      .mul(upperLimitByPercentage)
       .div(ethers.BigNumber.from(10).pow(18));
 
+    // will show findings only for a transaction that is a supply transaction or a withdraw transaction. If the transaction is more than the supply or the borrowkink limit, it will trigger an alert
     if (supply && supply.length > 0 && utilization.gt(upperLimit)) {
       if (utilization.gt(configuration[5])) {
         helper.getCompoundAlerts(1, { function: "supply" });
@@ -107,7 +114,7 @@ export function provideUtilization(
           borrowFinding(borrowAPR.toString(), utilization.toString()),
         );
       }
-    } else if (
+    } else if (  //conditions for a withdraw transaction that would trigger an alert, hencec it is in a different else if block
       withdraw &&
       withdraw.length > 0 &&
       utilization.gt(configuration[9])
@@ -123,5 +130,5 @@ export function provideUtilization(
 
 export default {
   initialize: provideInitialize(getEthersProvider()),
-  handleTransaction: provideUtilization(getEthersProvider()),
+  handleTransaction: provideHandleTransaction(),
 };

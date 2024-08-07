@@ -9,7 +9,7 @@ import {
   FindingType,
   HandleTransaction,
 } from "forta-agent";
-import { provideInitialize, provideUtilization } from "./agent";
+import { provideInitialize, provideHandleTransaction } from "./agent";
 import { createAddress } from "forta-agent-tools";
 import Helper from "./helper";
 import { getAlerts } from "forta-agent";
@@ -58,7 +58,7 @@ describe("Compound test suite for lending and borrowing", () => {
   };
 
   beforeEach(() => {
-    handleTransaction = provideUtilization(mockProvider as any);
+    handleTransaction = provideHandleTransaction();
     initialize = provideInitialize(mockProvider as any);
     helper = new Helper(mockProvider as any);
     txEvent = new TestTransactionEvent().setBlock(0);

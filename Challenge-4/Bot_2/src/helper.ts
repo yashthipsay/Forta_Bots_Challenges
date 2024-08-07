@@ -46,6 +46,7 @@ export default class Helper {
     });
   }
 
+  // getSupplyRate returns the supply rate in terms of seconds. It has to be converted to annual rate
   public async getSupplyAPR(
     tokenAddress: string,
     abi: any,
@@ -65,6 +66,7 @@ export default class Helper {
     return supplyAPR;
   }
 
+  // getBorrowRate returns the borrow rate in terms of seconds. It has to be converted to annual rate
   public async getBorrowAPR(
     tokenAddress: string,
     abi: any,
@@ -84,6 +86,7 @@ export default class Helper {
     return borrowAPR;
   }
 
+  // alerts only if utilization is aove supply kink or borrow kink for supply function and borrow function respectively
   public async getCompoundAlerts(
     chaindId: number,
     alertType: AlertType,
