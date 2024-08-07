@@ -1,7 +1,4 @@
-import {
-  MockEthersProvider,
-  TestTransactionEvent,
-} from "forta-agent-tools/lib/test";
+import { MockEthersProvider } from "forta-agent-tools/lib/test";
 import { ethers } from "forta-agent";
 import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";

@@ -11,14 +11,9 @@ import {
 } from "forta-agent";
 import { provideInitialize, provideUtilization } from "./agent";
 import { createAddress } from "forta-agent-tools";
-import {
-  CONFIGURATOR_PROXY,
-  SUPPLY,
-  USDC_TOKEN_ETH,
-  WITHDRAW,
-} from "./constants";
 import Helper from "./helper";
 import { getAlerts } from "forta-agent";
+
 jest.mock("forta-agent", () => ({
   ...jest.requireActual("forta-agent"),
   getAlerts: jest.fn(),
@@ -30,7 +25,7 @@ describe("Compound test suite for lending and borrowing", () => {
   let txEvent: TestTransactionEvent;
   let initialize: any;
   let helper: Helper;
-  let mockAssetTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
+  let usdcTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
   let mockConfiguratorProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
   const functions = [
     `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
@@ -41,8 +36,8 @@ describe("Compound test suite for lending and borrowing", () => {
   const OTHER_FUNCTION = "function otherFunction(address asset, uint amount)";
   const Iface = new ethers.utils.Interface(functions);
   const provideInterface = new ethers.utils.Interface([
-    SUPPLY,
-    WITHDRAW,
+    "function supply(address asset, uint amount)",
+    "function withdraw(address asset, uint amount)",
     OTHER_FUNCTION,
   ]);
 
@@ -67,7 +62,6 @@ describe("Compound test suite for lending and borrowing", () => {
     initialize = provideInitialize(mockProvider as any);
     helper = new Helper(mockProvider as any);
     txEvent = new TestTransactionEvent().setBlock(0);
-    jest.spyOn(helper, "getConfigurator").mockResolvedValue(CONFIGURATOR_PROXY);
   });
 
   let setupMockProvider = async (
@@ -82,7 +76,7 @@ describe("Compound test suite for lending and borrowing", () => {
       Iface,
       "getConfiguration",
       {
-        inputs: [USDC_TOKEN_ETH],
+        inputs: [usdcTokenAddress],
         outputs: [
           {
             governor: createAddress("0x123"),
@@ -107,7 +101,7 @@ describe("Compound test suite for lending and borrowing", () => {
             targetReserves: 50,
             assetConfigs: [
               {
-                asset: mockAssetTokenAddress,
+                asset: usdcTokenAddress,
                 decimals: 18,
                 conversionFactor: 1,
               },
@@ -116,15 +110,15 @@ describe("Compound test suite for lending and borrowing", () => {
         ],
       },
     );
-    mockProvider.addCallTo(USDC_TOKEN_ETH, 0, Iface, "getUtilization", {
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getUtilization", {
       inputs: [],
       outputs: [utilization],
     });
-    mockProvider.addCallTo(USDC_TOKEN_ETH, 0, Iface, "getSupplyRate", {
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getSupplyRate", {
       inputs: [utilization],
       outputs: [986453221],
     });
-    mockProvider.addCallTo(USDC_TOKEN_ETH, 0, Iface, "getBorrowRate", {
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getBorrowRate", {
       inputs: [utilization],
       outputs: [1064532211],
     });
@@ -214,13 +208,13 @@ describe("Compound test suite for lending and borrowing", () => {
         function: provideInterface.getFunction("supply"),
         to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
         from: createAddress("0x123"),
-        arguments: [mockAssetTokenAddress, 20],
+        arguments: [usdcTokenAddress, 20],
       })
       .addTraces({
         function: provideInterface.getFunction("otherFunction"),
         to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
         from: createAddress("0x123"),
-        arguments: [mockAssetTokenAddress, 10],
+        arguments: [usdcTokenAddress, 10],
       });
 
     const findings = await handleTransaction(txEvent);

@@ -15,14 +15,6 @@ export default class Helper {
 
   public secondsPerYear = 31536000;
 
-  public async getConfigurator(chainId: number) {
-    if (chainId == 1) {
-      return CONFIGURATOR_PROXY;
-    } else if (chainId == 42161) {
-      return CONFIGURATOR_PROXY_POLYGON;
-    }
-  }
-
   public async gettConfiguration(
     configuratorProxy: string | undefined,
     tokenAddress: string,

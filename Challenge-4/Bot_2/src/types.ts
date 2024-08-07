@@ -1,6 +1,6 @@
 export interface NetworkData {
   usdc: string;
-  configurationProxy: number;
+  configurationProxy: string;
 }
 
 export interface AlertType {

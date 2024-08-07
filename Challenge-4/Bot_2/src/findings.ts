@@ -3,7 +3,6 @@ import { Finding, FindingSeverity, FindingType } from "forta-agent";
 export const supplyFinding = (
   supplyAPR: string,
   utilizationRate: string,
-  network: any,
 ): Finding => {
   const utilization = parseFloat(utilizationRate) / 1e16;
   const formattedSupplyAPR = parseFloat(supplyAPR).toFixed(2);
@@ -24,7 +23,6 @@ export const supplyFinding = (
 export const borrowFinding = (
   borrowAPR: string,
   optimalUtilization: string,
-  network: any,
 ): Finding => {
   const utilization = parseFloat(optimalUtilization) / 1e16;
   const formattedBorrowAPR = parseFloat(borrowAPR).toFixed(2);

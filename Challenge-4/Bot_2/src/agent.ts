@@ -4,7 +4,6 @@ import {
   ethers,
   Finding,
   getEthersProvider,
-  FindingSeverity,
 } from "forta-agent";
 import {
   BORROW_RATE,
@@ -47,9 +46,8 @@ export function provideUtilization(
     const withdraw = tx.filterFunction([WITHDRAW], tokenAddress);
 
     const supply = tx.filterFunction([SUPPLY], tokenAddress);
-    const network = await provider.getNetwork();
 
-    configuratorProxy = await helper.getConfigurator(network.chainId);
+    configuratorProxy = networkManager.get("configurationProxy");
 
     const configuration = await helper.gettConfiguration(
       USDC_TOKEN_ETH,
@@ -99,22 +97,14 @@ export function provideUtilization(
       } else {
         for (let i = 0; i < supply.length; i++) {
           finding.push(
-            supplyFinding(
-              supplyAPR.toString(),
-              utilization.toString(),
-              tx.network,
-            ),
+            supplyFinding(supplyAPR.toString(), utilization.toString()),
           );
         }
       }
     } else if (withdraw && withdraw.length > 0 && utilization.lt(lowerLimit)) {
       for (let i = 0; i < withdraw.length; i++) {
         finding.push(
-          borrowFinding(
-            borrowAPR.toString(),
-            utilization.toString(),
-            tx.network,
-          ),
+          borrowFinding(borrowAPR.toString(), utilization.toString()),
         );
       }
     } else if (
