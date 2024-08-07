@@ -58,9 +58,9 @@ describe("Compound test suite for lending and borrowing", () => {
           },
         },
       ],
-      pageInfo: {hasNextPage: false},
-    })
-  }
+      pageInfo: { hasNextPage: false },
+    });
+  };
 
   beforeEach(() => {
     handleTransaction = provideUtilization(mockProvider as any);
@@ -76,40 +76,46 @@ describe("Compound test suite for lending and borrowing", () => {
     utilization: ethers.BigNumber,
   ) => {
     mockProvider.setNetwork(1);
-    mockProvider.addCallTo(mockConfiguratorProxy, 0, Iface, "getConfiguration", {
-      inputs: [USDC_TOKEN_ETH],
-      outputs: [
-        {
-          governor: createAddress("0x123"),
-          pauseGuardian: createAddress("0x2375"),
-          baseToken: createAddress("0x98235"),
-          baseTokenPriceFeed: createAddress("0x1274"),
-          extensionDelegate: createAddress("0x5124"),
-          supplyKink: supplyKink,
-          supplyPerYearInterestRateSlopeLow: 60,
-          supplyPerYearInterestRateSlopeHigh: 100,
-          supplyPerYearInterestRateBase: 900,
-          borrowKink: borrowKink,
-          borrowPerYearInterestRateSlopeLow: 100,
-          borrowPerYearInterestRateSlopeHigh: 200,
-          borrowPerYearInterestRateBase: 300,
-          storeFrontPriceFactor: 50,
-          trackingIndexScale: 50,
-          baseTrackingSupplySpeed: 50,
-          baseTrackingBorrowSpeed: 50,
-          baseMinForRewards: 50,
-          baseBorrowMin: 50,
-          targetReserves: 50,
-          assetConfigs: [
-            {
-              asset: mockAssetTokenAddress,
-              decimals: 18,
-              conversionFactor: 1,
-            },
-          ],
-        },
-      ],
-    });
+    mockProvider.addCallTo(
+      mockConfiguratorProxy,
+      0,
+      Iface,
+      "getConfiguration",
+      {
+        inputs: [USDC_TOKEN_ETH],
+        outputs: [
+          {
+            governor: createAddress("0x123"),
+            pauseGuardian: createAddress("0x2375"),
+            baseToken: createAddress("0x98235"),
+            baseTokenPriceFeed: createAddress("0x1274"),
+            extensionDelegate: createAddress("0x5124"),
+            supplyKink: supplyKink,
+            supplyPerYearInterestRateSlopeLow: 60,
+            supplyPerYearInterestRateSlopeHigh: 100,
+            supplyPerYearInterestRateBase: 900,
+            borrowKink: borrowKink,
+            borrowPerYearInterestRateSlopeLow: 100,
+            borrowPerYearInterestRateSlopeHigh: 200,
+            borrowPerYearInterestRateBase: 300,
+            storeFrontPriceFactor: 50,
+            trackingIndexScale: 50,
+            baseTrackingSupplySpeed: 50,
+            baseTrackingBorrowSpeed: 50,
+            baseMinForRewards: 50,
+            baseBorrowMin: 50,
+            targetReserves: 50,
+            assetConfigs: [
+              {
+                asset: mockAssetTokenAddress,
+                decimals: 18,
+                conversionFactor: 1,
+              },
+            ],
+          },
+        ],
+      },
+    );
     mockProvider.addCallTo(USDC_TOKEN_ETH, 0, Iface, "getUtilization", {
       inputs: [],
       outputs: [utilization],
@@ -385,7 +391,7 @@ describe("Compound test suite for lending and borrowing", () => {
     expect(findings).toHaveLength(0);
   });
 
-  it("should return finding if utilization is more that supply kink", async() => {
+  it("should return finding if utilization is more that supply kink", async () => {
     setupMockProvider(
       ethers.BigNumber.from("860000000000000000"),
       ethers.BigNumber.from("5000000000000000000"),
@@ -419,5 +425,41 @@ describe("Compound test suite for lending and borrowing", () => {
         },
       }),
     ]);
-  })
+  });
+
+  it("should return a finding if utilization is more that borrow kink", async () => {
+    setupMockProvider(
+      ethers.BigNumber.from("860000000000000000"),
+      ethers.BigNumber.from("500000000000000000"),
+      ethers.BigNumber.from("870000000000000000"),
+    );
+
+    mockProvider.setNetwork(1);
+    await initialize();
+    txEvent.addTraces({
+      function: provideInterface.getFunction("withdraw"),
+      to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+      from: createAddress("0x123"),
+      arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+    });
+
+    mockAlerts("BORROW-2", "5000000000000000000", "870000000000000000");
+
+    const findings = await handleTransaction(txEvent);
+
+    expect(findings).toStrictEqual([
+      Finding.fromObject({
+        name: `Utilization is above the optimal value. APR for borrowers is not favourable!`,
+        description: `The Borrow APR is at the highest, and the Borrow Interest Rate slope is higher, which is unfavourable for borrowers`,
+        alertId: "BORROW-2",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "Compound",
+        metadata: {
+          BorrowRate: "3.36",
+          Utilization: "87",
+        },
+      }),
+    ]);
+  });
 });

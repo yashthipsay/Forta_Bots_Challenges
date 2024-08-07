@@ -1,4 +1,4 @@
-import { Finding, FindingSeverity, FindingType} from "forta-agent";
+import { Finding, FindingSeverity, FindingType } from "forta-agent";
 
 export const supplyFinding = (
   supplyAPR: string,
@@ -42,8 +42,11 @@ export const borrowFinding = (
   });
 };
 
-export const alertSupplyFinding = (supplyAPR: string, utilizationRate: string): Finding => {
-  const utilization =  parseFloat(utilizationRate) / 1e16;
+export const alertSupplyFinding = (
+  supplyAPR: string,
+  utilizationRate: string,
+): Finding => {
+  const utilization = parseFloat(utilizationRate) / 1e16;
   const formattedSupplyAPR = parseFloat(supplyAPR).toFixed(2);
   return Finding.fromObject({
     name: `Utilization is above the optimal value. APR for lenders are at the highest!`,
@@ -56,12 +59,15 @@ export const alertSupplyFinding = (supplyAPR: string, utilizationRate: string): 
       SupplyRate: formattedSupplyAPR,
       Utilization: `${utilization}`,
     },
+  });
+};
 
-    
-  })
-}
-
-export const alertBorrowFinding = (borrowAPR: string, utilization: string): Finding => {
+export const alertBorrowFinding = (
+  borrowAPR: string,
+  utilizationRate: string,
+): Finding => {
+  const utilization = parseFloat(utilizationRate) / 1e16;
+  const formattedBorrowAPR = parseFloat(borrowAPR).toFixed(2);
   return Finding.fromObject({
     name: `Utilization is above the optimal value. APR for borrowers is not favourable!`,
     description: `The Borrow APR is at the highest, and the Borrow Interest Rate slope is higher, which is unfavourable for borrowers`,
@@ -70,8 +76,8 @@ export const alertBorrowFinding = (borrowAPR: string, utilization: string): Find
     type: FindingType.Info,
     protocol: "Compound",
     metadata: {
-      borrowRate: borrowAPR,
-      utilization: utilization,
+      BorrowRate: formattedBorrowAPR,
+      Utilization: `${utilization}`,
     },
-  })
-}
+  });
+};

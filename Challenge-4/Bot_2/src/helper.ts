@@ -33,12 +33,11 @@ export default class Helper {
       CONFIGURATION_ABI,
       this.provider,
     );
-   
+
     return await configuration.callStatic.getConfiguration(configuratorProxy, {
       blockTag: blockNumber,
     });
   }
-
 
   public async getUtilization(
     tokenAddress: string,
@@ -93,21 +92,22 @@ export default class Helper {
     return borrowAPR;
   }
 
-public async getCompoundAlerts(chaindId: number, alertType: AlertType): Promise<AlertsResponse>{
-  let alertId: string;
-  if(alertType.function === "supply") {
-    alertId = "SUPPLY-2";
-  } else if (alertType.function === "borrow") {
-    alertId = "BORROW-2";
-  } else {
-    throw new Error(`Unknown function type: ${alertType.function}`);
-}
+  public async getCompoundAlerts(
+    chaindId: number,
+    alertType: AlertType,
+  ): Promise<AlertsResponse> {
+    let alertId: string;
+    if (alertType.function === "supply") {
+      alertId = "SUPPLY-2";
+    } else if (alertType.function === "withdraw") {
+      alertId = "BORROW-2";
+    } else {
+      throw new Error(`Unknown function type: ${alertType.function}`);
+    }
 
-  return await getAlerts({
-    alertId: alertId,
-    chainId: chaindId,
-  });
+    return await getAlerts({
+      alertId: alertId,
+      chainId: chaindId,
+    });
+  }
 }
-
-}
-
