@@ -4,9 +4,11 @@
   "version": "0.0.1",
   "description": "Forta bot that detects creation and updation of other Forta bots on a network",
   "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/%40intern-challenges/one",
+  
   "chainIds": [
     137
   ],
+  
   "scripts": {
     "build": "tsc",
     "start": "npm run start:dev",
@@ -29,6 +31,7 @@
     "test": "jest",
     "format": "prettier --write \"src/**/*.ts\""
   },
+
   "dependencies": {
     "forta-agent": "^0.1.48"
   },

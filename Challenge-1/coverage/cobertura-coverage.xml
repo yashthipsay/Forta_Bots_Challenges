@@ -1,0 +1,62 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage lines-valid="27" lines-covered="27" line-rate="1" branches-valid="2" branches-covered="2" branch-rate="1" timestamp="1723436575209" complexity="0" version="0.1">
+  <sources>
+    <source>/home/wsl/Forta_Bots_Challenges/Challenge-1</source>
+  </sources>
+  <packages>
+    <package name="main" line-rate="1" branch-rate="1">
+      <classes>
+        <class name="agent.ts" filename="src/agent.ts" line-rate="1" branch-rate="1">
+          <methods>
+            <method name="provideTransaction" hits="2" signature="()V">
+              <lines>
+                <line number="12" hits="2"/>
+              </lines>
+            </method>
+            <method name="handleTransaction" hits="6" signature="()V">
+              <lines>
+                <line number="18" hits="6"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="1" hits="1" branch="false"/>
+            <line number="4" hits="1" branch="false"/>
+            <line number="12" hits="1" branch="false"/>
+            <line number="18" hits="2" branch="false"/>
+            <line number="19" hits="6" branch="false"/>
+            <line number="22" hits="6" branch="false"/>
+            <line number="24" hits="6" branch="false"/>
+            <line number="27" hits="6" branch="false"/>
+            <line number="29" hits="4" branch="false"/>
+            <line number="30" hits="4" branch="false"/>
+            <line number="31" hits="4" branch="false"/>
+            <line number="32" hits="4" branch="false"/>
+            <line number="35" hits="4" branch="true" condition-coverage="100% (1/1)"/>
+            <line number="36" hits="3" branch="false"/>
+            <line number="54" hits="6" branch="false"/>
+            <line number="55" hits="1" branch="false"/>
+            <line number="56" hits="1" branch="false"/>
+            <line number="57" hits="1" branch="false"/>
+            <line number="58" hits="1" branch="false"/>
+            <line number="61" hits="1" branch="true" condition-coverage="100% (1/1)"/>
+            <line number="62" hits="1" branch="false"/>
+            <line number="81" hits="6" branch="false"/>
+            <line number="85" hits="1" branch="false"/>
+          </lines>
+        </class>
+        <class name="constants.ts" filename="src/constants.ts" line-rate="1" branch-rate="1">
+          <methods>
+          </methods>
+          <lines>
+            <line number="1" hits="1" branch="false"/>
+            <line number="4" hits="1" branch="false"/>
+            <line number="6" hits="1" branch="false"/>
+            <line number="8" hits="1" branch="false"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

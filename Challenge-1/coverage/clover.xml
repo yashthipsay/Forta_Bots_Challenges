@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1723432133245" clover="3.2.0">
-  <project timestamp="1723432133245" name="All files">
+<coverage generated="1723436553109" clover="3.2.0">
+  <project timestamp="1723436553110" name="All files">
     <metrics statements="27" coveredstatements="27" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2" elements="31" coveredelements="31" complexity="0" loc="27" ncloc="27" packages="1" files="2" classes="2"/>
     <file name="agent.ts" path="/home/wsl/Forta_Bots_Challenges/Challenge-1/src/agent.ts">
       <metrics statements="23" coveredstatements="23" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
