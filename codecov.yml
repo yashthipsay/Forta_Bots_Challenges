@@ -1,4 +1,4 @@
-working-directory: ./Challenge-2
+working-directory: ./Challenge-2/coverage
 
 coverage:
   status:
