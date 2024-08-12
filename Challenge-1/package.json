@@ -31,12 +31,12 @@
   },
   "dependencies": {
     "forta-agent": "^0.1.48"
-    
   },
   "devDependencies": {
-    "forta-agent-tools": "^3.2.12",
     "@types/jest": "^29.5.10",
     "@types/nodemon": "^1.19.0",
+    "codecov": "^3.8.3",
+    "forta-agent-tools": "^3.2.12",
     "jest": "^29.7.0",
     "nodemon": "^2.0.8",
     "prettier": "^3.3.2",
