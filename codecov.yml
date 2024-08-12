@@ -1,3 +1,5 @@
+working-directory: ./Challenge-2
+
 coverage:
   status:
     project: #add everything under here, more options at https://docs.codecov.com/docs/commit-status
