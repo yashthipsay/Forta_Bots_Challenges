@@ -4,6 +4,12 @@ import { MockEthersProvider } from "forta-agent-tools/lib/test";
 import Helper from "./helper";
 
 describe("Helper test suite", () => {
+  /**
+   * Retrieves information about an asset.
+   *
+   * @param i - The index of the asset.
+   * @returns An object containing various information about the asset, including offset, asset address, price feed address, scale, borrow collateral factor, liquidate collateral factor, liquidation factor, and supply cap.
+   */
   let mockProvider: MockEthersProvider;
   let provider: ethers.providers.Provider;
   const assetInfo = [

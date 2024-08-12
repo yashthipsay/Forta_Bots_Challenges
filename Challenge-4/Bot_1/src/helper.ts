@@ -1,13 +1,11 @@
 import { ethers } from "forta-agent";
 import { LRUCache } from "lru-cache";
-import {
-  ERC20_ABI,
-} from "./constants";
+import { ERC20_ABI } from "./constants";
 
 export default class Helper {
   private provider: ethers.providers.Provider;
   private collateralAssetsCache: LRUCache<string, { [name: string]: string }>;
-  private collateralNamesCacheObject: { [address: string]: string};
+  private collateralNamesCacheObject: { [address: string]: string };
 
   constructor(provider: ethers.providers.Provider) {
     this.provider = provider;
@@ -17,7 +15,7 @@ export default class Helper {
     >({
       max: 1000,
     });
-    this.collateralNamesCacheObject = {}
+    this.collateralNamesCacheObject = {};
   }
 
   public async getCollateralAssets(
@@ -40,18 +38,25 @@ export default class Helper {
     while (true) {
       try {
         let collateralAssetInfo: any;
-    
+
         collateralAssetInfo = await assetContract.getAssetInfo(index, {
           blockTag: blockNumber,
         });
-    
-        let collateralName = this.collateralNamesCacheObject[collateralAssetInfo.asset];
-    
+
+        let collateralName =
+          this.collateralNamesCacheObject[collateralAssetInfo.asset];
+
         if (!collateralName) {
-          collateralName = "Collateral Asset - " + (await this.getCollateralName(collateralAssetInfo.asset, blockNumber));
-          this.collateralNamesCacheObject[collateralAssetInfo.asset] = collateralName;
+          collateralName =
+            "Collateral Asset - " +
+            (await this.getCollateralName(
+              collateralAssetInfo.asset,
+              blockNumber,
+            ));
+          this.collateralNamesCacheObject[collateralAssetInfo.asset] =
+            collateralName;
         }
-    
+
         collateralAssets[collateralName] = collateralAssetInfo.asset;
         index++; // Increment after successful fetch
       } catch (error) {
@@ -68,7 +73,6 @@ export default class Helper {
     tokenAddress: string,
     blockNumber: number,
   ): Promise<string | undefined> {
-    
     const tokenContract = new ethers.Contract(
       tokenAddress,
       ERC20_ABI,

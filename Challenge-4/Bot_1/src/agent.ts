@@ -46,7 +46,6 @@ export function provideInitialize(provider: ethers.providers.Provider) {
 }
 
 export function provideHandleTransaction(
-  provider: ethers.providers.Provider,
   assetAbi: string[],
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
@@ -80,7 +79,6 @@ export function provideHandleTransaction(
       tx.blockNumber,
     );
 
-    // Create findind only if there is a change of events
     if (Object.keys(changedValues).length > 0) {
       finding.push(createFinding(usdc, collateralAssets, changedValues));
     }
@@ -91,8 +89,5 @@ export function provideHandleTransaction(
 
 export default {
   initialize: provideInitialize(getEthersProvider()),
-  handleTransaction: provideHandleTransaction(
-    getEthersProvider() as any,
-    ASSET_INFO,
-  ),
+  handleTransaction: provideHandleTransaction(ASSET_INFO),
 };

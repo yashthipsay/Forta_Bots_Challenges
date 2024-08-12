@@ -78,10 +78,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
       mockProvider as unknown as ethers.providers.Provider,
     );
 
-    handleTransaction = provideHandleTransaction(
-      mockProvider as unknown as ethers.providers.Provider,
-      assetInfo,
-    );
+    handleTransaction = provideHandleTransaction(assetInfo);
 
     helper = new Helper(mockProvider as unknown as ethers.providers.Provider);
 
@@ -95,13 +92,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   });
 
   it("should return single finding for single event occurence", async () => {
-    const collateralAddresses = [
-      createAddress("0x1247"),
-      createAddress("0x12567"),
-      createAddress("0x1289"),
-      createAddress("0x1290"),
-    ];
-
     setupMockProvider(collateralAddresses);
 
     txEvent.addEventLog(
@@ -145,8 +135,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   });
 
   it("should return 0 findings for event other than proposal change", async () => {
-    mockProvider.setNetwork(1);
-
     txEvent.addEventLog(
       "event mockEvent(address value1, uint8 value2)",
       mockConfigurator,
@@ -159,8 +147,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
   });
 
   it("should return 0 findings for multiple non-governance events", async () => {
-    mockProvider.setNetwork(1);
-
     const nonGovEvents = [
       "event Transfer(address indexed from, address indexed to, uint256 value)",
       "event Approval(address indexed owner, address indexed spender, uint256 value)",
@@ -176,7 +162,7 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
     });
 
     const findings = await handleTransaction(txEvent);
-    expect(findings.length).toStrictEqual(0);
+    expect(findings).toStrictEqual([]);
   });
 
   it("should return a finding for a governance event out of multiple non-governance events", async () => {
@@ -194,8 +180,6 @@ describe("Compound V3 Protocol Governance Monitoring test suite", () => {
         New_value: createAddress("0x234"),
       },
     };
-
-    mockProvider.setNetwork(1);
 
     const nonGovEvents = [
       "event Transfer(address indexed from, address indexed to, uint256 value)",

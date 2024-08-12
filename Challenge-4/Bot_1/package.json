@@ -5,7 +5,7 @@
   "description": "Compound Governance Change detection bot",
   "longDescription": "This bot detects changes in Compound Governance proposals to help users stay informed about the latest governance changes.",
   "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/main/Challenge-4/Bot_1",
-  "licenseUrl": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/main/Challenge-4/Bot_1",
+  "licenseUrl": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/main/Challenge-4/Bot_1/LICENSE.md",
   "promoUrl": "https://forta.org",
   "chainIds": [
     1,
