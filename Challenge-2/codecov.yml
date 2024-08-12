@@ -7,3 +7,6 @@ coverage:
         target: auto #default
         threshold: 0%
         base: auto 
+
+  comment:
+  layout: "diff, flags, files" 
