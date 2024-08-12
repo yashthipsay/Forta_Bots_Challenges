@@ -1,4 +1,4 @@
-# Uniswap Swap Detection Bot  [![codecov](https://codecov.io/gh/yashthipsay/Forta_Bots_Challenges/graph/badge.svg?token=N4WYBN46DY)](https://codecov.io/gh/yashthipsay/Forta_Bots_Challenges)
+# Uniswap Swap Detection Bot  [![codecov](https://codecov.io/gh/yashthipsay/Forta_Bots_Challenges/branch/%40intern-challenges%2FTWO/graph/badge.svg?token=N4WYBN46DY)](https://codecov.io/gh/yashthipsay/Forta_Bots_Challenges)
 
 ## Description
 
