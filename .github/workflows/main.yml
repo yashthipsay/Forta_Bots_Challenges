@@ -30,7 +30,7 @@ jobs:
       run: npm install
 
     - name: Run tests
-      working-directory: ./chain
+      working-directory: ./Challenge-1
       run: npm test -- --coverage
 
     - name: Upload coverage to Codecov
