@@ -34,5 +34,5 @@ jobs:
         file: ./Challenge-1/coverage.xml
         fail_ci_if_error: true
         flags: unittests
-        token: c7c46815-df5e-4bcc-bd0f-8b40c03aff8e
+        token: 8dcfa066-2732-4e78-bac6-de959703ea9b
         
