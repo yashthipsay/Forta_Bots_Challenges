@@ -3,6 +3,9 @@
       project:
         default:
           informational: true
+          target: auto 
+          threshold: 0%
+          base: auto 
       patch:
         default:
           informational: true
