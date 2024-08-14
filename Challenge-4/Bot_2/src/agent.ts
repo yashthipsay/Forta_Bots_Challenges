@@ -45,9 +45,9 @@ export function provideHandleTransaction(
     const finding: Finding[] = [];
 
 
-    const withdraw = tx.filterFunction([WITHDRAW, SUPPLY], tokenAddress);
+    const transaction = tx.filterFunction([WITHDRAW, SUPPLY], tokenAddress);
 
-    const supply = tx.filterFunction([SUPPLY], tokenAddress);
+  
 
 
     // get configuration values from the configurator contract for USDC token
@@ -97,35 +97,34 @@ export function provideHandleTransaction(
       .div(ethers.BigNumber.from(10).pow(18));
 
     // will show findings only for a transaction that is a supply transaction or a withdraw transaction. If the transaction is more than the supply or the borrowkink limit, it will trigger an alert
-    if (supply && supply.length > 0 && utilization.gt(upperLimit)) {
+if(transaction.length > 0) {
+  transaction.forEach((log) => {
+    const name = log.name;
+    if(name == "supply" && utilization.gt(upperLimit)){
       if (utilization.gt(configuration[5])) {
         helper.getCompoundAlerts(1, { function: "supply" });
         finding.push(
           alertSupplyFinding(supplyAPR.toString(), utilization.toString()),
         );
       } else {
-        for (let i = 0; i < supply.length; i++) {
           finding.push(
             supplyFinding(supplyAPR.toString(), utilization.toString()),
           );
-        }
       }
-    } else if (withdraw && withdraw.length > 0 && utilization.lt(lowerLimit)) {
-      for (let i = 0; i < withdraw.length; i++) {
-        finding.push(
-          borrowFinding(borrowAPR.toString(), utilization.toString()),
-        );
-      }
-    } else if (  //conditions for a withdraw transaction that would trigger an alert, hencec it is in a different else if block
-      withdraw &&
-      withdraw.length > 0 &&
-      utilization.gt(configuration[9])
-    ) {
-      helper.getCompoundAlerts(1, { function: "withdraw" });
+    }
+    else if(name == "withdraw" && utilization.lt(lowerLimit)){
+      finding.push(
+        borrowFinding(borrowAPR.toString(), utilization.toString()),
+      );
+    } 
+    else if(name == "withdraw" && utilization.gt(configuration[9])){
       finding.push(
         alertBorrowFinding(borrowAPR.toString(), utilization.toString()),
       );
     }
+
+  })
+}
     return finding;
   };
 }
