@@ -9,12 +9,13 @@ import {
   BORROW_RATE,
   SUPPLY,
   SUPPLY_RATE,
+  upperLimitByPercentage,
   USDC_TOKEN_ETH,
   UTILIZATION,
   WITHDRAW,
 } from "./constants";
 import Helper from "./helper";
-import { CONFIG } from "./constants";
+import { CONFIG, lowerLimitByPercentage } from './constants';
 import { NetworkData } from "./types";
 import { NetworkManager } from "forta-agent-tools";
 import {
@@ -23,6 +24,7 @@ import {
   alertSupplyFinding,
   alertBorrowFinding,
 } from "./findings";
+import { calculatePercentage } from "./utils";
 
 let configuratorProxy: string;
 let tokenAddress: string;
@@ -54,22 +56,15 @@ export function provideHandleTransaction(
     const {configurationData, utilizationData, supplyAPR, borrowAPR} = await helper.getAllCompoundData(tokenAddress, configuratorProxy, tx.blockNumber)
 
     // calculate lower limit for a withdraw transaction 
-    const lowerLimitByPercentage = ethers.BigNumber.from(30).mul(
-      ethers.BigNumber.from(10).pow(16),
-    );
-    const lowerLimit = configurationData[9]
-      .mul(lowerLimitByPercentage)
-      .div(ethers.BigNumber.from(10).pow(18));
+    const lowerLimit = calculatePercentage(lowerLimitByPercentage, configurationData[9])
 
     // calculate upper limit for a supply transaction
-    const upperLimitByPercentage = ethers.BigNumber.from(90).mul(
-      ethers.BigNumber.from(10).pow(16),
-    ); // 90% = 0.90 = 90 * 10^(-2) = 90 * 10^(16-18)
-    const upperLimit = configurationData[5]
-      .mul(upperLimitByPercentage)
-      .div(ethers.BigNumber.from(10).pow(18));
+    const upperLimit = calculatePercentage(upperLimitByPercentage, configurationData[5])
 
-    // will show findings only for a transaction that is a supply transaction or a withdraw transaction. If the transaction is more than the supply or the borrowkink limit, it will trigger an alert
+    /*
+    Will show findings only for a transaction that is a supply transaction or a withdraw transaction. 
+    If the transaction is more than the supply or the borrowkink limit, it will trigger an alert
+    */
 if(transaction.length > 0) {
   transaction.forEach((log) => {
     const name = log.name;
