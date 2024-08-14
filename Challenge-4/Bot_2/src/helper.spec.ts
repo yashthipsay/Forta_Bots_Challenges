@@ -56,13 +56,26 @@ describe("Helper class test suite", () => {
           ],
         },
       ],
+    })
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getUtilization", {
+      inputs: [],
+      outputs: [ethers.BigNumber.from(5000)],
+    })
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getSupplyRate", {
+      inputs: [ethers.BigNumber.from(5000)],
+      outputs: [ethers.BigNumber.from(500000000)],
+    });
+    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getBorrowRate", {
+      inputs: [ethers.BigNumber.from(5000)],
+      outputs: [ethers.BigNumber.from(500000000)],
     });
 
-    const getConfig = await helper.getProtocolConfiguration(
+    const getConfig: any = await helper.getAllCompoundData(
       usdcTokenAddress,
       mockConfigProxy,
       0,
     );
+    
     const expectedConfig = [
       createAddress("0x123"),
       createAddress("0x123"),
@@ -87,7 +100,18 @@ describe("Helper class test suite", () => {
       [[usdcTokenAddress, 18, ethers.BigNumber.from(1)]],
     ];
 
-    const getConfigStringified = getConfig.map((item: any) => {
+    const getConfigStringified = getConfig.configurationData.map((item: any) => {
+      if (Array.isArray(item)) {
+        return item.map((subItem) =>
+          ethers.BigNumber.isBigNumber(subItem) ? subItem.toString() : subItem,
+        );
+      }
+      return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
+    });
+    const stringifiedConfigDataStringField = JSON.stringify(getConfigStringified);
+
+
+    const expectedConfigStringified = expectedConfig.map((item: any) => {
       if (Array.isArray(item)) {
         return item.map((subItem) =>
           ethers.BigNumber.isBigNumber(subItem) ? subItem.toString() : subItem,
@@ -96,55 +120,14 @@ describe("Helper class test suite", () => {
       return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
     });
 
-    expect(JSON.stringify(getConfigStringified)).toBe(
-      JSON.stringify(expectedConfig),
-    );
-  });
-
-  it("should return correct utilization data", async () => {
-    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getUtilization", {
-      inputs: [],
-      outputs: [ethers.BigNumber.from(5000)],
-    });
-    const getUtilization = await helper.getUtilization(
-      usdcTokenAddress,
-      "function getUtilization() public view returns (uint)",
-      0,
-    );
-    expect(getUtilization.toString()).toBe(
-      ethers.BigNumber.from(5000).toString(),
-    );
-  });
-
-  it("should return correct supply APR", async () => {
-    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getSupplyRate", {
-      inputs: [ethers.BigNumber.from(5000)],
-      outputs: [ethers.BigNumber.from(500000000)],
-    });
-
-    const getSupplyAPR = await helper.getSupplyAPR(
-      usdcTokenAddress,
-      "function getSupplyRate(uint utilization) public view returns (uint64)",
-      ethers.BigNumber.from(5000),
-      0,
-    );
+    const stringifiedExpectedConfigStringField = JSON.stringify(expectedConfigStringified);
     const expectedSupplyAPR = (500000000 / 1e18) * 100 * 31536000;
-    expect(getSupplyAPR).toBe(expectedSupplyAPR);
-  });
-
-  it("should return correct borrow APR", async () => {
-    mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getBorrowRate", {
-      inputs: [ethers.BigNumber.from(5000)],
-      outputs: [ethers.BigNumber.from(500000000)],
-    });
-
-    const getBorrowAPR = await helper.getBorrowAPR(
-      usdcTokenAddress,
-      "function getBorrowRate(uint utilization) public view returns (uint64)",
-      ethers.BigNumber.from(5000),
-      0,
-    );
     const expectedBorrowAPR = (500000000 / 1e18) * 100 * 31536000;
-    expect(getBorrowAPR).toBe(expectedBorrowAPR);
+    const expectedUtilization = ethers.BigNumber.from(5000).toString();
+
+    expect(stringifiedConfigDataStringField).toBe(stringifiedExpectedConfigStringField);
+    expect(getConfig.supplyAPR).toBe(expectedSupplyAPR);
+    expect(getConfig.borrowAPR).toBe(expectedBorrowAPR);
+    expect(getConfig.utilizationData.toString()).toBe(expectedUtilization);
   });
 });

@@ -51,40 +51,13 @@ export function provideHandleTransaction(
 
 
     // get configuration values from the configurator contract for USDC token
-    const configuration = await helper.getProtocolConfiguration(
-      USDC_TOKEN_ETH,
-      configuratorProxy,
-      tx.blockNumber,
-    );
-
-    // get utilization for cUSDC token
-    const utilization = await helper.getUtilization(
-      tokenAddress,
-      UTILIZATION,
-      tx.blockNumber,
-    );
-
-    // get annual percentage rate for supply
-    const supplyAPR = await helper.getSupplyAPR(
-      tokenAddress,
-      SUPPLY_RATE,
-      utilization,
-      tx.blockNumber,
-    );
-
-    // get annual percentage rate for borrow
-    const borrowAPR = await helper.getBorrowAPR(
-      tokenAddress,
-      BORROW_RATE,
-      utilization,
-      tx.blockNumber,
-    );
+    const {configurationData, utilizationData, supplyAPR, borrowAPR} = await helper.getAllCompoundData(tokenAddress, configuratorProxy, tx.blockNumber)
 
     // calculate lower limit for a withdraw transaction 
     const lowerLimitByPercentage = ethers.BigNumber.from(30).mul(
       ethers.BigNumber.from(10).pow(16),
     );
-    const lowerLimit = configuration[9]
+    const lowerLimit = configurationData[9]
       .mul(lowerLimitByPercentage)
       .div(ethers.BigNumber.from(10).pow(18));
 
@@ -92,7 +65,7 @@ export function provideHandleTransaction(
     const upperLimitByPercentage = ethers.BigNumber.from(90).mul(
       ethers.BigNumber.from(10).pow(16),
     ); // 90% = 0.90 = 90 * 10^(-2) = 90 * 10^(16-18)
-    const upperLimit = configuration[5]
+    const upperLimit = configurationData[5]
       .mul(upperLimitByPercentage)
       .div(ethers.BigNumber.from(10).pow(18));
 
@@ -100,26 +73,25 @@ export function provideHandleTransaction(
 if(transaction.length > 0) {
   transaction.forEach((log) => {
     const name = log.name;
-    if(name == "supply" && utilization.gt(upperLimit)){
-      if (utilization.gt(configuration[5])) {
-        helper.getCompoundAlerts(1, { function: "supply" });
+    if(name == "supply" && utilizationData.gt(upperLimit)){
+      if (utilizationData.gt(configurationData[5])) {
         finding.push(
-          alertSupplyFinding(supplyAPR.toString(), utilization.toString()),
+          alertSupplyFinding(supplyAPR.toString(), utilizationData.toString()),
         );
       } else {
           finding.push(
-            supplyFinding(supplyAPR.toString(), utilization.toString()),
+            supplyFinding(supplyAPR.toString(), utilizationData.toString()),
           );
       }
     }
-    else if(name == "withdraw" && utilization.lt(lowerLimit)){
+    else if(name == "withdraw" && utilizationData.lt(lowerLimit)){
       finding.push(
-        borrowFinding(borrowAPR.toString(), utilization.toString()),
+        borrowFinding(borrowAPR.toString(), utilizationData.toString()),
       );
     } 
-    else if(name == "withdraw" && utilization.gt(configuration[9])){
+    else if(name == "withdraw" && utilizationData.gt(configurationData[9])){
       finding.push(
-        alertBorrowFinding(borrowAPR.toString(), utilization.toString()),
+        alertBorrowFinding(borrowAPR.toString(), utilizationData.toString()),
       );
     }
 
