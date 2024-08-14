@@ -1,11 +1,8 @@
 import {
   CONFIGURATION_ABI,
-  CONFIGURATOR_PROXY,
-  CONFIGURATOR_PROXY_POLYGON,
 } from "./constants";
 import { AlertsResponse, ethers, getAlerts } from "forta-agent";
 import { AlertType } from "./types";
-import { LRUCache } from "lru-cache";
 
 export default class Helper {
   private provider: ethers.providers.Provider;

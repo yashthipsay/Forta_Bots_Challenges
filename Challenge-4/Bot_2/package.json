@@ -1,11 +1,11 @@
 {
-  "name": "forta-agent-starter",
-  "displayName": "Forta Agent Starter",
+  "name": "compound-interest-rate-bot",
+  "displayName": "Compound Bot for notifying ideal BorrowAPR and SupplyAPR",
   "version": "0.0.1",
-  "description": "Forta Agent Typescript starter project",
-  "longDescription": "Welcome to the Forta Agent JavaScript starter project!\n\nForta Network presents this starter project as an entry point for bot developers who want to integrate with the Forta Network ecosystem. As part of our commitment to empowering developers, this project provides a foundation for building powerful and secure bots that can interact with the Forta platform and take advantage of its cutting-edge capabilities.\n\nThe Forta Agent SDK and CLI tool offer a seamless experience for developers who wish to leverage the decentralized and trustless environment provided by the Forta Network. Whether you're interested in creating DeFi bots, monitoring smart contract transactions, or generating real-time alerts, this starter project sets you on the right path to achieve your goals.\n\nJoin the Forta Network community and learn more about our mission to revolutionize decentralized finance and blockchain analytics: https://forta.org/",
+  "description": "The bot monitors user transactions within specific ranges of supply and borrow utilization",
+  "longDescription": "The monitors checks if the transaction is a supply transaction or a borrow transaction and based on the condition it notifies the lender or borrower about the interest rate they would receive if they were borrowing at an ideal time.",
   "repository": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/main/Challenge-4/Bot_1",
-  "licenseUrl": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/main/Challenge-4/Bot_1",
+  "licenseUrl": "https://github.com/yashthipsay/Forta_Bots_Challenges/tree/main/Challenge-4/Bot_1/LICENSE.md",
   "promoUrl": "https://forta.org",
   "chainIds": [
     1,

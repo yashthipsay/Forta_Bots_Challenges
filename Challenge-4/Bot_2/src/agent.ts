@@ -14,7 +14,7 @@ import {
   WITHDRAW,
 } from "./constants";
 import Helper from "./helper";
-import CONFIG from "./agent.config";
+import { CONFIG } from "./constants";
 import { NetworkData } from "./types";
 import { NetworkManager } from "forta-agent-tools";
 import {
@@ -24,14 +24,18 @@ import {
   alertBorrowFinding,
 } from "./findings";
 
-let configuratorProxy: string | undefined;
+let configuratorProxy: string;
 let tokenAddress: string;
 let helper: Helper;
 const networkManager = new NetworkManager<NetworkData>(CONFIG);
+
 export function provideInitialize(provider: ethers.providers.Provider) {
   return async function initialize() {
     await networkManager.init(provider);
     helper = new Helper(provider);
+    configuratorProxy = networkManager.get("configurationProxy");
+    tokenAddress = networkManager.get("usdc");
+
   };
 }
 
@@ -40,13 +44,11 @@ export function provideHandleTransaction(
   return async function HandleTransaction(tx: TransactionEvent) {
     const finding: Finding[] = [];
 
-    tokenAddress = networkManager.get("usdc");
 
-    const withdraw = tx.filterFunction([WITHDRAW], tokenAddress);
+    const withdraw = tx.filterFunction([WITHDRAW, SUPPLY], tokenAddress);
 
     const supply = tx.filterFunction([SUPPLY], tokenAddress);
 
-    configuratorProxy = networkManager.get("configurationProxy");
 
     // get configuration values from the configurator contract for USDC token
     const configuration = await helper.getProtocolConfiguration(
