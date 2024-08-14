@@ -28,12 +28,13 @@ export default class Helper {
       usdcAbi,
       this.provider,
     );
-    const key = `${usdcAddress}`;
+    const key = `${usdcAddress}-${blockNumber}`;
     if (this.collateralAssetsCache.has(key)) {
       return this.collateralAssetsCache.get(key) as { [name: string]: string };
     }
     let collateralAssets: { [name: string]: string } = {};
     let index = 0; // Start from 0, increment before fetching next
+    let collateralName: string | undefined;
 
     while (true) {
       try {
@@ -43,21 +44,12 @@ export default class Helper {
           blockTag: blockNumber,
         });
 
-        let collateralName =
-          this.collateralNamesCacheObject[collateralAssetInfo.asset];
+        collateralName = await this.getCollateralName(
+          collateralAssetInfo.asset,
+          blockNumber,
+        );
 
-        if (!collateralName) {
-          collateralName =
-            "Collateral Asset - " +
-            (await this.getCollateralName(
-              collateralAssetInfo.asset,
-              blockNumber,
-            ));
-          this.collateralNamesCacheObject[collateralAssetInfo.asset] =
-            collateralName;
-        }
-
-        collateralAssets[collateralName] = collateralAssetInfo.asset;
+        collateralAssets[collateralName as string] = collateralAssetInfo.asset;
         index++; // Increment after successful fetch
       } catch (error) {
         break; // Exit loop on error
@@ -78,8 +70,13 @@ export default class Helper {
       ERC20_ABI,
       this.provider,
     );
+    let collateralName = this.collateralNamesCacheObject[tokenAddress];
 
-    const tokenName = await tokenContract.name({ blockTag: blockNumber });
-    return tokenName;
+    if (!collateralName) {
+      collateralName = await tokenContract.name({ blockTag: blockNumber });
+      this.collateralNamesCacheObject[tokenAddress] = collateralName;
+    }
+
+    return "Collateral Asset - " + collateralName;
   }
 }
