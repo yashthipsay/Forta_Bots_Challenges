@@ -29,6 +29,22 @@ Describe each of the type of alerts fired by this bot
     - `BorrowRate`: The BorrowAPR at which the borrower is incentivized to borrow USDC
     - `Utilization`: The current Borrow Kink rate of the Compound protocol
 
+- SUPPLY-2
+  - Fired when current utilization exceeds the supplykink, spiking the supply rates and making it ideal for the lender to supply USDC
+  - Severity is always set to "Info"
+  - Type is always set to "info"
+  - Metadata fields:
+    - `SupplyRate`: The SupplyAPR at which the lender is incentivized to supply USDC
+    - `Utilization`: The current Supply Kink rate of the Compound protocol
+
+- BORROW-2
+  - Fired when current utilization exceeds the borrowkink, spiking the borrow rates and making it the least ideal for the borrower to borrow USDC
+  - Severity is always set to "Info"
+  - Type is always set to "info"
+  - Metadata fields:
+    - `BorrowRate`: The BorrowAPR at which the borrower is incentivized to borrow USDC
+    - `Utilization`: The current Borrow Kink rate of the Compound protocol
+
 ## Test Data
 
 The bot behavior can be verified with the following scenarios:

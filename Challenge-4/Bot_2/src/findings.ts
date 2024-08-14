@@ -35,7 +35,7 @@ export const borrowFinding = (
     protocol: "Compound",
     metadata: {
       BorrowRate: formattedBorrowAPR,
-      Utilization: `${utilization}`,
+      Utilization: utilization.toString(),
     },
   });
 };
@@ -55,7 +55,7 @@ export const alertSupplyFinding = (
     protocol: "Compound",
     metadata: {
       SupplyRate: formattedSupplyAPR,
-      Utilization: `${utilization}`,
+      Utilization: utilization.toString(),
     },
   });
 };
@@ -75,7 +75,7 @@ export const alertBorrowFinding = (
     protocol: "Compound",
     metadata: {
       BorrowRate: formattedBorrowAPR,
-      Utilization: `${utilization}`,
+      Utilization: utilization.toString(),
     },
   });
 };

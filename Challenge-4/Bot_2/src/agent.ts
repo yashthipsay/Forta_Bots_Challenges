@@ -44,7 +44,7 @@ export function provideInitialize(provider: ethers.providers.Provider) {
 export function provideHandleTransaction(
 ): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
-    const finding: Finding[] = [];
+    const findings: Finding[] = [];
 
 
     const transaction = tx.filterFunction([WITHDRAW, SUPPLY], tokenAddress);
@@ -70,29 +70,29 @@ if(transaction.length > 0) {
     const name = log.name;
     if(name == "supply" && utilizationData.gt(upperLimit)){
       if (utilizationData.gt(configurationData[5])) {
-        finding.push(
+        findings.push(
           alertSupplyFinding(supplyAPR.toString(), utilizationData.toString()),
         );
       } else {
-          finding.push(
+          findings.push(
             supplyFinding(supplyAPR.toString(), utilizationData.toString()),
           );
       }
     }
     else if(name == "withdraw" && utilizationData.lt(lowerLimit)){
-      finding.push(
+      findings.push(
         borrowFinding(borrowAPR.toString(), utilizationData.toString()),
       );
     } 
     else if(name == "withdraw" && utilizationData.gt(configurationData[9])){
-      finding.push(
+      findings.push(
         alertBorrowFinding(borrowAPR.toString(), utilizationData.toString()),
       );
     }
 
   })
 }
-    return finding;
+    return findings;
   };
 }
 
