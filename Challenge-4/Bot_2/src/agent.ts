@@ -6,16 +6,12 @@ import {
   getEthersProvider,
 } from "forta-agent";
 import {
-  BORROW_RATE,
   SUPPLY,
-  SUPPLY_RATE,
   upperLimitByPercentage,
-  USDC_TOKEN_ETH,
-  UTILIZATION,
   WITHDRAW,
 } from "./constants";
 import Helper from "./helper";
-import { CONFIG, lowerLimitByPercentage } from './constants';
+import { CONFIG, lowerLimitByPercentage } from "./constants";
 import { NetworkData } from "./types";
 import { NetworkManager } from "forta-agent-tools";
 import {
@@ -27,8 +23,10 @@ import {
 import { calculatePercentage } from "./utils";
 
 let configuratorProxy: string;
-let tokenAddress: string;
+let usdcAddress: string;
 let helper: Helper;
+let configContract: ethers.Contract;
+let protocolInfo: ethers.Contract;
 const networkManager = new NetworkManager<NetworkData>(CONFIG);
 
 export function provideInitialize(provider: ethers.providers.Provider) {
@@ -36,62 +34,73 @@ export function provideInitialize(provider: ethers.providers.Provider) {
     await networkManager.init(provider);
     helper = new Helper(provider);
     configuratorProxy = networkManager.get("configurationProxy");
-    tokenAddress = networkManager.get("usdc");
-
+    usdcAddress = networkManager.get("usdc");
   };
 }
 
-export function provideHandleTransaction(
-): HandleTransaction {
+export function provideHandleTransaction(): HandleTransaction {
   return async function HandleTransaction(tx: TransactionEvent) {
     const findings: Finding[] = [];
 
-
-    const transaction = tx.filterFunction([WITHDRAW, SUPPLY], tokenAddress);
-
-  
-
+    const compoundPoolTransaction = tx.filterFunction([WITHDRAW, SUPPLY], usdcAddress);
 
     // get configuration values from the configurator contract for USDC token
-    const {configurationData, utilizationData, supplyAPR, borrowAPR} = await helper.getAllCompoundData(tokenAddress, configuratorProxy, tx.blockNumber)
+    const { configurationData, utilizationData, supplyAPR, borrowAPR } =
+      await helper.getAllCompoundData(
+        usdcAddress,
+        configuratorProxy,
+        tx.blockNumber,
+      );
 
-    // calculate lower limit for a withdraw transaction 
-    const lowerLimit = calculatePercentage(lowerLimitByPercentage, configurationData[9])
+    // calculate lower limit for a withdraw transaction
+    const lowerLimit = calculatePercentage(
+      lowerLimitByPercentage,
+      configurationData[9],
+    );
 
     // calculate upper limit for a supply transaction
-    const upperLimit = calculatePercentage(upperLimitByPercentage, configurationData[5])
+    const upperLimit = calculatePercentage(
+      upperLimitByPercentage,
+      configurationData[5],
+    );
 
     /*
     Will show findings only for a transaction that is a supply transaction or a withdraw transaction. 
     If the transaction is more than the supply or the borrowkink limit, it will trigger an alert
     */
-if(transaction.length > 0) {
-  transaction.forEach((log) => {
-    const name = log.name;
-    if(name == "supply" && utilizationData.gt(upperLimit)){
-      if (utilizationData.gt(configurationData[5])) {
-        findings.push(
-          alertSupplyFinding(supplyAPR.toString(), utilizationData.toString()),
-        );
-      } else {
+    if (compoundPoolTransaction.length > 0) {
+      compoundPoolTransaction.forEach((log) => {
+        const name = log.name;
+        if (name == "supply" && utilizationData.gt(upperLimit)) {
+          if (utilizationData.gt(configurationData[5])) {
+            findings.push(
+              alertSupplyFinding(
+                supplyAPR.toString(),
+                utilizationData.toString(),
+              ),
+            );
+          } else {
+            findings.push(
+              supplyFinding(supplyAPR.toString(), utilizationData.toString()),
+            );
+          }
+        } else if (name == "withdraw" && utilizationData.lt(lowerLimit)) {
           findings.push(
-            supplyFinding(supplyAPR.toString(), utilizationData.toString()),
+            borrowFinding(borrowAPR.toString(), utilizationData.toString()),
           );
-      }
+        } else if (
+          name == "withdraw" &&
+          utilizationData.gt(configurationData[9])
+        ) {
+          findings.push(
+            alertBorrowFinding(
+              borrowAPR.toString(),
+              utilizationData.toString(),
+            ),
+          );
+        }
+      });
     }
-    else if(name == "withdraw" && utilizationData.lt(lowerLimit)){
-      findings.push(
-        borrowFinding(borrowAPR.toString(), utilizationData.toString()),
-      );
-    } 
-    else if(name == "withdraw" && utilizationData.gt(configurationData[9])){
-      findings.push(
-        alertBorrowFinding(borrowAPR.toString(), utilizationData.toString()),
-      );
-    }
-
-  })
-}
     return findings;
   };
 }

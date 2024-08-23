@@ -1,5 +1,3 @@
-
-
 export interface NetworkData {
   usdc: string;
   configurationProxy: string;

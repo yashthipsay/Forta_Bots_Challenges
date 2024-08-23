@@ -56,11 +56,11 @@ describe("Helper class test suite", () => {
           ],
         },
       ],
-    })
+    });
     mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getUtilization", {
       inputs: [],
       outputs: [ethers.BigNumber.from(5000)],
-    })
+    });
     mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getSupplyRate", {
       inputs: [ethers.BigNumber.from(5000)],
       outputs: [ethers.BigNumber.from(500000000)],
@@ -75,7 +75,7 @@ describe("Helper class test suite", () => {
       mockConfigProxy,
       0,
     );
-    
+
     const expectedConfig = [
       createAddress("0x123"),
       createAddress("0x123"),
@@ -100,16 +100,20 @@ describe("Helper class test suite", () => {
       [[usdcTokenAddress, 18, ethers.BigNumber.from(1)]],
     ];
 
-    const getConfigStringified = getConfig.configurationData.map((item: any) => {
-      if (Array.isArray(item)) {
-        return item.map((subItem) =>
-          ethers.BigNumber.isBigNumber(subItem) ? subItem.toString() : subItem,
-        );
-      }
-      return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
-    });
-    const stringifiedConfigDataStringField = JSON.stringify(getConfigStringified);
-
+    const getConfigStringified = getConfig.configurationData.map(
+      (item: any) => {
+        if (Array.isArray(item)) {
+          return item.map((subItem) =>
+            ethers.BigNumber.isBigNumber(subItem)
+              ? subItem.toString()
+              : subItem,
+          );
+        }
+        return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
+      },
+    );
+    const stringifiedConfigDataStringField =
+      JSON.stringify(getConfigStringified);
 
     const expectedConfigStringified = expectedConfig.map((item: any) => {
       if (Array.isArray(item)) {
@@ -120,12 +124,16 @@ describe("Helper class test suite", () => {
       return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
     });
 
-    const stringifiedExpectedConfigStringField = JSON.stringify(expectedConfigStringified);
+    const stringifiedExpectedConfigStringField = JSON.stringify(
+      expectedConfigStringified,
+    );
     const expectedSupplyAPR = (500000000 / 1e18) * 100 * 31536000;
     const expectedBorrowAPR = (500000000 / 1e18) * 100 * 31536000;
     const expectedUtilization = ethers.BigNumber.from(5000).toString();
 
-    expect(stringifiedConfigDataStringField).toBe(stringifiedExpectedConfigStringField);
+    expect(stringifiedConfigDataStringField).toBe(
+      stringifiedExpectedConfigStringField,
+    );
     expect(getConfig.supplyAPR).toBe(expectedSupplyAPR);
     expect(getConfig.borrowAPR).toBe(expectedBorrowAPR);
     expect(getConfig.utilizationData.toString()).toBe(expectedUtilization);

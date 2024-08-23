@@ -7,7 +7,8 @@ export const CONFIGURATION_ABI = [
 //                                                                              1                   2                       3                 4                             5                         6                 7                                           8                                              9                                10                 11
 export const COMET_FACTORY = "0xa7F7De6cCad4D83d81676717053883337aC2c1b4";
 
-export const CONFIGURATOR_PROXY_ETH = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
+export const CONFIGURATOR_PROXY_ETH =
+  "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
 
 export const CONFIGURATOR_PROXY_POLYGON =
   "0x83E0F742cAcBE66349E3701B171eE2487a26e738";
@@ -29,11 +30,8 @@ export const SUPPLY_RATE =
 export const BORROW_RATE =
   "function getBorrowRate(uint utilization) public view returns (uint64)";
 
-
-
 export const WITHDRAW = "function withdraw(address asset, uint amount)";
 export const SUPPLY = "function supply(address asset, uint amount)";
-
 
 export const CONFIG: BotConfig = {
   1: {
