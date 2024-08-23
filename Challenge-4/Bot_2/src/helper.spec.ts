@@ -16,9 +16,24 @@ describe("Helper class test suite", () => {
   let helper: Helper;
   const usdcTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
   let mockConfigProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
+
   beforeEach(() => {
     mockProvider = new MockEthersProvider() as any;
-    helper = new Helper(mockProvider as any);
+    const mockConfigurationContract = new ethers.Contract(
+      mockConfigProxy,
+      mockAbi,
+      mockProvider as any,
+    );
+    const mockProtocolInfoContract = new ethers.Contract(
+      usdcTokenAddress,
+      mockAbi.slice(1),
+      mockProvider as any,
+    );
+    helper = new Helper(
+      mockProvider as any,
+      mockConfigurationContract,
+      mockProtocolInfoContract,
+    );
   });
 
   it("should return correct configuration data", async () => {

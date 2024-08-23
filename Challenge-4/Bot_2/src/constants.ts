@@ -51,3 +51,5 @@ export const upperLimitByPercentage = ethers.BigNumber.from(90).mul(
 export const lowerLimitByPercentage = ethers.BigNumber.from(30).mul(
   ethers.BigNumber.from(10).pow(16),
 );
+
+export const secondsPerYear = 60 * 60 * 24 * 365;

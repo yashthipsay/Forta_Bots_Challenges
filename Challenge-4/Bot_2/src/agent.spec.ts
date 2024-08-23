@@ -35,11 +35,24 @@ describe("Compound test suite for lending and borrowing", () => {
   ];
   const OTHER_FUNCTION = "function otherFunction(address asset, uint amount)";
   const Iface = new ethers.utils.Interface(functions);
+
   const provideInterface = new ethers.utils.Interface([
     "function supply(address asset, uint amount)",
     "function withdraw(address asset, uint amount)",
     OTHER_FUNCTION,
   ]);
+
+  const mockConfigurationContract = new ethers.Contract(
+    mockConfiguratorProxy,
+    Iface,
+    mockProvider as any,
+  );
+
+  const mockProtocolInfoContract = new ethers.Contract(
+    usdcTokenAddress,
+    Iface,
+    mockProvider as any,
+  );
 
   const mockAlerts = (alertId: string, kink: any, utilization: any) => {
     (getAlerts as jest.Mock).mockResolvedValue({
@@ -60,7 +73,11 @@ describe("Compound test suite for lending and borrowing", () => {
   beforeEach(() => {
     handleTransaction = provideHandleTransaction();
     initialize = provideInitialize(mockProvider as any);
-    helper = new Helper(mockProvider as any);
+    helper = new Helper(
+      mockProvider as any,
+      mockConfigurationContract,
+      mockProtocolInfoContract,
+    );
     txEvent = new TestTransactionEvent().setBlock(0);
   });
 
