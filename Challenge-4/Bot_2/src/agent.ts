@@ -5,6 +5,7 @@ import {
   Finding,
   getEthersProvider,
 } from "forta-agent";
+
 import {
   BORROW_RATE,
   CONFIGURATION_ABI,
@@ -14,16 +15,19 @@ import {
   UTILIZATION,
   WITHDRAW,
 } from "./constants";
+
 import Helper from "./helper";
 import { CONFIG, lowerLimitByPercentage } from "./constants";
 import { NetworkData } from "./types";
 import { NetworkManager } from "forta-agent-tools";
+
 import {
   supplyFinding,
   borrowFinding,
   alertSupplyFinding,
   alertBorrowFinding,
 } from "./findings";
+
 import { calculatePercentage } from "./utils";
 
 let configuratorProxy: string;
@@ -31,6 +35,7 @@ let usdcAddress: string;
 let helper: Helper;
 let configContract: ethers.Contract;
 let protocolInfo: ethers.Contract;
+
 const networkManager = new NetworkManager<NetworkData>(CONFIG);
 
 export function provideInitialize(
@@ -41,16 +46,19 @@ export function provideInitialize(
     await networkManager.init(provider);
     usdcAddress = networkManager.get("usdc");
     configuratorProxy = networkManager.get("configurationProxy");
+
     configContract = new ethers.Contract(
       configuratorProxy,
       CONFIGURATION_ABI,
       provider,
     );
+
     protocolInfo = new ethers.Contract(
       usdcAddress,
       [UTILIZATION, SUPPLY_RATE, BORROW_RATE],
       provider,
     );
+
     helper = new Helper(configContract, protocolInfo);
   };
 }
@@ -66,16 +74,20 @@ export function provideHandleTransaction(): HandleTransaction {
 
     /*
     Will show findings only for a transaction that is a supply transaction or a withdraw transaction. 
-    If the transaction is more than the supply or the borrowkink limit, it will trigger an alert
+    If the transaction is more than the supply or the borrow kink limit, it will trigger an alert
     */
     if (compoundPoolTransaction.length > 0) {
       // get configuration values from the configurator contract for USDC token
-      const { configurationData, utilizationData, supplyAPR, borrowAPR } =
-        await helper.getAllCompoundData(
-          usdcAddress,
-          configuratorProxy,
-          tx.blockNumber,
-        );
+      const { 
+        configurationData, 
+        utilizationData, 
+        supplyAPR, 
+        borrowAPR 
+      } = await helper.getAllCompoundData(
+        usdcAddress,
+        configuratorProxy,
+        tx.blockNumber,
+      );
 
       // calculate lower limit for a withdraw transaction
       const lowerLimit = calculatePercentage(
@@ -88,8 +100,10 @@ export function provideHandleTransaction(): HandleTransaction {
         upperLimitByPercentage,
         configurationData[5],
       );
+
       compoundPoolTransaction.forEach((log) => {
         const name = log.name;
+
         if (name == "supply" && utilizationData.gt(upperLimit)) {
           if (utilizationData.gt(configurationData[5])) {
             findings.push(
