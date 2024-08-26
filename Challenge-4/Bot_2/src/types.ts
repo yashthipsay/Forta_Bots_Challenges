@@ -4,4 +4,3 @@ export interface NetworkData {
 }
 
 export type BotConfig = Record<number, NetworkData>;
-

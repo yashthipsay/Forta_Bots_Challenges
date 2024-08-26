@@ -29,11 +29,7 @@ describe("Helper class test suite", () => {
       mockAbi.slice(1),
       mockProvider as any,
     );
-    helper = new Helper(
-      mockProvider as any,
-      mockConfigurationContract,
-      mockProtocolInfoContract,
-    );
+    helper = new Helper(mockConfigurationContract, mockProtocolInfoContract);
   });
 
   it("should return correct configuration data", async () => {

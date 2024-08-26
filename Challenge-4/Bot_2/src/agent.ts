@@ -33,11 +33,13 @@ let configContract: ethers.Contract;
 let protocolInfo: ethers.Contract;
 const networkManager = new NetworkManager<NetworkData>(CONFIG);
 
-export function provideInitialize(provider: ethers.providers.Provider) {
+export function provideInitialize(
+  provider: ethers.providers.Provider,
+  networkManager: NetworkManager<NetworkData>,
+) {
   return async function initialize() {
     await networkManager.init(provider);
     usdcAddress = networkManager.get("usdc");
-    console.log("usdcAddress", usdcAddress);
     configuratorProxy = networkManager.get("configurationProxy");
     configContract = new ethers.Contract(
       configuratorProxy,
@@ -49,7 +51,7 @@ export function provideInitialize(provider: ethers.providers.Provider) {
       [UTILIZATION, SUPPLY_RATE, BORROW_RATE],
       provider,
     );
-    helper = new Helper(provider, configContract, protocolInfo);
+    helper = new Helper(configContract, protocolInfo);
   };
 }
 
@@ -126,6 +128,6 @@ export function provideHandleTransaction(): HandleTransaction {
 }
 
 export default {
-  initialize: provideInitialize(getEthersProvider()),
+  initialize: provideInitialize(getEthersProvider(), networkManager),
   handleTransaction: provideHandleTransaction(),
 };

@@ -3,16 +3,13 @@ import { LRUCache } from "lru-cache";
 import { secondsPerYear } from "./constants";
 
 export default class Helper {
-  private provider: ethers.providers.Provider;
   private compoundDataCache: LRUCache<string, any>;
   private configurationContract: ethers.Contract;
   private protocolInfoContract: ethers.Contract;
   constructor(
-    provider: ethers.providers.Provider,
     configurationContract: ethers.Contract,
     protocolInfoContract: ethers.Contract,
   ) {
-    this.provider = provider;
     this.compoundDataCache = new LRUCache<string, any>({ max: 1000 });
     this.configurationContract = configurationContract;
     this.protocolInfoContract = protocolInfoContract;
