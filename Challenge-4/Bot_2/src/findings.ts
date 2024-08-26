@@ -40,7 +40,7 @@ export const borrowFinding = (
   });
 };
 
-export const alertSupplyFinding = (
+export const supplyFindingAboveKink = (
   supplyAPR: string,
   utilizationRate: string,
 ): Finding => {
@@ -60,7 +60,7 @@ export const alertSupplyFinding = (
   });
 };
 
-export const alertBorrowFinding = (
+export const borrowFindingAboveKink = (
   borrowAPR: string,
   utilizationRate: string,
 ): Finding => {

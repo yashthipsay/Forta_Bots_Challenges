@@ -6,6 +6,7 @@ export default class Helper {
   private compoundDataCache: LRUCache<string, any>;
   private configurationContract: ethers.Contract;
   private protocolInfoContract: ethers.Contract;
+
   constructor(
     configurationContract: ethers.Contract,
     protocolInfoContract: ethers.Contract,
@@ -21,37 +22,43 @@ export default class Helper {
     blockNumber: number,
   ) {
     const key = `${tokenAddress}-${configuratorProxy}-${blockNumber}`;
+
     if (this.compoundDataCache.has(key)) {
       return this.compoundDataCache.get(key);
     }
 
-    const configurationData =
-      await this.configurationContract.callStatic.getConfiguration(
-        tokenAddress,
-        {
-          blockTag: blockNumber,
-        },
-      );
-    const utilizationData =
-      await this.protocolInfoContract.callStatic.getUtilization({
+    const configurationData = await this.configurationContract.callStatic.getConfiguration(
+      tokenAddress,
+      {
         blockTag: blockNumber,
-      });
+      },
+    );
+
+    const utilizationData = await this.protocolInfoContract.callStatic.getUtilization({
+      blockTag: blockNumber,
+    });
+
     const supplyRate = await this.protocolInfoContract.callStatic.getSupplyRate(
       utilizationData,
       { blockTag: blockNumber },
     );
+
     const supplyAPR = (supplyRate / 1e18) * 100 * secondsPerYear;
+
     const borrowRate = await this.protocolInfoContract.callStatic.getBorrowRate(
       utilizationData,
       { blockTag: blockNumber },
     );
+
     const borrowAPR = (borrowRate / 1e18) * 100 * secondsPerYear;
+
     this.compoundDataCache.set(key, {
       configurationData,
       utilizationData,
       supplyAPR,
       borrowAPR,
     });
+
     return {
       configurationData,
       utilizationData,

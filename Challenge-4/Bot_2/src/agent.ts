@@ -24,8 +24,8 @@ import { NetworkManager } from "forta-agent-tools";
 import {
   supplyFinding,
   borrowFinding,
-  alertSupplyFinding,
-  alertBorrowFinding,
+  supplyFindingAboveKink,
+  borrowFindingAboveKink,
 } from "./findings";
 
 import { calculatePercentage } from "./utils";
@@ -107,7 +107,7 @@ export function provideHandleTransaction(): HandleTransaction {
         if (name == "supply" && utilizationData.gt(upperLimit)) {
           if (utilizationData.gt(configurationData[5])) {
             findings.push(
-              alertSupplyFinding(
+              supplyFindingAboveKink(
                 supplyAPR.toString(),
                 utilizationData.toString(),
               ),
@@ -128,7 +128,7 @@ export function provideHandleTransaction(): HandleTransaction {
             );
           } else if (utilizationData.gt(configurationData[9])) {
             findings.push(
-              alertBorrowFinding(
+              borrowFindingAboveKink(
                 borrowAPR.toString(),
                 utilizationData.toString(),
               ),
