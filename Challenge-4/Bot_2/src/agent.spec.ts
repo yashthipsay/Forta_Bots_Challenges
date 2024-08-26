@@ -12,12 +12,9 @@ import {
 import { provideInitialize, provideHandleTransaction } from "./agent";
 import { createAddress } from "forta-agent-tools";
 import Helper from "./helper";
-import { getAlerts } from "forta-agent";
+import NetworkManager from "forta-agent-tools";
 
-jest.mock("forta-agent", () => ({
-  ...jest.requireActual("forta-agent"),
-  getAlerts: jest.fn(),
-}));
+
 
 describe("Compound test suite for lending and borrowing", () => {
   let mockProvider = new MockEthersProvider();
@@ -27,6 +24,8 @@ describe("Compound test suite for lending and borrowing", () => {
   let helper: Helper;
   let usdcTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
   let mockConfiguratorProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
+  let setupMockProvider: any;
+  
   const functions = [
     `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
     `function getUtilization() public view returns (uint)`,
@@ -54,39 +53,43 @@ describe("Compound test suite for lending and borrowing", () => {
     mockProvider as any,
   );
 
-  const mockAlerts = (alertId: string, kink: any, utilization: any) => {
-    (getAlerts as jest.Mock).mockResolvedValue({
-      alerts: [
-        {
-          alertId: alertId,
-          hasAddress: jest.fn().mockReturnValue(false),
-          metadata: {
-            kink: kink,
-            utilization: utilization,
-          },
-        },
-      ],
-      pageInfo: { hasNextPage: false },
-    });
-  };
+  const supplyRateValue = 986453221;
+  const borrowRateValue = 1064532211;
 
-  beforeEach(() => {
+  
+  
+
+  beforeEach(async () => {
     handleTransaction = provideHandleTransaction();
     initialize = provideInitialize(mockProvider as any);
+  
     helper = new Helper(
       mockProvider as any,
       mockConfigurationContract,
       mockProtocolInfoContract,
     );
     txEvent = new TestTransactionEvent().setBlock(0);
+    mockProvider.setNetwork(1);
+    await initialize();
+    // jest.mock("forta-agent-tools", () => ({
+    //   NetworkManager: jest.fn().mockImplementation(() => ({
+    //     init: jest.fn(() => {
+    //       return mockProvider
+    //     }),
+    //     get: jest.fn((key: string) => {
+    //       if (key === "usdc") return createAddress("0x1423");
+    //       if (key === "configurationProxy") return "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
+    //     }),
+    //   })),
+    // }));
+   
   });
 
-  let setupMockProvider = async (
+  setupMockProvider = async (
     supplyKink: ethers.BigNumber,
     borrowKink: ethers.BigNumber,
     utilization: ethers.BigNumber,
   ) => {
-    mockProvider.setNetwork(1);
     mockProvider.addCallTo(
       mockConfiguratorProxy,
       0,
@@ -133,11 +136,11 @@ describe("Compound test suite for lending and borrowing", () => {
     });
     mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getSupplyRate", {
       inputs: [utilization],
-      outputs: [986453221],
+      outputs: [supplyRateValue],
     });
     mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getBorrowRate", {
       inputs: [utilization],
-      outputs: [1064532211],
+      outputs: [borrowRateValue],
     });
   };
 
@@ -148,13 +151,11 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("860000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces({
       function: provideInterface.getFunction("supply"),
-      to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+      to: usdcTokenAddress,
       from: createAddress("0x123"),
-      arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+      arguments: [usdcTokenAddress, 20],
     });
 
     const findings = await handleTransaction(txEvent);
@@ -184,13 +185,11 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("300000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces({
       function: provideInterface.getFunction("withdraw"),
-      to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+      to: usdcTokenAddress,
       from: createAddress("0x123"),
-      arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+      arguments: [usdcTokenAddress, 10],
     });
 
     const findings = await handleTransaction(txEvent);
@@ -211,25 +210,23 @@ describe("Compound test suite for lending and borrowing", () => {
     ]);
   });
 
-  it("returns a finding among multiple transactions that are not supply, if the utlization is above the upper limit of supply kink ", async () => {
+  it("returns a finding among multiple function calls that are not supply, if the utlization is above the upper limit of supply kink ", async () => {
     setupMockProvider(
       ethers.BigNumber.from("860000000000000000"),
       ethers.BigNumber.from("5000000000000000000"),
       ethers.BigNumber.from("860000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent
       .addTraces({
         function: provideInterface.getFunction("supply"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
         arguments: [usdcTokenAddress, 20],
       })
       .addTraces({
         function: provideInterface.getFunction("otherFunction"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
         arguments: [usdcTokenAddress, 10],
       });
@@ -261,20 +258,18 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("500000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent
       .addTraces({
         function: provideInterface.getFunction("withdraw"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       })
       .addTraces({
         function: provideInterface.getFunction("supply"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       });
 
     const findings = await handleTransaction(txEvent);
@@ -289,26 +284,24 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("300000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces(
       {
         function: provideInterface.getFunction("withdraw"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
       {
         function: provideInterface.getFunction("otherFunction"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
       {
         function: provideInterface.getFunction("otherFunction"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
     );
 
@@ -339,26 +332,24 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("300000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces(
       {
         function: provideInterface.getFunction("withdraw"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
       {
         function: provideInterface.getFunction("withdraw"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+        arguments: [usdcTokenAddress, 20],
       },
       {
         function: provideInterface.getFunction("otherFunction"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
     );
 
@@ -374,26 +365,24 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("500000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces(
       {
         function: provideInterface.getFunction("withdraw"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
       {
         function: provideInterface.getFunction("supply"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
       {
         function: provideInterface.getFunction("otherFunction"),
-        to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+        to: usdcTokenAddress,
         from: createAddress("0x123"),
-        arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 10],
+        arguments: [usdcTokenAddress, 10],
       },
     );
 
@@ -409,16 +398,12 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("870000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces({
       function: provideInterface.getFunction("supply"),
-      to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+      to: usdcTokenAddress,
       from: createAddress("0x123"),
-      arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+      arguments: [usdcTokenAddress, 20],
     });
-
-    mockAlerts("SUPPLY-2", "860000000000000000", "870000000000000000");
 
     const findings = await handleTransaction(txEvent);
 
@@ -445,16 +430,12 @@ describe("Compound test suite for lending and borrowing", () => {
       ethers.BigNumber.from("870000000000000000"),
     );
 
-    mockProvider.setNetwork(1);
-    await initialize();
     txEvent.addTraces({
       function: provideInterface.getFunction("withdraw"),
-      to: createAddress("0xc3d688B66703497DAA19211EEdff47f25384cdc3"),
+      to: usdcTokenAddress,
       from: createAddress("0x123"),
-      arguments: ["0xc3d688B66703497DAA19211EEdff47f25384cdc3", 20],
+      arguments: [usdcTokenAddress, 20],
     });
-
-    mockAlerts("BORROW-2", "5000000000000000000", "870000000000000000");
 
     const findings = await handleTransaction(txEvent);
 

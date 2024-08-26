@@ -5,6 +5,3 @@ export interface NetworkData {
 
 export type BotConfig = Record<number, NetworkData>;
 
-export interface AlertType {
-  function: string;
-}

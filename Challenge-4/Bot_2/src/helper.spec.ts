@@ -14,8 +14,8 @@ describe("Helper class test suite", () => {
   let mockProvider: MockEthersProvider;
   let Iface: ethers.utils.Interface = new ethers.utils.Interface(mockAbi);
   let helper: Helper;
-  const usdcTokenAddress = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
-  let mockConfigProxy = "0x316f9708bb98af7da9c68c1c3b5e79039cd336e3";
+  const usdcTokenAddress = createAddress("0x1423");
+  let mockConfigProxy = createAddress("0x1765");
 
   beforeEach(() => {
     mockProvider = new MockEthersProvider() as any;
@@ -82,7 +82,7 @@ describe("Helper class test suite", () => {
     });
     mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getBorrowRate", {
       inputs: [ethers.BigNumber.from(5000)],
-      outputs: [ethers.BigNumber.from(500000000)],
+      outputs: [ethers.BigNumber.from(400000000)],
     });
 
     const getConfig: any = await helper.getAllCompoundData(
@@ -115,8 +115,8 @@ describe("Helper class test suite", () => {
       [[usdcTokenAddress, 18, ethers.BigNumber.from(1)]],
     ];
 
-    const getConfigStringified = getConfig.configurationData.map(
-      (item: any) => {
+    const stringifiedConfigDataStringField = JSON.stringify(
+      getConfig.configurationData.map((item: any) => {
         if (Array.isArray(item)) {
           return item.map((subItem) =>
             ethers.BigNumber.isBigNumber(subItem)
@@ -125,25 +125,24 @@ describe("Helper class test suite", () => {
           );
         }
         return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
-      },
+      }),
     );
-    const stringifiedConfigDataStringField =
-      JSON.stringify(getConfigStringified);
-
-    const expectedConfigStringified = expectedConfig.map((item: any) => {
-      if (Array.isArray(item)) {
-        return item.map((subItem) =>
-          ethers.BigNumber.isBigNumber(subItem) ? subItem.toString() : subItem,
-        );
-      }
-      return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
-    });
 
     const stringifiedExpectedConfigStringField = JSON.stringify(
-      expectedConfigStringified,
+      expectedConfig.map((item: any) => {
+        if (Array.isArray(item)) {
+          return item.map((subItem) =>
+            ethers.BigNumber.isBigNumber(subItem)
+              ? subItem.toString()
+              : subItem,
+          );
+        }
+        return ethers.BigNumber.isBigNumber(item) ? item.toString() : item;
+      }),
     );
+
     const expectedSupplyAPR = (500000000 / 1e18) * 100 * 31536000;
-    const expectedBorrowAPR = (500000000 / 1e18) * 100 * 31536000;
+    const expectedBorrowAPR = (400000000 / 1e18) * 100 * 31536000;
     const expectedUtilization = ethers.BigNumber.from(5000).toString();
 
     expect(stringifiedConfigDataStringField).toBe(
