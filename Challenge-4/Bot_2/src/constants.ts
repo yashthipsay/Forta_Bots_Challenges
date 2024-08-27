@@ -2,8 +2,16 @@ import { ethers } from "forta-agent";
 import { BotConfig } from "./types";
 
 export const CONFIGURATION_ABI = [
-  `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, address baseToken, address
-   baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
+  `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, 
+   address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, 
+   uint64 supplyPerYearInterestRateBase, uint64 borrowKink, 
+   uint64 borrowPerYearInterestRateSlopeLow, 
+   uint64 borrowPerYearInterestRateSlopeHigh, 
+   uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, 
+   uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, 
+   uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, 
+   uint104 baseBorrowMin, uint104 targetReserves, 
+   tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
 ];
 
 export const COMET_FACTORY = "0xa7F7De6cCad4D83d81676717053883337aC2c1b4";
@@ -16,9 +24,9 @@ export const CONFIGURATOR_PROXY_POLYGON =
 
 export const CONFIGURATOR = "0xcFC1fA6b7ca982176529899D99af6473aD80DF4F";
 
-export const USDC_TOKEN_ETH = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
+export const cUSDC_TOKEN_ETH = "0xc3d688B66703497DAA19211EEdff47f25384cdc3";
 
-export const USDC_TOKEN_POLYGON = "0xF25212E676D1F7F89Cd72fFEe66158f541246445";
+export const cUSDC_TOKEN_POLYGON = "0xF25212E676D1F7F89Cd72fFEe66158f541246445";
 
 export const COMET_PROXY = "0x1EC63B5883C3481134FD50D5DAebc83Ecd2E8779";
 
@@ -36,11 +44,11 @@ export const SUPPLY = "function supply(address asset, uint amount)";
 
 export const CONFIG: BotConfig = {
   1: {
-    usdc: USDC_TOKEN_ETH,
+    usdc: cUSDC_TOKEN_ETH,
     configurationProxy: CONFIGURATOR_PROXY_ETH,
   },
   137: {
-    usdc: USDC_TOKEN_POLYGON,
+    usdc: cUSDC_TOKEN_POLYGON,
     configurationProxy: CONFIGURATOR_PROXY_POLYGON,
   },
 };

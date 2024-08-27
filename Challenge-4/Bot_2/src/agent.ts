@@ -34,7 +34,7 @@ let configuratorProxy: string;
 let usdcAddress: string;
 let helper: Helper;
 let configContract: ethers.Contract;
-let protocolInfo: ethers.Contract;
+let protocolInfoContract: ethers.Contract;
 
 const networkManager = new NetworkManager<NetworkData>(CONFIG);
 
@@ -53,13 +53,13 @@ export function provideInitialize(
       provider,
     );
 
-    protocolInfo = new ethers.Contract(
+    protocolInfoContract = new ethers.Contract(
       usdcAddress,
       [UTILIZATION, SUPPLY_RATE, BORROW_RATE],
       provider,
     );
 
-    helper = new Helper(configContract, protocolInfo);
+    helper = new Helper(configContract, protocolInfoContract);
   };
 }
 

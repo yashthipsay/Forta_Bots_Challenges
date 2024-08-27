@@ -9,6 +9,7 @@ import {
   FindingSeverity,
   FindingType,
   HandleTransaction,
+  Initialize,
 } from "forta-agent";
 
 import { provideInitialize, provideHandleTransaction } from "./agent";
@@ -21,7 +22,7 @@ describe("Compound test suite for lending and borrowing", () => {
   let mockProvider = new MockEthersProvider();
   let handleTransaction: HandleTransaction;
   let txEvent: TestTransactionEvent;
-  let initialize: any;
+  let initialize: Initialize;
   let helper: Helper;
 
   let mockEthUsdcTokenAddress = createAddress("0x1423"); 
@@ -29,7 +30,11 @@ describe("Compound test suite for lending and borrowing", () => {
   let mockPolygonmockEthUsdcTokenAddress = createAddress("0x2938");
   let mockPolygonConfiguratorProxy = createAddress("0x9182");
 
-  let setupMockProvider: any;
+  let setupMockProvider: (
+    supplyKink: ethers.BigNumber,
+    borrowKink: ethers.BigNumber,
+    utilization: ethers.BigNumber
+  ) => Promise<void>;
 
   let mockConfig = {
     1: {
@@ -285,7 +290,7 @@ describe("Compound test suite for lending and borrowing", () => {
 
     const findings = await handleTransaction(txEvent);
 
-    expect(findings).toHaveLength(0);
+    expect(findings).toStrictEqual([]);
   });
 
   // Test to check if there is a finding between multiple transactions that are within the desired range and transactions that are outside the desired range
@@ -368,7 +373,32 @@ describe("Compound test suite for lending and borrowing", () => {
 
     const findings = await handleTransaction(txEvent);
 
-    expect(findings.length).toBe(2);
+    expect(findings).toStrictEqual([
+      Finding.fromObject({
+        name: `Borrower's incentivized to borrow`,
+        description: `The Borrow APR is 3.36, which is favourable for borrowers, as the optimal utilization rate is 30`,
+        alertId: "BORROW-1",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "Compound",
+        metadata: {
+          BorrowRate: "3.36",
+          Utilization: "30",
+        },
+      }),
+      Finding.fromObject({
+        name: `Borrower's incentivized to borrow`,
+        description: `The Borrow APR is 3.36, which is favourable for borrowers, as the optimal utilization rate is 30`,
+        alertId: "BORROW-1",
+        severity: FindingSeverity.Info,
+        type: FindingType.Info,
+        protocol: "Compound",
+        metadata: {
+          BorrowRate: "3.36",
+          Utilization: "30",
+        },
+      }),
+    ]);
   });
 
   // Test to check if there are no findings for the same case above, for a transaction which is outside the desired range
@@ -403,7 +433,7 @@ describe("Compound test suite for lending and borrowing", () => {
 
     const findings = await handleTransaction(txEvent);
 
-    expect(findings).toHaveLength(0);
+    expect(findings).toStrictEqual([]);
   });
 
   it("should return finding if utilization is more than supply kink", async () => {
