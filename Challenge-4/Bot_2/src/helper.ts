@@ -27,16 +27,18 @@ export default class Helper {
       return this.compoundDataCache.get(key);
     }
 
-    const configurationData = await this.configurationContract.callStatic.getConfiguration(
-      tokenAddress,
-      {
-        blockTag: blockNumber,
-      },
-    );
+    const configurationData =
+      await this.configurationContract.callStatic.getConfiguration(
+        tokenAddress,
+        {
+          blockTag: blockNumber,
+        },
+      );
 
-    const utilizationData = await this.protocolInfoContract.callStatic.getUtilization({
-      blockTag: blockNumber,
-    });
+    const utilizationData =
+      await this.protocolInfoContract.callStatic.getUtilization({
+        blockTag: blockNumber,
+      });
 
     const supplyRate = await this.protocolInfoContract.callStatic.getSupplyRate(
       utilizationData,

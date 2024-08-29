@@ -4,16 +4,35 @@ import Helper from "./helper";
 import { createAddress } from "forta-agent-tools";
 
 const mockAbi = [
-  `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, 
-  address baseToken, address baseTokenPriceFeed, address extensionDelegate, 
-  uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, 
-  uint64 supplyPerYearInterestRateSlopeHigh, uint64 supplyPerYearInterestRateBase, 
-  uint64 borrowKink, uint64 borrowPerYearInterestRateSlopeLow, 
-  uint64 borrowPerYearInterestRateSlopeHigh, uint64 borrowPerYearInterestRateBase, 
-  uint64 storeFrontPriceFactor, uint64 trackingIndexScale, 
-  uint64 baseTrackingSupplySpeed, uint64 baseTrackingBorrowSpeed, 
-  uint104 baseMinForRewards, uint104 baseBorrowMin, uint104 targetReserves, 
-  tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
+  `function getConfiguration(address cometProxy) view returns (
+    tuple(
+      address governor, 
+      address pauseGuardian, 
+      address baseToken, 
+      address baseTokenPriceFeed, 
+      address extensionDelegate, 
+      uint64 supplyKink, 
+      uint64 supplyPerYearInterestRateSlopeLow, 
+      uint64 supplyPerYearInterestRateSlopeHigh, 
+      uint64 supplyPerYearInterestRateBase, 
+      uint64 borrowKink, 
+      uint64 borrowPerYearInterestRateSlopeLow, 
+      uint64 borrowPerYearInterestRateSlopeHigh, 
+      uint64 borrowPerYearInterestRateBase, 
+      uint64 storeFrontPriceFactor, 
+      uint64 trackingIndexScale, 
+      uint64 baseTrackingSupplySpeed, 
+      uint64 baseTrackingBorrowSpeed, 
+      uint104 baseMinForRewards, 
+      uint104 baseBorrowMin, 
+      uint104 targetReserves, 
+      tuple(
+        address asset, 
+        uint8 decimals, 
+        uint256 conversionFactor
+            )[] 
+        assetConfigs
+          ) configuration)`,
   "function getUtilization() public view returns (uint)",
   "function getSupplyRate(uint utilization) public view returns (uint64)",
   "function getBorrowRate(uint utilization) public view returns (uint64)",
@@ -65,40 +84,50 @@ describe("Helper class test suite", () => {
 
   it("should return correct configuration data", async () => {
     mockProvider.setNetwork(1);
-    mockProvider.addCallTo(mockConfigProxyAddress, 0, Iface, "getConfiguration", {
-      inputs: [usdcTokenAddress],
-      outputs: [
-        {
-          governor: mockGovernor,
-          pauseGuardian: mockPauseGuardian,
-          baseToken: mockBaseToken,
-          baseTokenPriceFeed: mockBaseTokenPriceFeed,
-          extensionDelegate: mockExtensionDelegate,
-          supplyKink: mockSupplyKink,
-          supplyPerYearInterestRateSlopeLow: mockSupplyPerYearInterestRateSlopeLow,
-          supplyPerYearInterestRateSlopeHigh: mockSupplyPerYearInterestRateSlopeHigh,
-          supplyPerYearInterestRateBase: mockSupplyPerYearInterestRateBase,
-          borrowKink: mockBorrowKink,
-          borrowPerYearInterestRateSlopeLow: mockBorrowPerYearInterestRateSlopeLow,
-          borrowPerYearInterestRateSlopeHigh: mockBorrowPerYearInterestRateSlopeHigh,
-          borrowPerYearInterestRateBase: mockBorrowPerYearInterestRateBase,
-          storeFrontPriceFactor: mockStoreFrontPriceFactor,
-          trackingIndexScale: mockTrackingIndexScale,
-          baseTrackingSupplySpeed: mockBaseTrackingSupplySpeed,
-          baseTrackingBorrowSpeed: mockBaseTrackingBorrowSpeed,
-          baseMinForRewards: mockBaseMinForRewards,
-          baseBorrowMin: mockBaseBorrowMin,
-          targetReserves: mockTargetReserves,
-          assetConfigs: [
-            {
-              asset: usdcTokenAddress,
-              decimals: 18,
-              conversionFactor: ethers.BigNumber.from(1),
-            },
-          ],
-        },
-      ],
-    });
+    mockProvider.addCallTo(
+      mockConfigProxyAddress,
+      0,
+      Iface,
+      "getConfiguration",
+      {
+        inputs: [usdcTokenAddress],
+        outputs: [
+          {
+            governor: mockGovernor,
+            pauseGuardian: mockPauseGuardian,
+            baseToken: mockBaseToken,
+            baseTokenPriceFeed: mockBaseTokenPriceFeed,
+            extensionDelegate: mockExtensionDelegate,
+            supplyKink: mockSupplyKink,
+            supplyPerYearInterestRateSlopeLow:
+            mockSupplyPerYearInterestRateSlopeLow,
+            supplyPerYearInterestRateSlopeHigh:
+            mockSupplyPerYearInterestRateSlopeHigh,
+            supplyPerYearInterestRateBase: mockSupplyPerYearInterestRateBase,
+            borrowKink: mockBorrowKink,
+            borrowPerYearInterestRateSlopeLow:
+            mockBorrowPerYearInterestRateSlopeLow,
+            borrowPerYearInterestRateSlopeHigh:
+            mockBorrowPerYearInterestRateSlopeHigh,
+            borrowPerYearInterestRateBase: mockBorrowPerYearInterestRateBase,
+            storeFrontPriceFactor: mockStoreFrontPriceFactor,
+            trackingIndexScale: mockTrackingIndexScale,
+            baseTrackingSupplySpeed: mockBaseTrackingSupplySpeed,
+            baseTrackingBorrowSpeed: mockBaseTrackingBorrowSpeed,
+            baseMinForRewards: mockBaseMinForRewards,
+            baseBorrowMin: mockBaseBorrowMin,
+            targetReserves: mockTargetReserves,
+            assetConfigs: [
+              {
+                asset: usdcTokenAddress,
+                decimals: 18,
+                conversionFactor: ethers.BigNumber.from(1),
+              },
+            ],
+          },
+        ],
+      },
+    );
     mockProvider.addCallTo(usdcTokenAddress, 0, Iface, "getUtilization", {
       inputs: [],
       outputs: [ethers.BigNumber.from(5000)],

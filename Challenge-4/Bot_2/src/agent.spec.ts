@@ -25,7 +25,7 @@ describe("Compound test suite for lending and borrowing", () => {
   let initialize: Initialize;
   let helper: Helper;
 
-  let mockEthUsdcTokenAddress = createAddress("0x1423"); 
+  let mockEthUsdcTokenAddress = createAddress("0x1423");
   let mockEthConfiguratorProxy = createAddress("0x1524");
   let mockPolygonmockEthUsdcTokenAddress = createAddress("0x2938");
   let mockPolygonConfiguratorProxy = createAddress("0x9182");
@@ -33,7 +33,7 @@ describe("Compound test suite for lending and borrowing", () => {
   let setupMockProvider: (
     supplyKink: ethers.BigNumber,
     borrowKink: ethers.BigNumber,
-    utilization: ethers.BigNumber
+    utilization: ethers.BigNumber,
   ) => Promise<void>;
 
   let mockConfig = {

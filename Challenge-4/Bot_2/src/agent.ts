@@ -78,16 +78,12 @@ export function provideHandleTransaction(): HandleTransaction {
     */
     if (compoundPoolTransaction.length > 0) {
       // get configuration values from the configurator contract for USDC token
-      const { 
-        configurationData, 
-        utilizationData, 
-        supplyAPR, 
-        borrowAPR 
-      } = await helper.getAllCompoundData(
-        usdcAddress,
-        configuratorProxy,
-        tx.blockNumber,
-      );
+      const { configurationData, utilizationData, supplyAPR, borrowAPR } =
+        await helper.getAllCompoundData(
+          usdcAddress,
+          configuratorProxy,
+          tx.blockNumber,
+        );
 
       // calculate lower limit for a withdraw transaction
       const lowerLimit = calculatePercentage(

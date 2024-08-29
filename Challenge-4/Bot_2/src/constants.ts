@@ -2,16 +2,34 @@ import { ethers } from "forta-agent";
 import { BotConfig } from "./types";
 
 export const CONFIGURATION_ABI = [
-  `function getConfiguration(address cometProxy) view returns (tuple(address governor, address pauseGuardian, 
-   address baseToken, address baseTokenPriceFeed, address extensionDelegate, uint64 supplyKink, uint64 supplyPerYearInterestRateSlopeLow, uint64 supplyPerYearInterestRateSlopeHigh, 
-   uint64 supplyPerYearInterestRateBase, uint64 borrowKink, 
-   uint64 borrowPerYearInterestRateSlopeLow, 
-   uint64 borrowPerYearInterestRateSlopeHigh, 
-   uint64 borrowPerYearInterestRateBase, uint64 storeFrontPriceFactor, 
-   uint64 trackingIndexScale, uint64 baseTrackingSupplySpeed, 
-   uint64 baseTrackingBorrowSpeed, uint104 baseMinForRewards, 
-   uint104 baseBorrowMin, uint104 targetReserves, 
-   tuple(address asset, uint8 decimals, uint256 conversionFactor)[] assetConfigs) configuration)`,
+  `function getConfiguration(address cometProxy) view returns (
+   tuple(
+    address governor, 
+    address pauseGuardian, 
+    address baseToken, 
+    address baseTokenPriceFeed, 
+    address extensionDelegate, 
+    uint64 supplyKink, 
+    uint64 supplyPerYearInterestRateSlopeLow, 
+    uint64 supplyPerYearInterestRateSlopeHigh, 
+    uint64 supplyPerYearInterestRateBase, 
+    uint64 borrowKink, 
+    uint64 borrowPerYearInterestRateSlopeLow, 
+    uint64 borrowPerYearInterestRateSlopeHigh, 
+    uint64 borrowPerYearInterestRateBase, 
+    uint64 storeFrontPriceFactor, 
+    uint64 trackingIndexScale, 
+    uint64 baseTrackingSupplySpeed, 
+    uint64 baseTrackingBorrowSpeed, 
+    uint104 baseMinForRewards, 
+    uint104 baseBorrowMin, 
+    uint104 targetReserves, 
+    tuple(
+      address asset, 
+      uint8 decimals, 
+      uint256 conversionFactor
+         )[] assetConfigs
+      ) configuration)`,
 ];
 
 export const COMET_FACTORY = "0xa7F7De6cCad4D83d81676717053883337aC2c1b4";
